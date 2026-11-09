@@ -21,13 +21,13 @@ Hemoji Rao G
 - Positions named p10, p20 and so on. Record the current pose, or use "Current position" in the line builder.
 - **I/O tab:** simulated inputs diPart ("Part present") and diBin ("Bin full"), plus output doGrip for the gripper or vacuum.
 - **Wait on input:** `WaitDI diPart, 1;` holds the program until the input matches. Toggling the input during a run releases it.
-- **Controller block:** MANUAL and AUTO mode; Motors ON / OFF; an enabling device that must be held to move by hand or step; an EMERGENCY STOP that latches and stops any program until it is released and motors are turned on again; START in AUTO; and an alarm history.
+- **Controller block:** MANUAL and AUTO mode; SERVO ON / OFF; an ENABLE button that must be on to move by hand or step; an EMERGENCY STOP that latches and stops any program until it is released and motors are turned on again; START in AUTO; and an alarm history.
 - **Speed limits:** in MANUAL mode the TCP is limited to 250 mm/s in this model. Each axis moves at its datasheet maximum speed scaled by the program or jog speed.
 - **Payload interlock:** the Status tab has a payload setting. If it is above the rated 0.5 kg, Run is blocked with an alarm.
 - **Reachability alarm:** a `MoveL` that cannot be reached on a straight line, with the taught tool direction, stops the program with an alarm.
 - Gripper types: servo gripper (two fingers) and vacuum cup.
 - Program tab with ten sample programs, from simple to advanced, plus custom programs, step, pause, and stop.
-- Colour coding: each arm segment and joint cover takes its axis colour. The **Colours** button in the view switches to the ABB white housings of the reference photo.
+- Colour coding: each arm segment and joint cover takes its axis colour.
 - Joint labels show only the moving axis; each axis has its own colour.
 
 ## Program language (teaching subset)
@@ -54,7 +54,7 @@ Joint working ranges and maximum axis speeds are from the ABB IRB 14050 datashee
 - Link lengths, shapes and sample poses are approximations, not ABB CAD data.
 - The controller is simulated only as far as the commands above. RAPID modules, routines, data types, zones, tools and work objects are not interpreted.
 - No collision checking, and no check of the table, bins or pallet. Positions can overlap.
-- The controller panel is simplified: the enabling device is a tick box rather than a three-position switch, and the alarm texts are teaching approximations, not a real OmniCore alarm list.
+- The controller panel is simplified: the ENABLE control is a button rather than a three-position switch, and the alarm texts are teaching approximations, not a real OmniCore alarm list.
 - Motion timing follows the screen's frame rate, so the same program runs a little faster on a high-refresh display.
 - Saved custom programs are kept in the browser. Use "Download .json" to keep a copy.
 

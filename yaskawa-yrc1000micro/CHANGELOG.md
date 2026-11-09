@@ -2,6 +2,13 @@
 
 All notable changes to this simulator are recorded here. Versions follow semantic numbering.
 
+## 1.3.0
+
+- Same screen layout as the Fanuc and ABB simulators: the controller block (MODE, SERVO, ENABLE, E-STOP, RESET, START) sits above the tabs, and the tabs are JOG, POSITIONS, I/O, STATUS and PROGRAM.
+- ENABLE is a button (was a tick box). External START is now START, and the alarm history clears with Clear alarm log.
+- Home button in the view returns to the home page.
+- Three.js is loaded from the local vendor folder, so the page works offline.
+
 ## 1.2.0
 
 - Controller tab (CTRL): mode key TEACH / PLAY / REMOTE, Servo ON / OFF, enable switch, EMERGENCY STOP with release and reset, External START for REMOTE, and an alarm history. The LCD shows the mode, servo state and E-stop.

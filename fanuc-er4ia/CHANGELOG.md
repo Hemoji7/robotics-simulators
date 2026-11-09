@@ -2,6 +2,15 @@
 
 All notable changes to this simulator are recorded here. Versions follow semantic numbering.
 
+## 1.3.0
+
+- Same screen layout as the Yaskawa and ABB simulators: the controller block (MODE, SERVO, ENABLE, E-STOP, RESET, START) sits above the tabs, and the tabs are JOG, POSITIONS, I/O, STATUS and PROGRAM.
+- Positions and I/O have their own tabs (they were folded into JOG and STATUS).
+- START button (AUTO mode), in addition to Run.
+- Payload interlock (4 kg rated) and a cycle timer with a cycle count, as on the other two simulators.
+- Home button in the view returns to the home page.
+- Three.js is loaded from the local vendor folder, so the page works offline.
+
 ## 1.2.0
 
 - Mode key: AUTO (program run, jog off), T1 (manual, 25% max), and T2 (manual, full speed).
