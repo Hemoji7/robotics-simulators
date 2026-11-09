@@ -8,7 +8,7 @@
 <meta name="description" content="A hobby project to help students learn industrial robot operation with an ABB IRB 14050 single-arm YuMi and OmniCore C30 style controller: jogging, positions, digital I/O, and RAPID-style programs in the browser.">
 <style>
 *{box-sizing:border-box}
-:root{--ink:#1d1d1b;--mut:#66665f;--line:#dcdcd4;--abb:#ff000f;--abbd:#c4000c;color-scheme:light}
+:root{--ink:#1d1d1b;--mut:#66665f;--line:#dcdcd4;--acc:#ffd200;--acc-d:#c9a800;--red:#c8102e;color-scheme:light}
 html,body{height:100%;margin:0}
 body{font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);background:#f3f3ef}
 .app{position:relative;display:flex;flex-direction:column;height:100vh;min-height:640px;overflow:hidden}
@@ -20,23 +20,23 @@ body{font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);
 .plabel{position:absolute;left:0;top:0;display:none;align-items:center;gap:5px;padding:2px 7px 2px 6px;border-radius:5px;background:rgba(255,255,255,.93);border:1px solid #bbb;font:12px/1.3 system-ui,sans-serif;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.15);will-change:transform}
 .plabel i{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
 .plabel .v{color:#555;font-variant-numeric:tabular-nums}
-.plabel.on{background:#fff4f4;border-color:var(--abb);box-shadow:0 0 0 3px rgba(255,0,15,.25);font-weight:700}
+.plabel.on{background:#fff4e6;border-color:#ff6a00;box-shadow:0 0 0 3px rgba(255,106,0,.35);font-weight:700}
 .hint{position:absolute;right:12px;bottom:10px;color:var(--mut);font-size:12px;background:rgba(255,255,255,.8);padding:4px 8px;border-radius:6px}
-.badge{position:absolute;left:12px;top:10px;font-weight:700;letter-spacing:.04em;background:#1d1d1b;color:#fff;padding:4px 10px 4px 12px;border-radius:6px;border-left:4px solid var(--abb)}
+.badge{position:absolute;left:12px;top:10px;font-weight:700;letter-spacing:.04em;background:#1d1d1b;color:#fff;padding:4px 10px 4px 12px;border-radius:6px;border-left:5px solid var(--brand,var(--acc))}
 .badge small{font-weight:500;color:#c9c9c2;margin-left:6px}
 .vtools{position:absolute;right:10px;top:10px;z-index:2;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:70%}
-.vtools button{background:#fff}
+.vtools button,.btnlink{background:#fff;font:inherit;border:1px solid #bdbdb4;background-color:#fff;color:var(--ink);border-radius:6px;padding:5px 10px;text-decoration:none;cursor:pointer}
 .vtools button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btnlink{font-weight:600;background:var(--acc);border-color:var(--acc-d)}
+.btnlink:hover{filter:brightness(.97)}
 .tray{display:flex;gap:6px}
-.tray button{background:#fff;border-color:#bdbdb4}
+.tray button{background:#fff8d6;border-color:var(--acc-d)}
 .credit{position:absolute;left:10px;bottom:6px;font-size:10px;color:var(--mut);background:rgba(255,255,255,.8);padding:2px 6px;border-radius:4px;pointer-events:none}
-
 /* docks */
 .dock{display:flex;background:#fff;min-height:0;min-width:0}
 .dock-side{flex-direction:column;width:380px;flex:none;border-left:1px solid var(--line)}
 #dockL{border-left:0;border-right:1px solid var(--line)}
 .dock-bottom{flex-direction:row;align-items:flex-start;border-top:1px solid var(--line);flex:none;padding:0}
-
 /* panels */
 .panel{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;background:#fff}
 .panel[hidden]{display:none!important}
@@ -49,8 +49,8 @@ body{font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);
 .ibtn:hover{background:#e6e6df;border-color:#cfcfc6}
 .ibtn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
 .panel.collapsed .chev{transform:rotate(180deg)}
-.pbody{flex:1 1 auto;min-height:0;overflow:auto}
-.panel.collapsed .pbody{display:none}
+.pbody{flex:1 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column}
+.panel.collapsed .pbody,.panel.collapsed .ctrlbox,.panel.collapsed .softkeys{display:none}
 .dock-side>.panel{flex:1 1 0}
 .dock-side>.panel.collapsed{flex:0 0 auto}
 .dock-bottom>.panel{flex:1 1 0;min-width:0;height:300px}
@@ -58,74 +58,77 @@ body{font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);
 .panel.floating{position:absolute;z-index:30;border:1px solid #bbb;border-radius:8px;box-shadow:0 10px 28px rgba(0,0,0,.22);overflow:hidden}
 .panel.floating.collapsed{height:auto!important}
 .panel.dragging{opacity:.92}
-#dropHint{position:absolute;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(255,0,15,.12);border:2px dashed var(--abb);border-radius:8px;font-weight:700;pointer-events:none;color:#8a0009}
-
-/* controls panel content */
-.csec{border-bottom:1px solid var(--line);padding:10px 14px 14px}
-.csec:last-child{border-bottom:0}
-h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:0 0 8px}
+#dropHint{position:absolute;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(255,210,0,.25);border:2px dashed var(--acc-d);border-radius:8px;font-weight:700;pointer-events:none;color:#6b5600}
+/* controller block: always visible at the top of the Controls panel */
+.ctrlbox{background:#2b2d31;color:#f1f1ec;padding:8px 10px;flex:none;display:flex;flex-direction:column;gap:6px}
+.lcd{font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;background:#0f1a12;color:#8cff9b;border:1px solid #000;border-radius:6px;padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:inset 0 0 8px rgba(0,0,0,.6)}
+.crow{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.clbl{font:600 10.5px/1 system-ui,sans-serif;letter-spacing:.08em;color:#cfd0d4;margin-right:2px}
+.mbtn,.sbtn,.estop{font:600 11px/1 system-ui,sans-serif;padding:5px 9px;border-radius:4px;border:1px solid #1a1b1e;background:#3d4046;color:#e8e8e2;cursor:pointer;user-select:none;touch-action:auto}
+.mbtn{min-width:52px}
+.mbtn.on{background:var(--acc);color:#1d1d1b;border-color:var(--acc-d)}
+.sbtn.on{background:#2e7d32;color:#fff;border-color:#1b5e20}
+.sbtn:hover,.mbtn:hover{background:#4b4f57}
+.mbtn:disabled,.sbtn:disabled{opacity:.45;cursor:default}
+.estop{background:#c62828;color:#fff;border:2px solid #7f0000;font-weight:700}
+.estop.latched{background:#7f0000;box-shadow:inset 0 0 0 2px #ff5252}
+.ctrlmsg{font-size:11px;color:#f1f1ec;margin-left:4px}
+.softkeys{display:flex;gap:4px;background:#2b2d31;padding:0 10px;flex:none}
+.ctabbtn{flex:1;background:#3d4046;color:#e8e8e2;border:1px solid #1a1b1e;border-radius:6px 6px 0 0;padding:7px 4px;font:600 11px/1 system-ui,sans-serif;letter-spacing:.06em;cursor:pointer;user-select:none;touch-action:auto}
+.ctabbtn:hover{background:#4b4f57}
+.ctabbtn.on{background:var(--acc);color:#1d1d1b;border-color:var(--acc-d)}
+.ctab[hidden]{display:none}
+.ctab{flex:1 1 auto;min-height:0}
+.ctab[data-ctab="program"]:not([hidden]){display:flex;flex-direction:column;height:100%}
+.ctab[data-ctab="program"] .progwrap{flex:1;min-height:0;height:auto}
+/* shared form controls */
+*{-webkit-tap-highlight-color:transparent}
+h2{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:0 0 6px}
 h3{font-size:12px;margin:10px 0 6px}
-.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:6px 0}
-button{font:inherit;border:1px solid #bdbdb4;background:#f7f7f3;color:var(--ink);border-radius:6px;padding:5px 10px;cursor:pointer;user-select:none;touch-action:none}
+.csec{border-bottom:1px solid var(--line);padding:8px 12px 10px}
+.csec:last-child{border-bottom:0}
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:5px 0}
+button{font:inherit;border:1px solid #bdbdb4;background:#f7f7f3;color:var(--ink);border-radius:6px;padding:4px 9px;cursor:pointer;user-select:none;touch-action:none}
 button:hover{background:#ededE6}
-button:active{background:#e4e4dc}
+button:active{background:var(--acc)}
 button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-button.pri{background:var(--abb);color:#fff;border-color:var(--abbd);font-weight:600}
-button.pri:hover{background:#e6000e}
+button.pri{background:var(--acc);border-color:var(--acc-d);font-weight:600}
 button:disabled{opacity:.45;cursor:default}
 select,input,textarea{color:#1d1d1b;background-color:#fff;color-scheme:light}
 option{color:#1d1d1b;background:#fff}
 input::placeholder{color:#8a8a80;opacity:1}
+input[type=number]{width:70px;font:inherit;padding:3px 4px;border:1px solid #bdbdb4;border-radius:6px}
+label{font-size:12px}
 .seg{display:inline-flex}
 .seg button{border-radius:0}
 .seg button:first-child{border-radius:6px 0 0 6px}
 .seg button:last-child{border-radius:0 6px 6px 0}
-.legend{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;font-size:12px}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;font-size:12px;padding:8px 12px 0}
 .legend span{display:flex;align-items:center;gap:6px}
 .sw{width:12px;height:12px;border-radius:3px;display:inline-block;flex:none}
-.jrow{display:grid;grid-template-columns:minmax(0,1fr) auto 62px 32px 32px;gap:5px;align-items:center;margin:3px 0;white-space:nowrap}
-.jrow .jn{font-weight:400;color:#333;margin-left:2px;overflow:hidden;text-overflow:ellipsis}
+.jogmsg{font:600 12px/1.3 system-ui,sans-serif;padding:5px 8px;border-radius:6px;margin-bottom:6px}
+.jogmsg.ok{background:#e8f5e9;color:#1b5e20}
+.jogmsg.warn{background:#fff3e0;color:#8a4b00;border:1px solid #f0b36b}
+.curpos{font:11px/1.45 ui-monospace,Menlo,Consolas,monospace;background:#fafaf6;border:1px solid var(--line);border-radius:6px;padding:5px 7px;margin-bottom:6px;white-space:pre}
+.jrow{display:grid;grid-template-columns:minmax(0,1fr) auto 62px 30px 30px;gap:5px;align-items:center;margin:2px 0;white-space:nowrap}
 .jrow .lbl{font-weight:600;display:flex;align-items:center;gap:6px}
 .jrow .val{font-variant-numeric:tabular-nums;text-align:right;color:#333}
 .jrow .rng{font-size:11px;color:var(--mut);white-space:nowrap}
-.jrow button{padding:4px 0;text-align:center;border-width:2px}
-.ovr{display:flex;align-items:center;gap:8px;margin-top:8px}
+.jrow button{padding:3px 0;text-align:center;border-width:2px}
+.ovr{display:flex;align-items:center;gap:8px;margin-top:6px}
 .ovr input{flex:1}
-.err{color:#b00010;font-size:12px;white-space:pre-wrap;min-height:0}
-.note{font-size:11px;color:var(--mut);margin:6px 0 0}
+.err{color:var(--red);font-size:12px;white-space:pre-wrap;min-height:0}
+.note{font-size:11px;color:var(--mut);margin:6px 0 0;line-height:1.4}
+.note-d summary{font-size:11px;color:var(--mut);cursor:pointer;margin-top:6px}
 .pos{display:grid;grid-template-columns:auto 1fr auto auto;gap:6px;align-items:center;font-size:12px;margin:3px 0}
 .pos code{font-variant-numeric:tabular-nums;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.status{font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;background:#fafaf6;border:1px solid var(--line);border-radius:6px;padding:8px;white-space:pre}
-input[type=number]{width:70px;font:inherit;padding:4px;border:1px solid #bdbdb4;border-radius:6px}
-
-/* controls pane: controller-style screen and soft keys */
-.ctabbar{background:#2b2d31;color:#f1f1ec;padding:8px 10px 0;flex:none}
-.estop{background:#c62828;color:#fff;font-weight:700;border:2px solid #7f0000;border-radius:8px;padding:8px 12px}
-.estop.latched{background:#7f0000;box-shadow:inset 0 0 0 2px #ff5252}
-.lamp{font:600 11px/1 system-ui,sans-serif;padding:5px 8px;border-radius:4px;background:#555;color:#fff;letter-spacing:.04em}
-.lamp.on{background:#2e7d32}
-.lamp.bad{background:#c62828}
-.jogmsg{font:600 12px/1.3 system-ui,sans-serif;padding:6px 8px;border-radius:6px;margin-bottom:8px}
-.jogmsg.ok{background:#e8f5e9;color:#1b5e20}
-.jogmsg.warn{background:#fff3e0;color:#8a4b00;border:1px solid #f0b36b}
-.ctrlbar{position:sticky;top:0;z-index:3;background:#f7f7f3;box-shadow:0 2px 6px rgba(0,0,0,.12)}
-.curpos{font:11px/1.45 ui-monospace,Menlo,Consolas,monospace;background:#fafaf6;border:1px solid var(--line);border-radius:6px;padding:5px 7px;margin-bottom:6px;white-space:pre}
-.lcd{font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;background:#0f1a12;color:#8cff9b;border:1px solid #000;border-radius:6px;padding:6px 8px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:inset 0 0 8px rgba(0,0,0,.6)}
-.softkeys{display:flex;gap:4px}
-.ctabbtn{flex:1;background:#3d4046;color:#e8e8e2;border:1px solid #1a1b1e;border-radius:6px 6px 0 0;padding:7px 4px;font:600 11px/1 system-ui,sans-serif;letter-spacing:.06em}
-.ctabbtn:hover{background:#4b4f57}
-.ctabbtn.on{background:var(--abb);color:#fff;border-color:var(--abbd)}
-.ctab[hidden]{display:none}
-.ctab[data-ctab="program"]:not([hidden]){display:flex;flex-direction:column;height:100%}
-.ctab[data-ctab="program"] .progwrap{flex:1;min-height:0;height:auto}
-
-/* program panel */
+.status{font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;background:#fafaf6;border:1px solid var(--line);border-radius:6px;padding:8px;white-space:pre;min-height:40px}
+.alog{font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;max-height:160px;overflow:auto;background:#fafaf6;border:1px solid var(--line);border-radius:6px;padding:6px;white-space:pre;min-height:40px}
+/* program tab */
 .progwrap{display:grid;grid-template-columns:var(--sideW,440px) 10px minmax(0,1fr);gap:0;padding:10px 12px;height:100%;min-height:0}
 .split{cursor:col-resize;position:relative;margin:0 2px}
 .split::before{content:'';position:absolute;left:4px;top:0;bottom:0;width:2px;border-radius:2px;background:#cfcfc6}
 .split:hover::before{background:#9a9a90}
-.panel.vert .progwrap{grid-template-columns:1fr;grid-template-rows:auto minmax(300px,1fr);height:auto}
-.panel.vert .split{display:none}
 .col{min-height:0;display:flex;flex-direction:column;min-width:0}
 .col.side{overflow:auto;padding-right:4px}
 .tabbar{display:flex;margin-bottom:8px}
@@ -140,7 +143,7 @@ input[type=number]{width:70px;font:inherit;padding:4px;border:1px solid #bdbdb4;
 .builder{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px;font-size:12px}
 .builder input,.builder select{font:inherit;padding:3px 5px;border:1px solid #bdbdb4;border-radius:6px;background:#fff}
 .builder input[type=number]{width:70px}
-#bNote{width:100%}
+.moreopts summary{font-size:12px;color:var(--mut);cursor:pointer;margin:4px 0}
 .phead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
 .pname{font-weight:700;font-size:14px;margin-bottom:2px}
 .pdesc{font-size:12px;color:var(--mut);margin-bottom:6px;max-width:620px}
@@ -148,36 +151,28 @@ input[type=number]{width:70px;font:inherit;padding:4px;border:1px solid #bdbdb4;
 .transport button{min-width:84px}
 .pstate{font-size:12px;font-weight:600;color:#333;margin-top:2px}
 .bar{height:6px;background:#e6e6df;border-radius:3px;overflow:hidden;margin:4px 0 6px;flex:none}
-.bar i{display:block;height:100%;width:0;background:var(--abb)}
+.bar i{display:block;height:100%;width:0;background:var(--red)}
 .listing{flex:1;min-height:0;overflow:auto;font:12px/1.6 ui-monospace,Menlo,Consolas,monospace;background:#fbfbf8;border:1px solid var(--line);border-radius:6px;padding:4px 0}
 .ln{display:flex;gap:8px;padding:0 8px;white-space:pre}
 .ln .no{color:#999;width:24px;text-align:right;flex:none}
 .ln.done{color:#8c8c82}
-.ln.cur{background:#ffd9dc;font-weight:700}
+.ln.cur{background:#ffe866;font-weight:700}
 .ln .cmt{color:#5f6b7a;font-style:italic;font-weight:400}
 textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;border:1px solid #bdbdb4;border-radius:6px;padding:8px;resize:none;background:#fbfbf8}
 /* compact controls panel */
 #pControls .csec{padding:6px 10px 8px}
-#pControls h2{font-size:10px;margin:0 0 4px}
-#pControls .row{margin:4px 0;gap:4px}
+#pControls .row{margin:3px 0;gap:4px}
 #pControls button{padding:3px 7px;font-size:12px}
-#pControls label{font-size:12px}
-#pControls .jrow{margin:1px 0;gap:4px;grid-template-columns:minmax(0,1fr) auto 74px 28px 28px}
-#pControls .jrow button{padding:2px 0}
-#pControls .ovr{margin-top:4px}
+#pControls .jrow{margin:1px 0;gap:4px;grid-template-columns:minmax(0,1fr) auto 56px 28px 28px}
 #pControls .note{font-size:10.5px;margin:3px 0 0;line-height:1.35}
 #pControls .pos{margin:1px 0;font-size:11px}
-#pControls .lcd{margin-bottom:6px;padding:4px 6px;font-size:11px}
-#pControls .ctabbtn{padding:5px 2px;font-size:10px}
-#pControls .jogmsg{padding:4px 6px;font-size:11px;margin-bottom:6px}
-#pControls .status{font-size:11px;padding:6px}
-#pControls .lamp{padding:4px 6px}
-#pControls .seg button{padding:3px 8px}
-#pControls .note-d summary{font-size:11px;color:var(--mut);cursor:pointer;margin-top:6px}
-#pControls .ctrlmsg{font-size:11px;color:#333}
+#pControls .status,#pControls .alog{font-size:11px;padding:5px}
+#pControls .progwrap{padding:8px 10px}
+.panel.vert .progwrap{grid-template-columns:1fr;grid-template-rows:auto minmax(300px,1fr);height:auto}
+.panel.vert .split{display:none}
 </style>
 <script src="vendor/three.min.js"></script>
-<script>if(!window.THREE){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');}</script>
+<script>if(!window.THREE){document.write('<script src="vendor/three.min.js"><\/script>');}</script>
 </head>
 <body>
 <div class="app" id="app">
@@ -188,12 +183,12 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
       <div id="labels"></div>
       <div class="badge">ABB IRB 14050 YuMi <small>simulation · RAPID-style teaching subset</small></div>
       <div class="vtools">
+        <a class="btnlink" href="../" title="Back to the home page">⌂ Home</a>
         <button id="btnLabels">Labels: auto</button>
         <button id="btnAxes">Axes: off</button>
-        <button id="btnColour" class="on">Colours: joints</button>
         <span id="tray" class="tray"></span>
       </div>
-      <div class="credit">Developed by Hemoji Rao G for learning use · v1.1.0</div>
+      <div class="credit">Developed by Hemoji Rao G for learning use · v1.2.0</div>
       <div class="hint">Drag to orbit · Wheel to zoom · Double-click to reset view</div>
     </div>
     <div class="dock dock-side" id="dockR"></div>
@@ -209,30 +204,31 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
       <button class="ibtn" data-act="collapse" title="Collapse"><svg class="chev" viewBox="0 0 16 16"><path d="M4 10l4-4 4 4"/></svg></button>
       <button class="ibtn" data-act="min" title="Minimize"><svg viewBox="0 0 16 16"><path d="M3 12h10"/></svg></button>
     </div>
-    <div class="ctabbar">
-      <div class="lcd" id="lcd">MANUAL  MOTORS OFF</div>
-      <div class="softkeys">
-        <button class="ctabbtn on" data-ctab="controls">JOG</button>
-        <button class="ctabbtn" data-ctab="positions">POSITIONS</button>
-        <button class="ctabbtn" data-ctab="io">I/O</button>
-        <button class="ctabbtn" data-ctab="status">STATUS</button>
-        <button class="ctabbtn" data-ctab="program">PROGRAM</button>
+    <div class="ctrlbox">
+      <div class="lcd" id="lcd">IDLE</div>
+      <div class="crow">
+        <span class="clbl">MODE</span>
+        <div class="seg" id="modeSeg"><button class="mbtn on" data-mode="MANUAL" title="Jog and step by hand, reduced speed">MANUAL</button>
+        <button class="mbtn" data-mode="AUTO" title="Programs run from START">AUTO</button></div>
+        <button id="servoBtn" class="sbtn" title="Motor power on or off">SERVO OFF</button>
+        <button id="enableBtn" class="sbtn" title="Enable (deadman) switch. Hold it on for manual motion.">ENABLE OFF</button>
+      </div>
+      <div class="crow">
+        <button id="estopBtn" class="estop" title="Emergency stop: stops motion and servo">E-STOP</button>
+        <button id="estopRel" class="sbtn" title="Reset the emergency stop">RESET</button>
+        <button id="startBtn" class="sbtn" title="AUTO mode: start the program">START</button>
+        <span id="ctrlMsg" class="ctrlmsg"></span>
       </div>
     </div>
+    <div class="softkeys">
+      <button class="ctabbtn on" data-ctab="jog">JOG</button>
+      <button class="ctabbtn" data-ctab="positions">POSITIONS</button>
+      <button class="ctabbtn" data-ctab="io">I/O</button>
+      <button class="ctabbtn" data-ctab="status">STATUS</button>
+      <button class="ctabbtn" data-ctab="program">PROGRAM</button>
+    </div>
     <div class="pbody">
-      <div class="ctab ctrlbar" id="ctrlBar" data-ctab="controls">
-        <div class="csec">
-          <h2>Controller</h2>
-          <div class="pos"><b>Mode</b><span id="modeTxt">MANUAL</span><span></span><span></span></div>
-          <div class="row"><div class="seg" id="modeSeg"><button data-mode="MANUAL" class="on" title="Jog and step by hand, reduced speed">MANUAL</button><button data-mode="AUTO" title="Programs run from START">AUTO</button></div></div>
-          <div class="row"><button id="servoBtn" class="pri" title="Motors on or off">Motors ON</button><span id="servoLamp" class="lamp">MOTORS OFF</span></div>
-          <div class="row"><label><input type="checkbox" id="enableSw"> Enabling device held (simplified 3-position switch)</label></div>
-          <div class="row"><button id="estopBtn" class="estop">EMERGENCY STOP</button><button id="estopRel">Release E-stop</button></div>
-          <div class="row"><button id="startBtn" title="AUTO mode: start the program">START (AUTO)</button><span id="ctrlMsg" class="ctrlmsg"></span></div>
-        </div>
-      </div>
-
-      <div class="ctab" data-ctab="controls">
+      <div class="ctab" data-ctab="jog">
         <div id="legend" class="legend" style="display:none"></div>
         <div class="csec">
           <h2>Jog</h2>
@@ -240,7 +236,9 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
           <div id="curPos" class="curpos" title="The arm starts here when the page loads"></div>
           <div class="row"><div class="seg"><button id="mJ" class="on">Joint</button><button id="mC">Cartesian</button></div></div>
           <div id="jointRows"></div>
-          <div id="cartRows" hidden></div>
+          <div id="cartRows" hidden>
+            
+          </div>
           <div class="ovr"><span>Override</span><input id="ov" type="range" min="1" max="100" value="25"><span id="ovOut" style="width:40px;text-align:right">25%</span></div>
           <div class="row">
             <button id="home">Home</button>
@@ -248,52 +246,54 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
             <button id="grip">Gripper: open</button>
           </div>
           <div class="row"><label>Gripper type <select id="gripType"><option value="parallel">Servo gripper (2 fingers)</option><option value="vacuum">Vacuum cup</option></select></label></div>
-          <p class="note">Cartesian jog keeps the tool pointing in the direction it had when you started the jog. Manual mode limits TCP speed to 250 mm/s in this model. Jog needs MANUAL mode, motors on and the enabling device held.</p>
+          <p class="note">Cartesian jog keeps the tool pointing in the direction it had when you started the jog. Manual mode limits TCP speed to 250 mm/s in this model. Jog needs MANUAL mode, servo on and the enable switch held.</p>
         </div>
       </div>
 
-      <div class="ctab" data-ctab="positions">
+      <div class="ctab" data-ctab="positions" hidden>
         <div class="csec">
           <h2>Positions</h2>
           <div class="row">
-            <label>Position p<input id="pn" type="number" min="1" value="70"></label>
+            <label>P[<input id="pn" type="number" min="1" value="70">]</label>
             <button id="rec">Record current</button>
           </div>
           <div id="plist"></div>
         </div>
       </div>
 
-      <div class="ctab" data-ctab="io">
+      <div class="ctab" data-ctab="io" hidden>
         <div class="csec">
-          <h2>Digital I/O (simulated)</h2>
-          <div class="pos"><b>diPart</b><span>Part present</span><span id="di1v">OFF</span><button id="di1">Toggle</button></div>
-          <div class="pos"><b>diBin</b><span>Bin full</span><span id="di2v">OFF</span><button id="di2">Toggle</button></div>
-          <div class="pos"><b>doGrip</b><span>Gripper close / vacuum on</span><span id="do1v">OFF</span><span></span></div>
+          <h2>Inputs (simulated, click Toggle)</h2>
+          <div class="pos"><b>diPart</b><span>Part present</span><span id="in1v">OFF</span><button id="in1">Toggle</button></div>
+          <div class="pos"><b>diBin</b><span>Bin full</span><span id="in2v">OFF</span><button id="in2">Toggle</button></div>
+          <h2 style="margin-top:10px">Outputs (set by the program)</h2>
+          <div class="pos"><b>doGrip</b><span>Gripper close / vacuum on</span><span id="out1v">OFF</span><span></span></div>
           <p class="note">Inputs are set by hand, as if a sensor changed. A line such as <code>WaitDI diPart, 1;</code> holds the program until its input matches. <code>SetDO doGrip, 1;</code> closes the gripper, or switches the vacuum on.</p>
-          <p class="note">Toggling an input during a run is allowed, so you can release a waiting program.</p>
         </div>
       </div>
 
-      <div class="ctab" data-ctab="status">
-        <div class="csec">
-          <h2>Alarm history</h2>
-          <div id="alarmLog" class="status" style="min-height:60px"></div>
-          <div class="row"><button id="alarmReset">Clear alarm history</button></div>
-          <p class="note">Alarm texts are simulated for teaching. They are not a real OmniCore alarm list.</p>
-        </div>
+      <div class="ctab" data-ctab="status" hidden>
         <div class="csec">
           <h2>Status</h2>
           <div id="status" class="status"></div>
-          <div class="row"><button id="clearTrail">Clear TCP trail</button><button id="resetCnt">Reset cycle count</button></div>
           <div class="row"><label>Payload <input id="payload" type="number" min="0" step="0.05" value="0.1"> kg</label><span id="payWarn" class="err"></span></div>
+          <div class="row"><button id="clearTrail">Clear TCP trail</button><button id="resetCnt">Reset cycle count</button></div>
+        </div>
+        <div class="csec">
+          <h2>Alarm and event log</h2>
+          <div id="alarmLog" class="alog"></div>
+          <div class="row"><button id="alarmClear">Clear alarm log</button></div>
+        </div>
+        <div class="csec">
           <details class="note-d"><summary>Command reference and notes</summary>
           <p class="note">Commands: <code>MoveJ pN, vP;</code> joint move, P = percent of max axis speed · <code>MoveL pN, vV;</code> straight-line TCP move, V = mm/s · <code>SetDO doGrip, 0|1;</code> · <code>WaitDI diPart|diBin, 0|1;</code> · <code>WaitTime T;</code> seconds · <code>ENDPROC</code>. Text after <code>!</code> is a comment and is shown as the step explanation.</p>
           <p class="note">Before a program starts, the arm moves to the home pose (tool pointing down, above the pick spot) if it is not already there. The cycle timer runs while a program runs and counts finished programs.</p>
-          <p class="note">Simplified model: joint limits and the reach of 559 mm come from the ABB IRB 14050 datasheet. Link lengths, the gripper, the base and the controller panel are approximations. There is no collision checking, and RAPID is only partly interpreted (see the commands above).</p></details>
+          <p class="note">Simplified model: joint limits and the reach of 559 mm come from the ABB IRB 14050 datasheet. Link lengths, the gripper, the base and the controller are approximations. There is no collision checking, and RAPID is only partly interpreted. Rated payload 0.5 kg.</p>
+          </details>
         </div>
       </div>
 
-      <div class="ctab" data-ctab="program">
+      <div class="ctab" data-ctab="program" hidden>
         <div class="progwrap">
           <div class="col side">
             <div class="tabbar">
@@ -324,9 +324,9 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
                 <button id="cImport">Open .json file</button>
                 <input type="file" id="cFile" accept=".json,application/json" hidden>
               </div>
-              <h3>Add a line</h3>
+              <h3>Add a step</h3>
               <div class="builder" id="builder">
-                <select id="bOp" aria-label="Line type">
+                <select id="bOp" aria-label="Step type">
                   <option value="J">MoveJ joint move</option>
                   <option value="L">MoveL straight move</option>
                   <option value="DO">SetDO doGrip</option>
@@ -340,14 +340,14 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
                 <span class="bf" data-op="TIME"><input id="bWait" type="number" min="0" step="0.1" value="0.5" aria-label="Seconds"> s</span>
                 <span class="bf" data-op="WAITDI"><select id="bIn" aria-label="Input"><option value="diPart">diPart part present</option><option value="diBin">diBin bin full</option></select> <select id="bInV" aria-label="Input state"><option value="1">1</option><option value="0">0</option></select></span>
                 <button id="bAdd" class="pri">Add</button>
-                <button id="bRun">Run line</button>
+                <button id="bRun">Run step</button>
               </div>
               <details class="moreopts">
                 <summary>Add a note</summary>
-                <input id="bNote" placeholder="Explanation shown beside the line" style="width:100%;margin-top:6px">
+                <input id="bNote" placeholder="Explanation shown beside the step" style="width:100%;margin-top:6px">
               </details>
               <div class="row">
-                <button id="bRemoveLast">Remove last line</button>
+                <button id="bRemoveLast">Remove last step</button>
                 <button id="bClear">Clear all</button>
               </div>
             </div>
@@ -362,10 +362,10 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
                 <div id="progState" class="pstate">Ready.</div>
               </div>
               <div class="transport">
-                <button id="run" class="pri" title="AUTO mode: start the program, or resume after Pause">▶ Run</button>
-                <button id="step" title="MANUAL mode with the enabling device held: run one line, then pause">⏭ Step</button>
+                <button id="run" class="pri" title="Start the program, or resume after Pause">▶ Run</button>
+                <button id="step" title="Run one step, then pause">⏭ Step</button>
                 <button id="pause" title="Pause after the current move">⏸ Pause</button>
-                <button id="stop" title="Stop and reset to the first line">⏹ Stop</button>
+                <button id="stop" title="Stop and reset to the first step">⏹ Stop</button>
                 <button id="editBtn" title="Edit the program text (only when stopped)">✎ Edit</button>
               </div>
             </div>
@@ -382,7 +382,7 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
 
 <script>
 if(typeof THREE==='undefined'){
-  document.getElementById('app').innerHTML='<div style="padding:24px;font:14px/1.5 system-ui,sans-serif;max-width:620px"><b>The 3D library (Three.js) could not load.</b><br>Download <code>three.min.js</code> (r128) from <code>https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js</code> and save it as <code>vendor/three.min.js</code> next to this page, then reload.</div>';
+  document.getElementById('app').innerHTML='<div style="padding:24px;font:14px/1.5 system-ui,sans-serif;max-width:620px"><b>The 3D library (Three.js) could not load.</b><br>Download <code>three.min.js</code> (r128) from <code>vendor/three.min.js</code> and save it as <code>vendor/three.min.js</code> next to this page, then reload.</div>';
   throw new Error('Three.js not loaded');
 }
 
@@ -837,11 +837,7 @@ function applyGripColour(){
 function applyColours(){
   CODED.forEach(([m,j])=>m.material.color.setHex(colorCoding?PARTS_DEF[j].color:ORIG_HEX.get(m)));
   applyGripColour();
-  const b=document.getElementById('btnColour');
-  b.textContent='Colours: '+(colorCoding?'joints':'ABB white');
-  b.classList.toggle('on',colorCoding);
 }
-document.getElementById('btnColour').onclick=()=>{ colorCoding=!colorCoding; applyColours(); };
 applyColours();
 
 const TRAIL_MAX=600;
@@ -993,12 +989,6 @@ cv.addEventListener('wheel',e=>{e.preventDefault(); view.dist=clamp(view.dist*Ma
 cv.addEventListener('dblclick',()=>{view.yaw=DEFAULT_VIEW.yaw;view.pitch=DEFAULT_VIEW.pitch;view.dist=DEFAULT_VIEW.dist;});
 new ResizeObserver(()=>resize()).observe(cv);
 
-// The Program section lives inside the Controls pane, as its PROGRAM tab
-(function(){
-  const ctrl=document.getElementById('pControls');
-  const prog=document.getElementById('pProgram');
-  if(prog) prog.remove();
-})();
 
 // ---------- Program panel splitter (resizes the sample/custom column) ----------
 const splitEl=document.getElementById('split');
@@ -1389,8 +1379,8 @@ document.getElementById('home').onclick=()=>{ if(state==='idle' && manualGate())
 document.getElementById('zero').onclick=()=>{ if(state==='idle' && manualGate()) startGen((function*(){yield* jointMove(ZERO,40*override/100);})(),'moving to zero pose'); };
 document.getElementById('clearTrail').onclick=()=>{trail=[];};
 document.getElementById('resetCnt').onclick=()=>{cycleCount=0; lastCycle=null;};
-document.getElementById('di1').onclick=()=>{ ioIn.diPart=!ioIn.diPart; };
-document.getElementById('di2').onclick=()=>{ ioIn.diBin=!ioIn.diBin; };
+document.getElementById('in1').onclick=()=>{ ioIn.diPart=!ioIn.diPart; };
+document.getElementById('in2').onclick=()=>{ ioIn.diBin=!ioIn.diBin; };
 const payEl=document.getElementById('payload'), payWarn=document.getElementById('payWarn');
 function payloadBad(){ return +payEl.value>RATED_PAYLOAD; }
 const PAYLOAD_MSG='Alarm: payload is above the rated 0.5 kg of this robot; run blocked';
@@ -1414,12 +1404,7 @@ function showCtab(name){
   document.querySelectorAll('.ctabbtn').forEach(b=>b.classList.toggle('on', b.dataset.ctab===name));
 }
 document.querySelectorAll('.ctabbtn').forEach(b=>b.addEventListener('click',()=>showCtab(b.dataset.ctab)));
-showCtab('controls');
-// the controller block sits at the top of the JOG tab; the alarm history stays under STATUS
-(function(){
-  const pb=document.querySelector('#pControls .pbody');
-  pb.prepend(document.getElementById('ctrlBar'));
-})();
+showCtab('jog');
 
 // ---------- Positions panel ----------
 const plistEl=document.getElementById('plist');
@@ -1776,9 +1761,9 @@ function readouts(){
   document.getElementById('curPos').textContent='Current pose (start)\n'+ang.slice(0,4).join('')+'\n'+ang.slice(4).join('')+'\nTCP  X '+p[0].toFixed(1)+'  Y '+p[1].toFixed(1)+'  Z '+p[2].toFixed(1)+' mm';
   gripBtn.textContent = gripType==='vacuum' ? 'Vacuum: '+(gripCmd?'on':'off') : 'Gripper: '+(gripCmd?'closed':'open');
   gripBtn.disabled=state==='run';
-  document.getElementById('di1v').textContent=ioIn.diPart?'ON':'OFF';
-  document.getElementById('di2v').textContent=ioIn.diBin?'ON':'OFF';
-  document.getElementById('do1v').textContent=gripCmd?'ON':'OFF';
+  document.getElementById('in1v').textContent=ioIn.diPart?'ON':'OFF';
+  document.getElementById('in2v').textContent=ioIn.diBin?'ON':'OFF';
+  document.getElementById('out1v').textContent=gripCmd?'ON':'OFF';
   payWarn.textContent=payloadBad()?'⚠ over rated payload: run blocked':'';
   LBL.forEach((el,i)=>{
     const v=el.querySelector('.v');
@@ -1799,11 +1784,13 @@ function readouts(){
     `tool dir ${s.d.map(v=>v.toFixed(2)).join(' ')}\n`+
     `action   ${curText||'-'}`+warn;
   updateListing();
-  lcdEl.textContent=`${eStopLatched?'E-STOP  ':''}${ctrlMode}  MOTORS ${servoOn?'ON':'OFF'}  ${state.toUpperCase()}${stepping?' STEP':''}  LINE ${state==='idle'?'-':curLine}  OVR ${override}%  ${jogMode==='joint'?'JOINT':'CART'}`;
+  lcdEl.textContent=`${eStopLatched?'E-STOP  ':''}${ctrlMode}  SERVO ${servoOn?'ON':'OFF'}  ENABLE ${enableOn?'ON':'OFF'}  ${state.toUpperCase()}${stepping?' STEP':''}  LINE ${state==='idle'?'-':curLine}  OVR ${override}%`;
 }
 
 // ---------- Controller: mode, motors, E-stop, enabling device, alarms ----------
 var ctrlMode='MANUAL', servoOn=false, eStopLatched=false;
+function setBtn(id,on,label){ const b=document.getElementById(id); b.textContent=label+(on?' ON':' OFF'); b.classList.toggle('on',on); }
+var enableOn=false;
 var alarmList=[];
 function setCtrlMsg(m){
   const el=document.getElementById('ctrlMsg'); el.textContent=m;
@@ -1817,35 +1804,32 @@ function renderAlarms(){ document.getElementById('alarmLog').textContent = alarm
 function dropMotion(){ stopProgram(); releaseJog(); }
 // why manual motion (jog, Home, Zero, position Go) is not allowed; null when it is allowed
 function manualBlock(){
-  if(eStopLatched) return 'E-stop is latched: release it, then press Motors ON';
-  if(!servoOn) return 'Motors are off: press Motors ON in the Controller block';
+  if(eStopLatched) return 'E-stop is latched: release it, then press SERVO ON';
+  if(!servoOn) return 'Servo is off: press SERVO ON';
   if(ctrlMode!=='MANUAL') return 'Mode is AUTO: switch to MANUAL to jog by hand';
-  if(!document.getElementById('enableSw').checked) return 'Enabling device not held: tick it in the Controller block to move by hand';
+  if(!enableOn) return 'ENABLE is OFF: press ENABLE to move by hand';
   return null;
 }
 function manualGate(){ const b=manualBlock(); if(b){ setCtrlMsg(b); return false; } return true; }
 // why a program cannot start (AUTO, Run)
 function runBlock(){
-  if(eStopLatched) return 'E-stop is latched: release it, then press Motors ON';
-  if(!servoOn) return 'Motors are off: press Motors ON first';
+  if(eStopLatched) return 'E-stop is latched: release it, then press SERVO ON';
+  if(!servoOn) return 'Servo is off: press SERVO ON first';
   if(ctrlMode!=='AUTO') return 'Mode is MANUAL: switch to AUTO to run a program (use Step to test in MANUAL)';
   return null;
 }
 // why a single step cannot run (MANUAL with the enabling device held)
 function stepBlock(){
-  if(eStopLatched) return 'E-stop is latched: release it, then press Motors ON';
-  if(!servoOn) return 'Motors are off: press Motors ON first';
+  if(eStopLatched) return 'E-stop is latched: release it, then press SERVO ON';
+  if(!servoOn) return 'Servo is off: press SERVO ON first';
   if(ctrlMode!=='MANUAL') return 'Step runs in MANUAL mode at reduced speed';
-  if(!document.getElementById('enableSw').checked) return 'Hold the enabling device (tick it) to step through a program';
+  if(!enableOn) return 'Press ENABLE to step through a program';
   return null;
 }
 function renderCtrl(){
-  document.getElementById('modeTxt').textContent=ctrlMode;
-  document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('on', b.dataset.mode===ctrlMode));
-  document.getElementById('servoBtn').textContent = servoOn ? 'Motors OFF' : 'Motors ON';
-  const lamp=document.getElementById('servoLamp');
-  lamp.textContent = eStopLatched ? 'E-STOP' : (servoOn ? 'MOTORS ON' : 'MOTORS OFF');
-  lamp.className = 'lamp ' + (eStopLatched ? 'bad' : (servoOn ? 'on' : ''));
+  document.querySelectorAll('#modeSeg .mbtn').forEach(b=>b.classList.toggle('on', b.dataset.mode===ctrlMode));
+  setBtn('servoBtn', servoOn, 'SERVO');
+  setBtn('enableBtn', enableOn, 'ENABLE');
   document.getElementById('estopBtn').classList.toggle('latched', eStopLatched);
   document.getElementById('startBtn').disabled = ctrlMode!=='AUTO' || state==='run';
   const jm=document.getElementById('jogMsg'); const jb=manualBlock();
@@ -1857,28 +1841,35 @@ function renderCtrl(){
 function setKeyMode(m){
   if(state!=='idle'){ setCtrlMsg('Stop the program before changing the mode'); return; }
   ctrlMode=m;
-  if(m!=='MANUAL') document.getElementById('enableSw').checked=false;
+  if(m!=='MANUAL') enableOn=false;
   setCtrlMsg('Mode: '+m);
   renderCtrl();
 }
 document.querySelectorAll('#modeSeg button').forEach(b=>b.addEventListener('click',()=>setKeyMode(b.dataset.mode)));
 document.getElementById('servoBtn').onclick=()=>{
-  if(servoOn){ servoOn=false; dropMotion(); document.getElementById('enableSw').checked=false; setCtrlMsg('Motors OFF'); }
+  if(servoOn){ servoOn=false; dropMotion(); enableOn=false; setCtrlMsg('SERVO OFF'); }
   else if(eStopLatched){ setCtrlMsg('Release the E-stop first'); }
-  else { servoOn=true; setCtrlMsg('Motors ON'); }
+  else { servoOn=true; setCtrlMsg('SERVO ON'); }
+  renderCtrl();
+};
+document.getElementById('enableBtn').onclick=()=>{
+  if(enableOn){ enableOn=false; setCtrlMsg('ENABLE released'); }
+  else if(!servoOn){ setCtrlMsg('Turn SERVO ON first'); }
+  else if(ctrlMode!=='MANUAL'){ setCtrlMsg('ENABLE is used in MANUAL mode only'); }
+  else { enableOn=true; setCtrlMsg('ENABLE held'); }
   renderCtrl();
 };
 document.getElementById('estopBtn').onclick=()=>{
-  eStopLatched=true; servoOn=false; dropMotion(); document.getElementById('enableSw').checked=false;
-  pushAlarm('Emergency stop: motors off, program stopped');
+  eStopLatched=true; servoOn=false; dropMotion(); enableOn=false;
+  pushAlarm('Emergency stop: servo off, program stopped');
   setCtrlMsg('E-stop latched');
   renderCtrl();
 };
 document.getElementById('estopRel').onclick=()=>{
   if(!eStopLatched){ setCtrlMsg('E-stop is not pressed'); return; }
-  eStopLatched=false; pushAlarm('Emergency stop released'); setCtrlMsg('E-stop released: press Motors ON'); renderCtrl();
+  eStopLatched=false; pushAlarm('Emergency stop released'); setCtrlMsg('E-stop released: press SERVO ON'); renderCtrl();
 };
-document.getElementById('alarmReset').onclick=()=>{ alarmList.length=0; renderAlarms(); };
+document.getElementById('alarmClear').onclick=()=>{ alarmList.length=0; renderAlarms(); };
 renderAlarms();
 renderCtrl();
 

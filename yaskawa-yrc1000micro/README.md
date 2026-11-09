@@ -23,7 +23,7 @@ Hemoji Rao G
 - **Wait on input:** `WAIT IN#(n)=ON` holds the program until the input matches. Toggling the input during a run releases it.
 - **Cycle timer:** shows the time for the current or last program run and a count of finished programs. The count can be reset.
 - **Payload interlock:** the Status tab has a payload setting. If it is above the rated payload of the model, Run is blocked with an alarm.
-- **Controller tab (CTRL):** a simplified teach-pendant and cabinet front panel. Mode key TEACH / PLAY / REMOTE; Servo ON / OFF; an enable switch that must be held to jog or move by hand; an EMERGENCY STOP that latches and stops any program until it is released and servo is turned on again; an External START input for REMOTE mode; and an alarm history.
+- **Controller block:** a simplified teach-pendant and cabinet front panel, always visible above the tabs. Mode key TEACH / PLAY / REMOTE; SERVO ON / OFF; an ENABLE button that must be on to jog or move by hand; an EMERGENCY STOP that latches and stops any program until it is released and servo is turned on again; START (external start) for REMOTE mode; and an alarm history.
 - **Reachability alarm:** a `MOVL` that cannot be reached within the joint limits stops the program with an alarm.
 - Gripper types: parallel, wide parallel, and vacuum cup.
 - Program tab with nine sample programs, from simple to advanced, plus custom scripts, step, pause, and stop.
@@ -49,7 +49,7 @@ A `'` starts a comment, as in INFORM. `;` also works in this simulator. Comment 
 - The arm geometry, joint limits, and sample poses are approximations for a generic small robot. They are not MOTOMAN data, and the model is not a specific robot.
 - The controller is simulated only as far as the commands above. INFORM job structure, labels, jumps, registers, arc and spot weld instructions, and user frames are not interpreted.
 - No collision checking.
-- The controller replica is simplified: the enable switch is a tick box rather than a three-position switch, the mode key and alarm codes are teaching approximations, and the pendant screen is not a copy of the real touch-screen interface.
+- The controller replica is simplified: the ENABLE control is a button rather than a three-position switch, the mode key and alarm codes are teaching approximations, and the pendant screen is not a copy of the real touch-screen interface.
 - The payload rating (7 kg in this model) is illustrative. The real YRC1000micro is rated for robots up to about 12 kg, and the rating depends on the robot.
 - Saved custom scripts are kept in the browser. Use "Download .json" to keep a copy.
 

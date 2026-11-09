@@ -2,6 +2,14 @@
 
 All notable changes to this simulator are recorded here. Versions follow semantic numbering.
 
+## 1.2.0
+
+- Same screen layout as the Fanuc and Yaskawa simulators: the controller block (MODE, SERVO, ENABLE, E-STOP, RESET, START) sits above the tabs, and the tabs are JOG, POSITIONS, I/O, STATUS and PROGRAM.
+- Labels are standard across simulators: SERVO ON / OFF (was Motors), ENABLE button (was a tick box), Run step, Remove last step, Clear alarm log.
+- Joint colour coding is always on. The Colours button was removed so the view controls match the other simulators.
+- Home button in the view returns to the home page.
+- Three.js is loaded from the local vendor folder, so the page works offline.
+
 ## 1.1.0
 
 - Colour coding: each arm segment and joint cover takes the colour of its axis (A1 blue, A2 orange, A7 teal, A3 green, A4 violet, A5 red, A6 cyan, gripper pink). The "Colours" button in the view switches back to the ABB white housings.
