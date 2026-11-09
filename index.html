@@ -59,7 +59,7 @@
   /* cross section */
   .xsec{margin-top:16px;background:linear-gradient(180deg,#f0f9ff,#ffffff);border:1px solid #bae6fd;border-radius:12px;padding:14px 16px}
   .xintro{font-size:13.5px;color:#334155;margin:0 0 8px}
-  .xsvg{width:100%;height:auto;display:block}
+  .xsvg{width:100%;max-width:520px;height:auto;display:block;margin:0 auto}
   .xsvg .hsg{fill:#e0f2fe;stroke:#0369a1;stroke-width:1.6}
   .xsvg .motor{fill:#0ea5e9;stroke:#075985;stroke-width:1.2}
   .xsvg .gear{fill:#5eead4;stroke:#0f766e;stroke-width:1.2}
@@ -136,37 +136,48 @@
 </div>
 <div class="xsec">
   <h3 class="dh">Inside the arm: cross section</h3>
-  <p class="xintro">The drawing cuts the arm along its length. Each joint has its own motor and gear reducer inside the housing, and the cables run through a hollow channel in the arm.</p>
-  <svg class="xsvg" viewBox="0 182 760 162" role="img" aria-label="Cross section of the arm showing motors, gear reducers and cable channel">
-  <rect class="hsg" x="30" y="250" width="130" height="62" rx="10"/>
-  <rect class="motor" x="48" y="262" width="46" height="40" rx="5"/>
-  <circle class="gear" cx="128" cy="282" r="16"/>
-  <circle class="gear" cx="128" cy="282" r="6"/>
-  <text class="lbl" x="95" y="333" text-anchor="middle">J1 base motor + reducer</text>
-  <circle class="hsg" cx="198" cy="240" r="38"/>
-  <rect class="motor" x="180" y="226" width="30" height="28" rx="4"/>
-  <circle class="gear" cx="224" cy="240" r="10"/>
-  <text class="lbl" x="198" y="196" text-anchor="middle">J2 shoulder motor</text>
-  <rect class="hsg" x="200" y="214" width="236" height="52" rx="12"/>
-  <line class="cable" x1="214" y1="240" x2="424" y2="240"/>
-  <text class="lbl" x="318" y="286" text-anchor="middle">upper arm (hollow, cables inside)</text>
+  <p class="xintro">The drawing cuts the arm down its length, with the base at the bottom. Each joint has its own motor and gear reducer inside the housing, and the cables run through a hollow channel in the arm.</p>
+  <svg class="xsvg" viewBox="0 0 520 560" role="img" aria-label="Vertical cross section of the arm showing motors, gear reducers and cable channel">
+  <!-- wrist and flange -->
+  <rect class="motor" x="198" y="22" width="24" height="22" rx="4"/>
+  <line class="leader" x1="222" y1="33" x2="296" y2="33"/>
+  <text class="lbl" x="300" y="37">J6 flange motor</text>
+  <rect class="flange" x="186" y="46" width="48" height="10" rx="3"/>
+  <rect class="hsg" x="168" y="56" width="84" height="46" rx="12"/>
+  <rect class="motor" x="196" y="64" width="28" height="30" rx="4"/>
+  <line class="leader" x1="224" y1="80" x2="296" y2="80"/>
+  <text class="lbl" x="300" y="84">J5 wrist motor</text>
+  <!-- forearm -->
+  <rect class="hsg" x="180" y="102" width="60" height="112" rx="12"/>
+  <line class="cable" x1="210" y1="110" x2="210" y2="206"/>
+  <rect class="motor" x="192" y="138" width="36" height="24" rx="4"/>
+  <line class="leader" x1="228" y1="150" x2="296" y2="150"/>
+  <text class="lbl" x="300" y="154">J4 forearm roll motor</text>
+  <!-- elbow -->
+  <circle class="hsg" cx="210" cy="232" r="34"/>
+  <rect class="motor" x="198" y="220" width="24" height="22" rx="4"/>
+  <circle class="gear" cx="238" cy="232" r="7"/>
+  <line class="leader" x1="244" y1="232" x2="296" y2="232"/>
+  <text class="lbl" x="300" y="236">J3 elbow motor</text>
+  <!-- upper arm -->
+  <rect class="hsg" x="180" y="262" width="60" height="150" rx="12"/>
+  <line class="cable" x1="210" y1="270" x2="210" y2="404"/>
   
-  <circle class="hsg" cx="446" cy="240" r="34"/>
-  <rect class="motor" x="436" y="226" width="22" height="28" rx="4"/>
-  <circle class="gear" cx="466" cy="240" r="9"/>
-  <text class="lbl" x="446" y="196" text-anchor="middle">J3 elbow motor</text>
-  <rect class="hsg" x="446" y="216" width="186" height="48" rx="12"/>
-  <line class="cable" x1="458" y1="240" x2="620" y2="240"/>
-  <rect class="motor" x="496" y="228" width="34" height="24" rx="4"/>
-  <text class="lbl" x="530" y="286" text-anchor="middle">J4 forearm roll motor</text>
-  <rect class="hsg" x="632" y="210" width="58" height="60" rx="12"/>
-  <rect class="motor" x="642" y="222" width="18" height="36" rx="4"/>
-  <text class="lbl" x="641" y="196" text-anchor="middle">J5 wrist motor</text>
-  <rect class="flange" x="700" y="218" width="12" height="44" rx="3"/>
-  <rect class="motor" x="716" y="230" width="24" height="20" rx="4"/>
-  <text class="lbl" x="752" y="318" text-anchor="end">J6 flange motor</text>
-  <line class="leader" x1="740" y1="240" x2="752" y2="240"/>
-  <text class="lbl" x="752" y="268" text-anchor="end">tool</text>
+  <line class="leader" x1="240" y1="330" x2="296" y2="330"/>
+  <text class="lbl" x="300" y="334">upper arm (hollow, cables inside)</text>
+  <!-- shoulder -->
+  <circle class="hsg" cx="210" cy="436" r="38"/>
+  <rect class="motor" x="192" y="420" width="26" height="30" rx="4"/>
+  <circle class="gear" cx="236" cy="436" r="8"/>
+  <line class="leader" x1="248" y1="436" x2="296" y2="436"/>
+  <text class="lbl" x="300" y="440">J2 shoulder motor</text>
+  <!-- base -->
+  <rect class="hsg" x="120" y="474" width="180" height="66" rx="10"/>
+  <rect class="motor" x="146" y="486" width="52" height="44" rx="5"/>
+  <circle class="gear" cx="258" cy="508" r="18"/>
+  <circle class="gear" cx="258" cy="508" r="6"/>
+  <line class="leader" x1="276" y1="508" x2="296" y2="508"/>
+  <text class="lbl" x="300" y="512">J1 base motor + reducer</text>
 </svg>
   <div class="xlegend">
     <span><i class="sw motor"></i>Servo motor</span>
@@ -200,37 +211,48 @@
 </div>
 <div class="xsec">
   <h3 class="dh">Inside the arm: cross section</h3>
-  <p class="xintro">The drawing cuts the arm along its length. Each joint has its own motor and gear reducer inside the housing, and the cables run through a hollow channel in the arm.</p>
-  <svg class="xsvg" viewBox="0 182 760 162" role="img" aria-label="Cross section of the arm showing motors, gear reducers and cable channel">
-  <rect class="hsg" x="30" y="250" width="130" height="62" rx="10"/>
-  <rect class="motor" x="48" y="262" width="46" height="40" rx="5"/>
-  <circle class="gear" cx="128" cy="282" r="16"/>
-  <circle class="gear" cx="128" cy="282" r="6"/>
-  <text class="lbl" x="95" y="333" text-anchor="middle">J1 base motor + reducer</text>
-  <circle class="hsg" cx="198" cy="240" r="38"/>
-  <rect class="motor" x="180" y="226" width="30" height="28" rx="4"/>
-  <circle class="gear" cx="224" cy="240" r="10"/>
-  <text class="lbl" x="198" y="196" text-anchor="middle">J2 shoulder motor</text>
-  <rect class="hsg" x="200" y="214" width="236" height="52" rx="12"/>
-  <line class="cable" x1="214" y1="240" x2="424" y2="240"/>
-  <text class="lbl" x="318" y="286" text-anchor="middle">upper arm (hollow, cables inside)</text>
+  <p class="xintro">The drawing cuts the arm down its length, with the base at the bottom. Each joint has its own motor and gear reducer inside the housing, and the cables run through a hollow channel in the arm.</p>
+  <svg class="xsvg" viewBox="0 0 520 560" role="img" aria-label="Vertical cross section of the arm showing motors, gear reducers and cable channel">
+  <!-- wrist and flange -->
+  <rect class="motor" x="198" y="22" width="24" height="22" rx="4"/>
+  <line class="leader" x1="222" y1="33" x2="296" y2="33"/>
+  <text class="lbl" x="300" y="37">J6 flange motor</text>
+  <rect class="flange" x="186" y="46" width="48" height="10" rx="3"/>
+  <rect class="hsg" x="168" y="56" width="84" height="46" rx="12"/>
+  <rect class="motor" x="196" y="64" width="28" height="30" rx="4"/>
+  <line class="leader" x1="224" y1="80" x2="296" y2="80"/>
+  <text class="lbl" x="300" y="84">J5 wrist motor</text>
+  <!-- forearm -->
+  <rect class="hsg" x="180" y="102" width="60" height="112" rx="12"/>
+  <line class="cable" x1="210" y1="110" x2="210" y2="206"/>
+  <rect class="motor" x="192" y="138" width="36" height="24" rx="4"/>
+  <line class="leader" x1="228" y1="150" x2="296" y2="150"/>
+  <text class="lbl" x="300" y="154">J4 forearm roll motor</text>
+  <!-- elbow -->
+  <circle class="hsg" cx="210" cy="232" r="34"/>
+  <rect class="motor" x="198" y="220" width="24" height="22" rx="4"/>
+  <circle class="gear" cx="238" cy="232" r="7"/>
+  <line class="leader" x1="244" y1="232" x2="296" y2="232"/>
+  <text class="lbl" x="300" y="236">J3 elbow motor</text>
+  <!-- upper arm -->
+  <rect class="hsg" x="180" y="262" width="60" height="150" rx="12"/>
+  <line class="cable" x1="210" y1="270" x2="210" y2="404"/>
   
-  <circle class="hsg" cx="446" cy="240" r="34"/>
-  <rect class="motor" x="436" y="226" width="22" height="28" rx="4"/>
-  <circle class="gear" cx="466" cy="240" r="9"/>
-  <text class="lbl" x="446" y="196" text-anchor="middle">J3 elbow motor</text>
-  <rect class="hsg" x="446" y="216" width="186" height="48" rx="12"/>
-  <line class="cable" x1="458" y1="240" x2="620" y2="240"/>
-  <rect class="motor" x="496" y="228" width="34" height="24" rx="4"/>
-  <text class="lbl" x="530" y="286" text-anchor="middle">J4 forearm roll motor</text>
-  <rect class="hsg" x="632" y="210" width="58" height="60" rx="12"/>
-  <rect class="motor" x="642" y="222" width="18" height="36" rx="4"/>
-  <text class="lbl" x="641" y="196" text-anchor="middle">J5 wrist motor</text>
-  <rect class="flange" x="700" y="218" width="12" height="44" rx="3"/>
-  <rect class="motor" x="716" y="230" width="24" height="20" rx="4"/>
-  <text class="lbl" x="752" y="318" text-anchor="end">J6 flange motor</text>
-  <line class="leader" x1="740" y1="240" x2="752" y2="240"/>
-  <text class="lbl" x="752" y="268" text-anchor="end">tool</text>
+  <line class="leader" x1="240" y1="330" x2="296" y2="330"/>
+  <text class="lbl" x="300" y="334">upper arm (hollow, cables inside)</text>
+  <!-- shoulder -->
+  <circle class="hsg" cx="210" cy="436" r="38"/>
+  <rect class="motor" x="192" y="420" width="26" height="30" rx="4"/>
+  <circle class="gear" cx="236" cy="436" r="8"/>
+  <line class="leader" x1="248" y1="436" x2="296" y2="436"/>
+  <text class="lbl" x="300" y="440">J2 shoulder motor</text>
+  <!-- base -->
+  <rect class="hsg" x="120" y="474" width="180" height="66" rx="10"/>
+  <rect class="motor" x="146" y="486" width="52" height="44" rx="5"/>
+  <circle class="gear" cx="258" cy="508" r="18"/>
+  <circle class="gear" cx="258" cy="508" r="6"/>
+  <line class="leader" x1="276" y1="508" x2="296" y2="508"/>
+  <text class="lbl" x="300" y="512">J1 base motor + reducer</text>
 </svg>
   <div class="xlegend">
     <span><i class="sw motor"></i>Servo motor</span>
@@ -264,37 +286,48 @@
 </div>
 <div class="xsec">
   <h3 class="dh">Inside the arm: cross section</h3>
-  <p class="xintro">The drawing cuts the arm along its length. Each joint has its own motor and gear reducer inside the housing, and the cables run through a hollow channel in the arm.</p>
-  <svg class="xsvg" viewBox="0 182 760 162" role="img" aria-label="Cross section of the arm showing motors, gear reducers and cable channel">
-  <rect class="hsg" x="30" y="250" width="130" height="62" rx="10"/>
-  <rect class="motor" x="48" y="262" width="46" height="40" rx="5"/>
-  <circle class="gear" cx="128" cy="282" r="16"/>
-  <circle class="gear" cx="128" cy="282" r="6"/>
-  <text class="lbl" x="95" y="333" text-anchor="middle">A1 base motor + reducer</text>
-  <circle class="hsg" cx="198" cy="240" r="38"/>
-  <rect class="motor" x="180" y="226" width="30" height="28" rx="4"/>
-  <circle class="gear" cx="224" cy="240" r="10"/>
-  <text class="lbl" x="198" y="196" text-anchor="middle">A2 shoulder motor</text>
-  <rect class="hsg" x="200" y="214" width="236" height="52" rx="12"/>
-  <line class="cable" x1="214" y1="240" x2="424" y2="240"/>
-  <text class="lbl" x="318" y="286" text-anchor="middle">upper arm (hollow, cables inside)</text>
-  <rect class="motor" x="296" y="222" width="34" height="36" rx="4"/><line class="leader" x1="313" y1="222" x2="313" y2="200"/><text class="lbl" x="313" y="194" text-anchor="middle">A7 roll motor</text>
-  <circle class="hsg" cx="446" cy="240" r="34"/>
-  <rect class="motor" x="436" y="226" width="22" height="28" rx="4"/>
-  <circle class="gear" cx="466" cy="240" r="9"/>
-  <text class="lbl" x="446" y="196" text-anchor="middle">A3 elbow motor</text>
-  <rect class="hsg" x="446" y="216" width="186" height="48" rx="12"/>
-  <line class="cable" x1="458" y1="240" x2="620" y2="240"/>
-  <rect class="motor" x="496" y="228" width="34" height="24" rx="4"/>
-  <text class="lbl" x="530" y="286" text-anchor="middle">A4 forearm roll motor</text>
-  <rect class="hsg" x="632" y="210" width="58" height="60" rx="12"/>
-  <rect class="motor" x="642" y="222" width="18" height="36" rx="4"/>
-  <text class="lbl" x="641" y="196" text-anchor="middle">A5 wrist motor</text>
-  <rect class="flange" x="700" y="218" width="12" height="44" rx="3"/>
-  <rect class="motor" x="716" y="230" width="24" height="20" rx="4"/>
-  <text class="lbl" x="752" y="318" text-anchor="end">A6 flange motor</text>
-  <line class="leader" x1="740" y1="240" x2="752" y2="240"/>
-  <text class="lbl" x="752" y="268" text-anchor="end">tool</text>
+  <p class="xintro">The drawing cuts the arm down its length, with the base at the bottom. Each joint has its own motor and gear reducer inside the housing, and the cables run through a hollow channel in the arm.</p>
+  <svg class="xsvg" viewBox="0 0 520 560" role="img" aria-label="Vertical cross section of the arm showing motors, gear reducers and cable channel">
+  <!-- wrist and flange -->
+  <rect class="motor" x="198" y="22" width="24" height="22" rx="4"/>
+  <line class="leader" x1="222" y1="33" x2="296" y2="33"/>
+  <text class="lbl" x="300" y="37">A6 flange motor</text>
+  <rect class="flange" x="186" y="46" width="48" height="10" rx="3"/>
+  <rect class="hsg" x="168" y="56" width="84" height="46" rx="12"/>
+  <rect class="motor" x="196" y="64" width="28" height="30" rx="4"/>
+  <line class="leader" x1="224" y1="80" x2="296" y2="80"/>
+  <text class="lbl" x="300" y="84">A5 wrist motor</text>
+  <!-- forearm -->
+  <rect class="hsg" x="180" y="102" width="60" height="112" rx="12"/>
+  <line class="cable" x1="210" y1="110" x2="210" y2="206"/>
+  <rect class="motor" x="192" y="138" width="36" height="24" rx="4"/>
+  <line class="leader" x1="228" y1="150" x2="296" y2="150"/>
+  <text class="lbl" x="300" y="154">A4 forearm roll motor</text>
+  <!-- elbow -->
+  <circle class="hsg" cx="210" cy="232" r="34"/>
+  <rect class="motor" x="198" y="220" width="24" height="22" rx="4"/>
+  <circle class="gear" cx="238" cy="232" r="7"/>
+  <line class="leader" x1="244" y1="232" x2="296" y2="232"/>
+  <text class="lbl" x="300" y="236">A3 elbow motor</text>
+  <!-- upper arm -->
+  <rect class="hsg" x="180" y="262" width="60" height="150" rx="12"/>
+  <line class="cable" x1="210" y1="270" x2="210" y2="404"/>
+  <line class="leader" x1="192" y1="333" x2="176" y2="333"/><rect class="motor" x="192" y="320" width="36" height="26" rx="4"/><text class="lbl" x="170" y="337" text-anchor="end">A7 roll motor</text>
+  <line class="leader" x1="240" y1="330" x2="296" y2="330"/>
+  <text class="lbl" x="300" y="334">upper arm (hollow, cables inside)</text>
+  <!-- shoulder -->
+  <circle class="hsg" cx="210" cy="436" r="38"/>
+  <rect class="motor" x="192" y="420" width="26" height="30" rx="4"/>
+  <circle class="gear" cx="236" cy="436" r="8"/>
+  <line class="leader" x1="248" y1="436" x2="296" y2="436"/>
+  <text class="lbl" x="300" y="440">A2 shoulder motor</text>
+  <!-- base -->
+  <rect class="hsg" x="120" y="474" width="180" height="66" rx="10"/>
+  <rect class="motor" x="146" y="486" width="52" height="44" rx="5"/>
+  <circle class="gear" cx="258" cy="508" r="18"/>
+  <circle class="gear" cx="258" cy="508" r="6"/>
+  <line class="leader" x1="276" y1="508" x2="296" y2="508"/>
+  <text class="lbl" x="300" y="512">A1 base motor + reducer</text>
 </svg>
   <div class="xlegend">
     <span><i class="sw motor"></i>Servo motor</span>
