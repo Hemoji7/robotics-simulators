@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robotics Simulators</title>
+<meta name="author" content="Hemoji Rao G">
+<meta name="description" content="A hobby project to help students learn industrial robot operation by simulating arm motion, jogging, and teach-pendant style programs in the browser.">
+<style>
+  body{font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;color:#1d1d1b;background:#f3f3ef;margin:0}
+  main{max-width:820px;margin:0 auto;padding:40px 20px 60px}
+  h1{font-size:26px;margin:0 0 6px}
+  .lead{color:#55554e;margin:0 0 28px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+  .card{background:#fff;border:1px solid #dcdcd4;border-radius:10px;padding:18px;text-decoration:none;color:inherit;display:block}
+  .card:hover{border-color:#9a9a90}
+  .card h2{font-size:17px;margin:0 0 6px}
+  .card p{margin:0;color:#55554e;font-size:13px}
+  .tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-radius:4px;padding:2px 6px;margin-bottom:8px}
+  .live{background:#ffd200;color:#1d1d1b}
+  .soon{background:#e6e6df;color:#55554e}
+  .card.disabled{opacity:.7;pointer-events:none}
+  footer{margin-top:36px;font-size:12px;color:#66665f}
+</style>
+</head>
+<body>
+<main>
+  <h1>Robotics Simulators</h1>
+  <p class="lead">Browser-based 3D simulators for industrial robot arms, with controller-style program operation. Open a simulator to run it in your browser.</p>
+
+  <div class="grid">
+    <a class="card" href="fanuc-er4ia/">
+      <span class="tag live">Available</span>
+      <h2>Fanuc ER-4iA</h2>
+      <p>6-axis arm with a teach-pendant style panel, sample programs, custom scripts, and joint jogging.</p>
+    </a>
+    <div class="card disabled">
+      <span class="tag soon">Coming soon</span>
+      <h2>Yaskawa YRC1000micro</h2>
+      <p>Controller and arm simulation.</p>
+    </div>
+    <div class="card disabled">
+      <span class="tag soon">Coming soon</span>
+      <h2>ABB IRB 14050 (OmniCore C30)</h2>
+      <p>Cobot arm simulation with OmniCore controller.</p>
+    </div>
+  </div>
+
+  <footer>
+    Hobby project by Hemoji Rao G. Simulations are approximate and are not manufacturer data. See each simulator's README for details and version.
+  </footer>
+</main>
+</body>
+</html>
