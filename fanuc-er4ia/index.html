@@ -109,6 +109,18 @@ input[type=number]{width:70px;font:inherit;padding:4px;border:1px solid #bdbdb4;
 .ctab[data-ctab="program"]:not([hidden]){display:flex;flex-direction:column;height:100%}
 .ctab[data-ctab="program"] .progwrap{flex:1;min-height:0;height:auto}
 
+/* controller features: mode, digital I/O, alarm log */
+.modebar{display:flex;align-items:center;gap:6px;margin:0 0 2px;color:#f1f1ec;font-size:11px;letter-spacing:.06em}
+.mbtn{padding:3px 12px;background:#3d4046;color:#e8e8e2;border:1px solid #1a1b1e;border-radius:4px;font:600 11px/1 system-ui,sans-serif}
+.mbtn.on{background:var(--yel);color:#1d1d1b;border-color:#c9a800}
+.mbtn:disabled{opacity:.45}
+.iorow{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:6px 0}
+.iob{padding:4px 0;font-size:11px}
+.iob.on{background:var(--yel);border-color:#c9a800;color:#1d1d1b}
+.led{font-size:10px;text-align:center;padding:4px 0;border-radius:4px;background:#e6e6df;color:#55554e}
+.led.on{background:#2fbf4a;color:#fff}
+.alog{font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;max-height:150px;overflow:auto;background:#fafaf6;border:1px solid var(--line);border-radius:6px;padding:6px;white-space:pre}
+
 /* program panel */
 .progwrap{display:grid;grid-template-columns:var(--sideW,440px) 10px minmax(0,1fr);gap:0;padding:10px 12px;height:100%;min-height:0}
 .split{cursor:col-resize;position:relative;margin:0 2px}
@@ -180,9 +192,13 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
     </div>
     <div class="ctabbar">
       <div class="lcd" id="lcd">AUTO IDLE</div>
+      <div class="modebar">
+        <span>MODE</span>
+        <button class="mbtn on" data-mode="AUTO">AUTO</button>
+        <button class="mbtn" data-mode="T1">T1</button>
+      </div>
       <div class="softkeys">
         <button class="ctabbtn on" data-ctab="jog">JOG</button>
-        <button class="ctabbtn" data-ctab="pos">POSITIONS</button>
         <button class="ctabbtn" data-ctab="status">STATUS</button>
         <button class="ctabbtn" data-ctab="program">PROGRAM</button>
       </div>
@@ -194,7 +210,12 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
         <h2>Jog</h2>
         <div class="row"><div class="seg"><button id="mJ" class="on">Joint</button><button id="mC">Cartesian</button></div></div>
         <div id="jointRows"></div>
-        <div id="cartRows" hidden></div>
+        <div id="cartRows" hidden>
+          <div class="row">
+            <label>Frame <select id="frameSel"><option value="world">World (base)</option><option value="user">User (turned about Z)</option><option value="tool">Tool (TCP)</option></select></label>
+            <label>User angle <input id="userAng" type="number" value="0" step="5" style="width:64px"> °</label>
+          </div>
+        </div>
         <div class="ovr"><span>Override</span><input id="ov" type="range" min="1" max="100" value="25"><span id="ovOut" style="width:40px;text-align:right">25%</span></div>
         <div class="row">
           <button id="home">Home</button>
@@ -217,10 +238,21 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
       </div>
       <div class="ctab" data-ctab="status" hidden>
       <div class="csec">
+        <h2>Digital I/O (simulated)</h2>
+        <div class="iorow" id="diRow"></div>
+        <div class="iorow" id="doRow"></div>
+        <p class="note">Top row: inputs DI1 to DI8. Click to switch on or off. Bottom row: outputs DO1 to DO8, set by SET DO in programs.</p>
+      </div>
+      <div class="csec">
+        <h2>Alarm and event log</h2>
+        <div id="alarmLog" class="alog"></div>
+        <div class="row"><button id="alarmClear">Clear log</button></div>
+      </div>
+      <div class="csec">
         <h2>Status</h2>
         <div id="status" class="status"></div>
         <div class="row"><button id="clearTrail">Clear TCP trail</button></div>
-        <p class="note">Commands: <code>J P[n] [%]</code> joint move · <code>L P[n] [mm/s]</code> straight-line TCP move · <code>GRIP OPEN|CLOSE</code> · <code>WAIT sec</code> · <code>END</code>. Text after <code>;</code> is a comment and is shown as the step explanation.</p>
+        <p class="note">Commands: <code>J P[n] [%]</code> joint move · <code>L P[n] [mm/s]</code> straight-line TCP move · <code>GRIP OPEN|CLOSE</code> · <code>WAIT sec</code> · <code>SET DO[n] ON|OFF</code> · <code>WAIT DI[n] ON|OFF</code> · <code>END</code>. Text after <code>;</code> is a comment and is shown as the step explanation.</p>
         <p class="note">When a program starts, the arm first moves to the viewing pose (J1–J6 = 0, −20, 30, 0, −20, 0) if it is not already there.</p>
         <p class="note">Simplified model: no collision checking, and TP/KAREL are not interpreted. Body shapes are approximate, drawn from the product photo. Geometry and joint limits are placeholders, not Fanuc CAD data.</p>
       </div>
@@ -273,12 +305,16 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
               <option value="L">Straight move</option>
               <option value="GRIP">Gripper</option>
               <option value="WAIT">Wait</option>
+              <option value="DO">Set output (DO)</option>
+              <option value="DI">Wait for input (DI)</option>
               <option value="END">End</option>
             </select>
             <span class="bf" data-op="J L"><select id="bP" aria-label="Position"></select></span>
             <span class="bf" data-op="J L"><input id="bSpd" type="number" min="1" step="1" value="40" aria-label="Speed"> <span id="bUnit">%</span></span>
             <span class="bf" data-op="GRIP"><select id="bG" aria-label="Gripper"><option value="OPEN">Open</option><option value="CLOSE">Close</option></select></span>
             <span class="bf" data-op="WAIT"><input id="bWait" type="number" min="0" step="0.1" value="0.5" aria-label="Seconds"> s</span>
+            <span class="bf" data-op="DO DI"><input id="bIO" type="number" min="1" max="8" step="1" value="1" aria-label="I/O number" style="width:56px"></span>
+            <span class="bf" data-op="DO DI"><select id="bIOv" aria-label="State"><option value="ON">ON</option><option value="OFF">OFF</option></select></span>
             <button id="bAdd" class="pri">Add</button>
             <button id="bRun">Run step</button>
           </div>
@@ -460,6 +496,10 @@ function parse(text){
       steps.push({op:'GRIP',v:m[1].toUpperCase()==='CLOSE'?1:0,line:ln});
     } else if((m=line.match(/^WAIT\s+(\d+(?:\.\d+)?)$/i))){
       steps.push({op:'WAIT',v:+m[1],line:ln});
+    } else if((m=line.match(/^SET\s+DO\[(\d+)\]\s+(ON|OFF)$/i))){
+      steps.push({op:'DO',n:+m[1],v:m[2].toUpperCase()==='ON',line:ln});
+    } else if((m=line.match(/^WAIT\s+DI\[(\d+)\]\s+(ON|OFF)$/i))){
+      steps.push({op:'WAITDI',n:+m[1],v:m[2].toUpperCase()==='ON',line:ln});
     } else if(/^END$/i.test(line)){
       break;
     } else {
@@ -481,6 +521,8 @@ function* programGen(steps){
     else if(s.op==='L') yield* linearMove(positions[s.n].q, s.v*override/100);
     else if(s.op==='GRIP'){ gripCmd=s.v; yield; }
     else if(s.op==='WAIT'){ const n=Math.ceil(s.v*60); for(let i=0;i<n;i++){ stepProg=i/n; yield; } }
+    else if(s.op==='DO'){ DO[s.n]=s.v; yield; }
+    else if(s.op==='WAITDI'){ curText=`waiting for DI[${s.n}] ${s.v?'ON':'OFF'}`; while(DI[s.n]!==s.v) yield; }
     stepProg=1;
     doneLines.add(s.line);
     yield 'instr';
@@ -505,6 +547,7 @@ function startGen(gen,msg){
 function runProgram(){
   if(state==='run') return;
   if(state==='paused'){ state='run'; stepping=false; return; }
+  if(mode==='T1'){ errsEl.textContent='Run is not allowed in T1. Use Step, or switch to AUTO.'; return; }
   const {steps,errs}=parse(srcEl.value);
   if(errs.length){ errsEl.textContent=errs.join('\n'); if(!editing) setEdit(true); return; }
   startGen(withIntro(steps),'starting program');
@@ -524,7 +567,15 @@ function pauseProgram(){ if(state==='run') state='paused'; }
 function stopProgram(){ prog=null; state='idle'; stepping=false; curText='stopped'; resetProgress(); }
 
 // ---------- Jog + frame update ----------
-function clampQ(){ for(let k=0;k<6;k++) q[k]=clamp(q[k],LIM[k][0],LIM[k][1]); }
+function clampQ(){
+  for(let k=0;k<6;k++){
+    if(q[k]<LIM[k][0]||q[k]>LIM[k][1]){
+      const up=q[k]>LIM[k][1];
+      if(!limHit[k]){ limHit[k]=true; alarm(`J${k+1} reached its ${up?'upper':'lower'} limit (${LIM[k][up?1:0]}°)`); }
+      q[k]=clamp(q[k],LIM[k][0],LIM[k][1]);
+    } else limHit[k]=false;
+  }
+}
 function update(dt){
   gOpen += (gripCmd-gOpen)*Math.min(1,dt*5);
 
@@ -533,7 +584,7 @@ function update(dt){
       const r=prog.next();
       if(r.done){ prog=null; state='idle'; curText='program ended'; }
       else if(r.value==='instr' && stepping){ state='paused'; stepping=false; curText+=' (step done)'; }
-    }catch(e){ prog=null; state='idle'; curText='error: '+e.message; }
+    }catch(e){ prog=null; state='idle'; curText='error: '+e.message; alarm('Program error: '+e.message); }
   } else if(state!=='run'){
     if(jogMode==='joint'){
       let any=false;
@@ -541,7 +592,9 @@ function update(dt){
       if(any) clampQ();
     } else if(jogC.some(v=>v)){
       const p=posOf(q);
-      const t=[0,1,2].map(i=>p[i]+jogC[i]*CART_RATE*override/100*dt);
+      const d=[0,0,0];
+      for(let i=0;i<3;i++) if(jogC[i]){ const a=frameAxis(i); for(let k=0;k<3;k++) d[k]+=a[k]*jogC[i]; }
+      const t=[0,1,2].map(k=>p[k]+d[k]*CART_RATE*override/100*dt);
       solveTo(t,4);
     }
   }
@@ -846,6 +899,12 @@ new ResizeObserver(()=>resize()).observe(cv);
   const pane=document.createElement('div');
   pane.className='ctab'; pane.dataset.ctab='program'; pane.hidden=true;
   pane.append(prog.querySelector('.progwrap'));
+  // Positions now sit at the top of the PROGRAM tab; the separate POSITIONS tab is removed
+  const posPane=document.querySelector('.ctab[data-ctab="pos"]');
+  const posCsec=posPane.querySelector('.csec');
+  posCsec.style.flex='none'; posCsec.style.maxHeight='170px'; posCsec.style.overflow='auto';
+  pane.prepend(posCsec);
+  posPane.remove();
   ctrl.querySelector('.pbody').append(pane);
   prog.remove();
 })();
@@ -1167,6 +1226,46 @@ const SAMPLES=[
   'END']}
 ];
 
+// ---------- Operating mode, digital I/O, frames, alarm log ----------
+let mode='AUTO';   // AUTO, or T1 (reduced speed; Run is blocked, Step is allowed)
+const DI=new Array(9).fill(false), DO=new Array(9).fill(false);   // simulated I/O, indexes 1 to 8
+const limHit=[false,false,false,false,false,false];
+const alarms=[];
+const alarmLogEl=document.getElementById('alarmLog');
+const diRow=document.getElementById('diRow'), doRow=document.getElementById('doRow');
+const diBtns=[], doLeds=[];
+for(let i=1;i<=8;i++){
+  const b=document.createElement('button'); b.className='iob'; b.textContent='DI'+i; b.title='Switch input '+i+' on or off';
+  b.onclick=()=>{ DI[i]=!DI[i]; };
+  diRow.append(b); diBtns[i]=b;
+  const l=document.createElement('span'); l.className='led'; l.textContent='DO'+i;
+  doRow.append(l); doLeds[i]=l;
+}
+function alarm(msg){
+  alarms.unshift(new Date().toLocaleTimeString()+'  '+msg);
+  if(alarms.length>30) alarms.length=30;
+  alarmLogEl.textContent=alarms.join('\n');
+}
+document.getElementById('alarmClear').onclick=()=>{ alarms.length=0; alarmLogEl.textContent='No events.'; };
+alarmLogEl.textContent='No events.';
+const modeBtns=[...document.querySelectorAll('.mbtn')];
+function setOpMode(m){
+  mode=m;
+  modeBtns.forEach(b=>b.classList.toggle('on',b.dataset.mode===m));
+  ovEl.max = m==='T1' ? 25 : 100;
+  if(override>+ovEl.max){ override=+ovEl.max; ovEl.value=override; ovOut.textContent=override+'%'; }
+  alarm('Mode changed to '+m+(m==='T1'?' (reduced speed, Run blocked, Step allowed)':''));
+}
+modeBtns.forEach(b=>b.addEventListener('click',()=>{ if(state==='idle' && b.dataset.mode!==mode) setOpMode(b.dataset.mode); }));
+// Cartesian jog frames: world = base axes, user = base axes turned about Z, tool = TCP axes
+function frameAxis(i){
+  const f=document.getElementById('frameSel').value;
+  if(f==='tool'){ const T=fk(q).T; return [T[i],T[4+i],T[8+i]]; }
+  if(i===2) return [0,0,1];
+  const a=f==='user' ? (+document.getElementById('userAng').value||0)*Math.PI/180 : 0;
+  return i===0 ? [Math.cos(a),Math.sin(a),0] : [-Math.sin(a),Math.cos(a),0];
+}
+
 // ---------- Gripper types ----------
 // parallel / wide: two fingers. GRIP OPEN opens them, GRIP CLOSE closes them.
 // vacuum: one suction cup. GRIP CLOSE switches vacuum on to grip, GRIP OPEN switches it off to release.
@@ -1334,13 +1433,14 @@ function renderListing(){
 }
 // While a program is active, editing and selection are locked. Only Pause and Stop work while running;
 // when paused, Run resumes and Step runs one instruction.
-const EDIT_LOCK_IDS=['gripType','sampleSel','copyToCustom','cName','cSave','cList','cLoad','cDel','bOp','bP','bSpd','bG','bWait','bNote','bAdd','bRun','bRemoveLast','bClear','rec','pn'];
+const EDIT_LOCK_IDS=['gripType','frameSel','userAng','sampleSel','copyToCustom','cName','cSave','cList','cLoad','cDel','bOp','bP','bSpd','bG','bWait','bIO','bIOv','bNote','bAdd','bRun','bRemoveLast','bClear','rec','pn'];
 function refreshLock(){
   const active = state!=='idle';
   EDIT_LOCK_IDS.forEach(id=>{ const el=document.getElementById(id); if(el) el.disabled=active; });
   srcEl.readOnly=active;
   document.querySelectorAll('#plist button').forEach(b=>{ b.disabled=active; });
   document.querySelectorAll('#jointRows button, #cartRows button, #home, #zero, #grip, #mJ, #mC, #ov').forEach(b=>{ b.disabled=active; });
+  modeBtns.forEach(b=>{ b.disabled = state!=='idle'; });
   document.getElementById('run').disabled = state==='run';
   document.getElementById('step').disabled = state==='run';
   document.getElementById('pause').disabled = state!=='run';
@@ -1477,22 +1577,18 @@ const cFile=document.getElementById('cFile');
 const cExportBtn=document.getElementById('cExport');
 let downloadsNs=null;
 (window.claude?window.claude.use('downloads'):Promise.resolve(null))
-  .then(ns=>{ downloadsNs=ns; })
-  .catch(()=>{});
+  .then(ns=>{ downloadsNs=ns; if(!ns) cExportBtn.hidden=true; })
+  .catch(()=>{ cExportBtn.hidden=true; });
 cExportBtn.onclick=async()=>{
   const name=cName.value.trim()||'My script';
-  const filename=name.replace(/[^\w\- ]+/g,'').trim()+'.json';
-  const text=JSON.stringify({name, code:srcEl.value, pos:positions}, null, 2);
-  if(downloadsNs){   // inside the Claude artifact viewer: ask the viewer to save the file
-    try{ await downloadsNs.save({filename, data:text}); errsEl.textContent=''; }
-    catch(e){ if(!(e && e.code==='declined')) errsEl.textContent='Could not save the file: '+((e && e.message)||'unavailable'); }
-    return;
+  if(!downloadsNs){ errsEl.textContent='Downloading files is not available in this view.'; return; }
+  try{
+    await downloadsNs.save({filename:name.replace(/[^\w\- ]+/g,'').trim()+'.json', data:JSON.stringify({name, code:srcEl.value, pos:positions}, null, 2)});
+    errsEl.textContent='';
+  }catch(e){
+    if(e && e.code==='declined') return;
+    errsEl.textContent='Could not save the file: '+((e && e.message)||'unavailable');
   }
-  // on a plain web page (GitHub Pages): ordinary browser download
-  const url=URL.createObjectURL(new Blob([text],{type:'application/json'}));
-  const a=document.createElement('a'); a.href=url; a.download=filename;
-  document.body.append(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
 document.getElementById('cImport').onclick=()=>{
   if(state!=='idle'){ errsEl.textContent='Stop the running program before opening a script.'; return; }
@@ -1523,6 +1619,7 @@ cFile.addEventListener('change',async()=>{
 const bOp=document.getElementById('bOp'), bP=document.getElementById('bP'), bSpd=document.getElementById('bSpd');
 const bUnit=document.getElementById('bUnit'), bG=document.getElementById('bG'), bWait=document.getElementById('bWait');
 const bNote=document.getElementById('bNote');
+const bIO=document.getElementById('bIO'), bIOv=document.getElementById('bIOv');
 function syncBuilder(){
   const op=bOp.value;
   document.querySelectorAll('.bf').forEach(el=>{
@@ -1554,7 +1651,9 @@ function buildLine(){
     if(!pn){ errsEl.textContent='Record a position first (Positions panel), or load a sample.'; return null; }
     const v=+bSpd.value||(op==='J'?40:150);
     code=`${op} P[${pn}] ${v}`;
-  } else if(op==='GRIP') code=`GRIP ${bG.value}`;
+  } else if(op==='DO') code=`SET DO[${+bIO.value||1}] ${bIOv.value}`;
+  else if(op==='DI') code=`WAIT DI[${+bIO.value||1}] ${bIOv.value}`;
+  else if(op==='GRIP') code=`GRIP ${bG.value}`;
   else if(op==='WAIT') code=`WAIT ${+bWait.value||0}`;
   else code='END';
   const note=bNote.value.trim();
@@ -1630,7 +1729,9 @@ function readouts(){
     `TCP      X ${p[0].toFixed(1)}  Y ${p[1].toFixed(1)}  Z ${p[2].toFixed(1)}\n`+
     `action   ${curText||'-'}`+warn;
   updateListing();
-  lcdEl.textContent=`AUTO  ${state.toUpperCase()}${stepping?' STEP':''}  LINE ${state==='idle'?'-':curLine}  OVR ${override}%  ${jogMode==='joint'?'JOINT':'CART'}`;
+  diBtns.forEach((b,i)=>{ if(b) b.classList.toggle('on',DI[i]); });
+  doLeds.forEach((l,i)=>{ if(l) l.classList.toggle('on',DO[i]); });
+  lcdEl.textContent=`${mode}  ${state.toUpperCase()}${stepping?' STEP':''}  LINE ${state==='idle'?'-':curLine}  OVR ${override}%  ${jogMode==='joint'?'JOINT':'CART'}`;
 }
 
 // ---------- Loop ----------
