@@ -170,6 +170,31 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
 #pControls .progwrap{padding:8px 10px}
 .panel.vert .progwrap{grid-template-columns:1fr;grid-template-rows:auto minmax(300px,1fr);height:auto}
 .panel.vert .split{display:none}
+
+.hm{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow:auto}
+.hm[hidden]{display:none}
+.hm-box{background:#fff;color:#1d1d1b;border-radius:10px;max-width:980px;width:100%;padding:16px 22px 22px;box-shadow:0 8px 30px rgba(0,0,0,.25);font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+.hm-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hm-head h2{font-size:18px;margin:0}
+.hm-x{font-size:22px;background:none;border:0;cursor:pointer;line-height:1;padding:4px 8px;color:#1d1d1b}
+.hm-note{color:#55554e;margin:6px 0 2px}
+.hm svg{width:100%;height:auto;display:block;margin:8px 0 4px}
+.hm .fc-box{fill:#fff;stroke:#6b6b62;stroke-width:1.4}
+.hm .fc-dec{fill:#fff6cc;stroke:#b08a00;stroke-width:1.4}
+.hm .fc-term{fill:#1d1d1b;stroke:#1d1d1b}
+.hm .fc-note{fill:#f7f7f3;stroke:#9a9a90;stroke-dasharray:4 3}
+.hm .fc-line{stroke:#55554e;stroke-width:1.4;fill:none;marker-end:url(#arr)}
+.hm .fc-dash{stroke-dasharray:6 4}
+.hm .fc-t{font:600 13px system-ui,sans-serif;fill:#1d1d1b}
+.hm .fc-s{font:11.5px system-ui,sans-serif;fill:#55554e}
+.hm .fc-l{font:600 11px system-ui,sans-serif;fill:#55554e}
+.hm .fc-term-t{font:600 12px system-ui,sans-serif;fill:#fff}
+.hm-legend{color:#55554e;font-size:12.5px;margin:0 0 14px}
+.hm h3{font-size:15px;margin:10px 0 6px}
+.hm-tbl{width:100%;border-collapse:collapse}
+.hm-tbl td{border-top:1px solid #e6e6df;padding:6px 8px;vertical-align:top}
+.hm-tbl td:first-child{font-weight:600;white-space:nowrap;width:28%}
+#btnHelp{font-weight:600}
 </style>
 <script src="vendor/three.min.js"></script>
 <script>if(!window.THREE){document.write('<script src="vendor/three.min.js"><\/script>');}</script>
@@ -184,6 +209,7 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
       <div class="badge">ABB IRB 14050 YuMi <small>simulation · RAPID-style teaching subset</small></div>
       <div class="vtools">
         <a class="btnlink" href="../" title="Back to the home page">⌂ Home</a>
+        <button id="btnHelp" type="button" title="Show the operating flow and buttons">? Help</button>
         <button id="btnLabels">Labels: auto</button>
         <button id="btnAxes">Axes: off</button>
         <span id="tray" class="tray"></span>
@@ -1891,6 +1917,52 @@ resize();
 loadSample(0);
 readouts();
 requestAnimationFrame(t=>{last=t;requestAnimationFrame(frame);});
+</script>
+<div id="helpModal" class="hm" hidden role="dialog" aria-modal="true" aria-labelledby="hmTitle">
+<div class="hm-box">
+<div class="hm-head"><h2 id="hmTitle">How to operate the ABB IRB 14050 YuMi (OmniCore C30)</h2><button id="hmClose" class="hm-x" type="button" aria-label="Close help">×</button></div>
+<p class="hm-note">Read the chart from top to bottom. Rectangles are steps and buttons, diamonds are checks, and dashed lines show things that can happen at any time.</p>
+<svg viewBox="0 0 960 740" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Operating flow chart">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#55554e"/></marker></defs>
+<path class="fc-line" d="M480,38 L480,44 L480,50"/>
+<path class="fc-line fc-dash" d="M610,75 L640,75 L670,75"/>
+<path class="fc-line" d="M480,100 L480,138 L480,176"/>
+<path class="fc-line" d="M480,224 L480,262 L220,262 L220,300"/><text class="fc-l" x="228" y="292">MANUAL</text>
+<path class="fc-line" d="M480,224 L480,262 L720,262 L720,300"/><text class="fc-l" x="728" y="292">AUTO</text>
+<path class="fc-line" d="M220,350 L220,382 L220,416"/>
+<path class="fc-line" d="M220,464 L220,490 L220,516"/>
+<path class="fc-line" d="M720,350 L720,382 L720,416"/>
+<path class="fc-line" d="M720,464 L720,479 L720,493"/>
+<path class="fc-line" d="M620,548 L602,548 L585,548"/><text class="fc-l" x="602" y="540" text-anchor="middle">No</text>
+<path class="fc-line" d="M720,603 L720,628 L720,654"/><text class="fc-l" x="728" y="646">Yes</text>
+<rect class="fc-term" x="415" y="10" width="130" height="28" rx="14"/><text class="fc-term-t" x="480" y="28" text-anchor="middle">Power up</text>
+<rect class="fc-box" x="350" y="50" width="260" height="49" rx="8"/><text class="fc-t" x="480" y="70" text-anchor="middle">1. SERVO ON</text><text class="fc-s" x="480" y="88" text-anchor="middle">Motor power on. Needed for any motion.</text>
+<rect class="fc-box" x="670" y="43" width="260" height="64" rx="8"/><text class="fc-t" x="800" y="63" text-anchor="middle">E-STOP (any time)</text><text class="fc-s" x="800" y="81" text-anchor="middle">Stops motion and servo.</text><text class="fc-s" x="800" y="96" text-anchor="middle">Press RESET, then SERVO ON.</text>
+<rect class="fc-box" x="350" y="176" width="260" height="49" rx="8"/><text class="fc-t" x="480" y="196" text-anchor="middle">2. MODE</text><text class="fc-s" x="480" y="214" text-anchor="middle">MANUAL  |  AUTO</text>
+<rect class="fc-box" x="90" y="300" width="260" height="49" rx="8"/><text class="fc-t" x="220" y="320" text-anchor="middle">3a. MANUAL</text><text class="fc-s" x="220" y="338" text-anchor="middle">Reduced speed. Jog and step by hand.</text>
+<rect class="fc-box" x="590" y="300" width="260" height="49" rx="8"/><text class="fc-t" x="720" y="320" text-anchor="middle">3b. AUTO</text><text class="fc-s" x="720" y="338" text-anchor="middle">Runs the program.</text>
+<rect class="fc-box" x="90" y="416" width="260" height="49" rx="8"/><text class="fc-t" x="220" y="436" text-anchor="middle">4. Hold ENABLE</text><text class="fc-s" x="220" y="454" text-anchor="middle">Deadman: hold it on to move or step.</text>
+<rect class="fc-box" x="90" y="516" width="260" height="64" rx="8"/><text class="fc-t" x="220" y="536" text-anchor="middle">5. JOG tab, or Step</text><text class="fc-s" x="220" y="554" text-anchor="middle">JOG tab moves by hand.</text><text class="fc-s" x="220" y="569" text-anchor="middle">PROGRAM tab: Step runs one line.</text>
+<rect class="fc-box" x="590" y="416" width="260" height="49" rx="8"/><text class="fc-t" x="720" y="436" text-anchor="middle">4. PROGRAM tab</text><text class="fc-s" x="720" y="454" text-anchor="middle">Pick a sample or custom program.</text>
+<polygon class="fc-dec" points="720,493 820,548 720,603 620,548"/><text class="fc-t" x="720" y="553" text-anchor="middle">Payload ≤ 4 kg?</text>
+<rect class="fc-note" x="395" y="524" width="190" height="49" rx="8"/><text class="fc-t" x="490" y="544" text-anchor="middle">No: run blocked</text><text class="fc-s" x="490" y="562" text-anchor="middle">See STATUS tab.</text>
+<rect class="fc-box" x="590" y="654" width="260" height="49" rx="8"/><text class="fc-t" x="720" y="674" text-anchor="middle">5. START or Run</text><text class="fc-s" x="720" y="692" text-anchor="middle">Program runs in AUTO. Pause, Stop.</text>
+</svg>
+<p class="hm-legend">The steps are in the order you normally use them. Each step's button is named in capitals as it appears on the controller panel.</p>
+<h3>Buttons and operations</h3>
+<table class="hm-tbl"><tr><td>MODE MANUAL / AUTO</td><td>MANUAL jogs and steps by hand at reduced speed. AUTO runs programs.</td></tr><tr><td>SERVO ON / OFF</td><td>Motor power. Needed for any motion.</td></tr><tr><td>ENABLE</td><td>Deadman switch. Hold it on to jog or step in MANUAL.</td></tr><tr><td>E-STOP / RESET</td><td>E-STOP stops motion and servo and latches. RESET clears it; then press SERVO ON.</td></tr><tr><td>START</td><td>AUTO mode only: starts the program (same as Run).</td></tr><tr><td>JOG tab</td><td>Joint or Cartesian jog, Override, Home, Zero, Gripper, Record current.</td></tr><tr><td>POSITIONS / I/O / STATUS</td><td>Saved positions, input and output toggles, and status: payload, cycle count, alarm log.</td></tr><tr><td>PROGRAM tab</td><td>Run, Step, Pause, Stop, Edit. Sample and custom programs. Step runs one line in MANUAL with ENABLE held.</td></tr></table>
+</div>
+</div>
+<script>
+(function(){
+  var m=document.getElementById('helpModal');
+  function openHelp(){ m.hidden=false; document.getElementById('hmClose').focus(); }
+  function closeHelp(){ m.hidden=true; document.getElementById('btnHelp').focus(); }
+  document.getElementById('btnHelp').addEventListener('click', openHelp);
+  document.getElementById('hmClose').addEventListener('click', closeHelp);
+  m.addEventListener('click', function(e){ if(e.target===m) closeHelp(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !m.hidden) closeHelp(); });
+})();
 </script>
 </body>
 </html>
