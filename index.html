@@ -27,6 +27,34 @@
   .open{font-weight:600;color:#1d1d1b}
   .open::after{content:' →'}
   footer{margin-top:36px;font-size:12px;color:#66665f}
+
+  /* colour accents */
+  body::before{content:"";display:block;height:6px;background:linear-gradient(90deg,#f5c400,#ff6a00,#e11d2e,#8b5cf6,#3b82f6,#10b981)}
+  h1{background:linear-gradient(90deg,#1d1d1b,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .tabbtn{background:color-mix(in srgb,var(--acc) 14%,#fff);border-color:color-mix(in srgb,var(--acc) 40%,#fff)}
+  .tabbtn.on{background:#fff;border-top:5px solid var(--acc);border-color:#dcdcd4}
+  .arm{border-top:5px solid var(--acc)}
+  .arm .tag{background:var(--acc)}
+  .dh{font-size:14px;margin:18px 0 8px;padding-left:10px;border-left:5px solid var(--acc);color:#1d1d1b}
+  .detail p{margin:0 0 6px;font-size:14px;color:#333}
+  .jwrap{overflow-x:auto}
+  .jtbl{width:100%;border-collapse:collapse;font-size:13.5px}
+  .jtbl th,.jtbl td{padding:7px 9px;border-top:1px solid #e6e6df;text-align:left;vertical-align:top}
+  .jtbl thead th{background:color-mix(in srgb,var(--acc) 18%,#fff);border-top:none}
+  .chip{display:inline-block;min-width:34px;text-align:center;font-weight:700;color:#fff;background:var(--jc);border-radius:999px;padding:2px 8px;font-size:12px}
+  .dgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+  .dbox{background:color-mix(in srgb,var(--acc) 7%,#fff);border:1px solid color-mix(in srgb,var(--acc) 35%,#fff);border-radius:10px;padding:12px 14px;margin-top:12px}
+  .dbox .dh{margin-top:0}
+  .dbox ul{margin:0;padding-left:18px;font-size:13.5px}
+  .dbox.notes{margin-top:12px}
+  ul.links{list-style:none;padding-left:0 !important}
+  ul.links li{padding:4px 0;border-bottom:1px dashed color-mix(in srgb,var(--acc) 40%,#fff)}
+  .lk{display:inline-block;min-width:110px;color:#55554e}
+  .open-link{display:inline-block;margin-top:14px;color:#fff;background:var(--acc);padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:700}
+  .open-link::after{content:' →'}
+  .cmp thead th{background:#fff1c2}
+  section.compare h2{color:#8b5cf6}
+  @media (max-width:700px){.dgrid{grid-template-columns:1fr}}
   @media (max-width:640px){.photos{grid-template-columns:1fr}figure img{height:200px}}
   .tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid #dcdcd4;margin:0 0 18px}
   .tabbtn{font:inherit;font-weight:600;color:#55554e;background:#ebebe5;border:1px solid #dcdcd4;border-bottom:none;border-radius:8px 8px 0 0;padding:9px 16px;cursor:pointer;margin-bottom:-1px}
@@ -63,10 +91,10 @@
   <p class="lead">Browser-based 3D simulators for industrial robot arms, with controller-style program operation. Choose an arm tab to see its photos and details, then open its simulator. The comparison below shows what the three have in common and where they differ.</p>
 
   <div class="tabs" role="tablist" aria-label="Robot arms">
-    <button class="tabbtn on" role="tab" id="t-fanuc" aria-controls="p-fanuc" aria-selected="true" tabindex="0" data-tab="fanuc">Fanuc ER-4iA</button><button class="tabbtn" role="tab" id="t-yaskawa" aria-controls="p-yaskawa" aria-selected="false" tabindex="-1" data-tab="yaskawa">Yaskawa YRC1000micro</button><button class="tabbtn" role="tab" id="t-abb" aria-controls="p-abb" aria-selected="false" tabindex="-1" data-tab="abb">ABB IRB 14050 YuMi</button>
+    <button class="tabbtn on" role="tab" id="t-fanuc" style="--acc:#f5c400" aria-controls="p-fanuc" aria-selected="true" tabindex="0" data-tab="fanuc">Fanuc ER-4iA</button><button class="tabbtn" role="tab" id="t-yaskawa" style="--acc:#ff6a00" aria-controls="p-yaskawa" aria-selected="false" tabindex="-1" data-tab="yaskawa">Yaskawa YRC1000micro</button><button class="tabbtn" role="tab" id="t-abb" style="--acc:#e11d2e" aria-controls="p-abb" aria-selected="false" tabindex="-1" data-tab="abb">ABB IRB 14050 YuMi</button>
   </div>
 
-  <section class="arm tabpanel" role="tabpanel" id="p-fanuc" aria-labelledby="t-fanuc">
+  <section class="arm tabpanel" role="tabpanel" id="p-fanuc" style="--acc:#f5c400" aria-labelledby="t-fanuc">
     <div class="head"><span class="tag">Available</span><h2>Fanuc ER-4iA</h2><a class="openbtn" href="fanuc-er4ia/">Open simulator &rarr;</a></div>
     <p class="sub">6-axis education arm · R-30iB Mate Plus controller</p>
     <div class="photos">
@@ -75,8 +103,20 @@
       <figure><img loading="lazy" alt="Student working with an ER-4iA robot cell" src="https://www.fanucamerica.com/uploads/products/er-4ia/Student-Interacting-with-a-ER-4iA-Robot-Cell.jpg?fit=cover&trim%5Bborder%5D%5Btolerance%5D=40&trim%5Bborder%5D%5Bkeep%5D=20&format=auto&width=1536&s=WPkxw9udyyoF4QG80Sw4n_EeMyeLNIapU4sye0HfCMI" onerror="this.parentNode.classList.add('missing')"><figcaption><b>Setup</b>Education robot cell, fanucamerica.com</figcaption></figure>
     </div>
     <p class="desc">A compact 6-axis arm for hands-on training and small-part automation, with a 4 kg payload and 550 mm reach. Students jog joints J1 to J6 or the tool in X, Y and Z, and run sample or custom programs in a TP-style subset with grippers, I/O and a simulated controller.</p>
-    <a class="open-link" href="fanuc-er4ia/">Open the Fanuc ER-4iA simulator</a>
-  </section><section class="arm tabpanel" role="tabpanel" id="p-yaskawa" aria-labelledby="t-yaskawa" hidden>
+    <div class="detail">
+  <h3 class="dh">Joints</h3>
+  <div class="jwrap"><table class="jtbl">
+    <thead><tr><th>Axis</th><th>Name</th><th>What it moves</th><th>Range</th></tr></thead>
+    <tbody><tr><td><span class="chip" style="--jc:#3b82f6">J1</span></td><td><b>Base</b></td><td>Turns the whole arm left and right on its base.</td><td>±180° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#f59e0b">J2</span></td><td><b>Shoulder</b></td><td>Raises and lowers the upper arm.</td><td>0° to 120° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#10b981">J3</span></td><td><b>Elbow</b></td><td>Bends and straightens the elbow.</td><td>−120° to 100° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#8b5cf6">J4</span></td><td><b>Forearm roll</b></td><td>Rolls the forearm along its length.</td><td>±190° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#ef4444">J5</span></td><td><b>Wrist bend</b></td><td>Tilts the wrist up and down.</td><td>±120° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#06b6d4">J6</span></td><td><b>Flange</b></td><td>Turns the tool mounting flange.</td><td>±360° (simulator)</td></tr></tbody>
+  </table></div>
+  <div class="dgrid">
+    <div class="dbox"><h3 class="dh">Motors and drives</h3><p>Each joint is moved by its own servo motor through a gear reducer. Each motor has an encoder that reports its position to the controller, and a brake that holds the joint when servo power is off. This is typical for this class of arm; the simulator does not model the motors themselves.</p></div>
+    <div class="dbox"><h3 class="dh">Structure</h3><ul class="links"><li><span class="lk">Base column</span> <b>300 mm</b></li><li><span class="lk">Upper arm</span> <b>240 mm</b></li><li><span class="lk">Forearm</span> <b>260 mm</b></li><li><span class="lk">Wrist</span> <b>50 mm</b></li><li><span class="lk">Flange</span> <b>70 mm</b></li></ul></div>
+  </div>
+  <div class="dbox notes"><h3 class="dh">Notes</h3><ul><li>Datasheet: mechanical weight 20 kg, repeatability ±0.01 mm, 550 mm reach, 4 kg wrist payload.</li><li>The datasheet gives total travel of 340° (J1), 230° (J2), 402° (J3), 380° (J4), 240° (J5) and 720° (J6). The simulator ranges above are approximations and differ for some joints.</li><li>Protection IP50 on the body and wrist (datasheet).</li></ul></div>
+</div>
+<a class="open-link" href="fanuc-er4ia/">Open the Fanuc ER-4iA simulator</a>
+  </section><section class="arm tabpanel" role="tabpanel" id="p-yaskawa" style="--acc:#ff6a00" aria-labelledby="t-yaskawa" hidden>
     <div class="head"><span class="tag">Available</span><h2>Yaskawa YRC1000micro</h2><a class="openbtn" href="yaskawa-yrc1000micro/">Open simulator &rarr;</a></div>
     <p class="sub">Ultra-compact controller for small MOTOMAN robots · INFORM-style teaching</p>
     <div class="photos">
@@ -85,8 +125,20 @@
       <figure class="missing"><img alt="" src=""><figcaption><b>Setup</b>Not found in this session</figcaption></figure>
     </div>
     <p class="desc">The YRC1000micro is a small controller in an open-structure cabinet, aimed at pick-and-place and assembly. The simulator models a generic small 6-axis arm with a teach-pendant style controller (TEACH, PLAY and REMOTE modes), a payload interlock, digital I/O, a cycle timer and an INFORM-style subset.</p>
-    <a class="open-link" href="yaskawa-yrc1000micro/">Open the Yaskawa YRC1000micro simulator</a>
-  </section><section class="arm tabpanel" role="tabpanel" id="p-abb" aria-labelledby="t-abb" hidden>
+    <div class="detail">
+  <h3 class="dh">Joints</h3>
+  <div class="jwrap"><table class="jtbl">
+    <thead><tr><th>Axis</th><th>Name</th><th>What it moves</th><th>Range</th></tr></thead>
+    <tbody><tr><td><span class="chip" style="--jc:#3b82f6">J1</span></td><td><b>Base</b></td><td>Turns the whole arm left and right on its base.</td><td>±180° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#f59e0b">J2</span></td><td><b>Shoulder</b></td><td>Raises and lowers the upper arm.</td><td>−45° to 120° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#10b981">J3</span></td><td><b>Elbow</b></td><td>Bends and straightens the elbow.</td><td>−120° to 100° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#8b5cf6">J4</span></td><td><b>Forearm roll</b></td><td>Rolls the forearm along its length.</td><td>±190° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#ef4444">J5</span></td><td><b>Wrist bend</b></td><td>Tilts the wrist up and down.</td><td>±120° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#06b6d4">J6</span></td><td><b>Flange</b></td><td>Turns the tool mounting flange.</td><td>±360° (simulator)</td></tr></tbody>
+  </table></div>
+  <div class="dgrid">
+    <div class="dbox"><h3 class="dh">Motors and drives</h3><p>Each joint is moved by its own servo motor through a gear reducer, with an encoder for position and a brake that holds the joint when servo power is off. This is typical for small industrial arms; the simulator does not model the motors themselves.</p></div>
+    <div class="dbox"><h3 class="dh">Structure</h3><ul class="links"><li><span class="lk">Base column</span> <b>300 mm</b></li><li><span class="lk">Upper arm</span> <b>240 mm</b></li><li><span class="lk">Forearm</span> <b>260 mm</b></li><li><span class="lk">Wrist</span> <b>50 mm</b></li><li><span class="lk">Flange</span> <b>70 mm</b></li></ul></div>
+  </div>
+  <div class="dbox notes"><h3 class="dh">Notes</h3><ul><li>The arm is a generic small six-axis model, not a specific MOTOMAN robot. Joint limits and link lengths are illustrative.</li><li>The YRC1000micro controller is in an open-structure cabinet, and the robot payload depends on the robot model.</li></ul></div>
+</div>
+<a class="open-link" href="yaskawa-yrc1000micro/">Open the Yaskawa YRC1000micro simulator</a>
+  </section><section class="arm tabpanel" role="tabpanel" id="p-abb" style="--acc:#e11d2e" aria-labelledby="t-abb" hidden>
     <div class="head"><span class="tag">Available</span><h2>ABB IRB 14050 YuMi (OmniCore C30)</h2><a class="openbtn" href="abb-irb14050/">Open simulator &rarr;</a></div>
     <p class="sub">7-axis single-arm collaborative robot · OmniCore C30 controller</p>
     <div class="photos">
@@ -95,7 +147,19 @@
       <figure><img loading="lazy" alt="IRB 14050 working alongside a person" src="https://api.one.robotics.abb.com/medias/300Wx300H-IRB-14050-4-person.jpg?context=bWFzdGVyfHJvYm90c3wxODEwMXxpbWFnZS9qcGVnfGFEQmtMMmhtT1M4NE9EQTBOamN4TmpnME5qTTRMek13TUZkNE16QXdTRjlKVWtJZ01UUXdOVEJmTkY5d1pYSnpiMjR1YW5CbnxlOWViNmZlY2NkMGI0NDUyZjA2YmQxY2ZjODdiMjJhN2U1ZWVkOGQyZmU1OTBhN2JlNjlhMjlhOGI4NmRkNjcx" onerror="this.parentNode.classList.add('missing')"><figcaption><b>Setup</b>Working alongside a person, one.robotics.abb.com</figcaption></figure>
     </div>
     <p class="desc">A lightweight single-arm YuMi with a 0.5 kg payload and 559 mm reach, built for small-part assembly and testing. The simulator uses RAPID-style lines, MANUAL and AUTO modes, a servo-gripper or vacuum cup, datasheet joint limits and joint colour coding.</p>
-    <a class="open-link" href="abb-irb14050/">Open the ABB IRB 14050 simulator</a>
+    <div class="detail">
+  <h3 class="dh">Joints</h3>
+  <div class="jwrap"><table class="jtbl">
+    <thead><tr><th>Axis</th><th>Name</th><th>What it moves</th><th>Range</th></tr></thead>
+    <tbody><tr><td><span class="chip" style="--jc:#3b82f6">A1</span></td><td><b>Base</b></td><td>Turns the whole arm left and right on its base.</td><td>±168.5°</td></tr><tr><td><span class="chip" style="--jc:#f59e0b">A2</span></td><td><b>Shoulder</b></td><td>Raises and lowers the upper arm.</td><td>−143.5° to 43.5°</td></tr><tr><td><span class="chip" style="--jc:#14b8a6">A7</span></td><td><b>Upper-arm roll</b></td><td>Rolls the upper arm. This extra axis gives the arm its seventh degree of freedom.</td><td>±168.5°</td></tr><tr><td><span class="chip" style="--jc:#10b981">A3</span></td><td><b>Elbow</b></td><td>Bends and straightens the elbow.</td><td>−123.5° to 80°</td></tr><tr><td><span class="chip" style="--jc:#8b5cf6">A4</span></td><td><b>Forearm roll</b></td><td>Rolls the forearm along its length.</td><td>±290°</td></tr><tr><td><span class="chip" style="--jc:#ef4444">A5</span></td><td><b>Wrist bend</b></td><td>Tilts the wrist up and down.</td><td>−88° to 138°</td></tr><tr><td><span class="chip" style="--jc:#06b6d4">A6</span></td><td><b>Flange turn</b></td><td>Turns the tool mounting flange.</td><td>±229°</td></tr></tbody>
+  </table></div>
+  <div class="dgrid">
+    <div class="dbox"><h3 class="dh">Motors and drives</h3><p>Each joint is moved by its own servo motor through a gear reducer, with an encoder for position and a brake that holds the joint when servo power is off. This is typical for collaborative arms; the simulator does not model the motors themselves.</p></div>
+    <div class="dbox"><h3 class="dh">Structure</h3><ul class="links"><li><span class="lk">Base</span> <b>280 mm</b></li><li><span class="lk">Upper arm</span> <b>200 mm</b></li><li><span class="lk">Forearm</span> <b>200 mm</b></li><li><span class="lk">Wrist</span> <b>90 mm</b></li><li><span class="lk">Flange</span> <b>69 mm</b></li></ul></div>
+  </div>
+  <div class="dbox notes"><h3 class="dh">Notes</h3><ul><li>Joint ranges are from the ABB IRB 14050 datasheet (as cited in the simulator README). Link lengths are simulator approximations, chosen so the straight arm reaches the datasheet 559 mm.</li><li>Rated payload 0.5 kg. The seventh axis (A7) lets the arm reach the same point with different elbow positions.</li></ul></div>
+</div>
+<a class="open-link" href="abb-irb14050/">Open the ABB IRB 14050 simulator</a>
   </section>
 
   <section class="compare" aria-labelledby="cmpTitle">
