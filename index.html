@@ -11,13 +11,10 @@
   main{max-width:1000px;margin:0 auto;padding:40px 20px 60px}
   h1{font-size:26px;margin:0 0 6px}
   .lead{color:#55554e;margin:0 0 28px;max-width:720px}
-  .robot{display:block;background:#fff;border:1px solid #dcdcd4;border-radius:12px;padding:20px;margin-bottom:22px;text-decoration:none;color:inherit}
-  .robot:hover{border-color:#9a9a90;box-shadow:0 2px 10px rgba(0,0,0,.06)}
   .head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
   .head h2{font-size:20px;margin:0}
   .sub{color:#55554e;font-size:13px;margin:0 0 14px}
   .openbtn{margin-left:auto;display:inline-block;font-size:13px;font-weight:600;color:#fff;background:#1d1d1b;border-radius:8px;padding:7px 14px;line-height:1}
-  .robot:hover .openbtn{background:#3a3a36}
   .tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-radius:4px;padding:2px 7px;background:#ffd200;color:#1d1d1b}
   .photos{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
   figure{margin:0;background:#f7f7f3;border:1px solid #e6e6df;border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
@@ -31,15 +28,46 @@
   .open::after{content:' →'}
   footer{margin-top:36px;font-size:12px;color:#66665f}
   @media (max-width:640px){.photos{grid-template-columns:1fr}figure img{height:200px}}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid #dcdcd4;margin:0 0 18px}
+  .tabbtn{font:inherit;font-weight:600;color:#55554e;background:#ebebe5;border:1px solid #dcdcd4;border-bottom:none;border-radius:8px 8px 0 0;padding:9px 16px;cursor:pointer;margin-bottom:-1px}
+  .tabbtn:hover{color:#1d1d1b}
+  .tabbtn.on{background:#fff;color:#1d1d1b;border-color:#dcdcd4;border-bottom:1px solid #fff}
+  .tabbtn:focus-visible{outline:2px solid #1d1d1b;outline-offset:2px}
+  .tabpanel[hidden]{display:none}
+  .arm{background:#fff;border:1px solid #dcdcd4;border-radius:12px;padding:20px;margin-bottom:22px}
+  a.openbtn{text-decoration:none}
+  a.openbtn:hover{background:#3a3a36}
+  .open-link{font-weight:600;color:#1d1d1b}
+  section.compare{margin-top:34px}
+  section.compare h2{font-size:20px;margin:0 0 6px}
+  .cmp-note{color:#55554e;font-size:13px;margin:0 0 14px}
+  .cmp-wrap{overflow-x:auto;background:#fff;border:1px solid #dcdcd4;border-radius:12px}
+  .cmp{width:100%;border-collapse:collapse;font-size:14px}
+  .cmp th,.cmp td{padding:9px 10px;border-top:1px solid #e6e6df;text-align:left;vertical-align:top}
+  .cmp thead th{border-top:none;background:#f7f7f3;font-weight:600}
+  .cmp td:first-child{font-weight:600;white-space:nowrap}
+  .tg{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-radius:4px;padding:2px 7px;white-space:nowrap}
+  .tg.common{background:#dff3e4;color:#1e5e2e}
+  .tg.unique{background:#ffd200;color:#1d1d1b}
+  .cmpcols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  .cmpcols .box{background:#fff;border:1px solid #dcdcd4;border-radius:12px;padding:16px 18px}
+  .cmpcols h3{font-size:15px;margin:0 0 8px}
+  .cmpcols ul{margin:0;padding-left:18px}
+  .cmpcols li{margin:0 0 6px;font-size:14px}
+  @media (max-width:700px){.cmpcols{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <main>
   <h1>Robotics Simulators</h1>
-  <p class="lead">Browser-based 3D simulators for industrial robot arms, with controller-style program operation. Each card shows the real arm, its controller and a typical setup. Click a card to open its simulator.</p>
+  <p class="lead">Browser-based 3D simulators for industrial robot arms, with controller-style program operation. Choose an arm tab to see its photos and details, then open its simulator. The comparison below shows what the three have in common and where they differ.</p>
 
-  <a class="robot" href="fanuc-er4ia/">
-    <div class="head"><span class="tag">Available</span><h2>Fanuc ER-4iA</h2><span class="openbtn">Open simulator &rarr;</span></div>
+  <div class="tabs" role="tablist" aria-label="Robot arms">
+    <button class="tabbtn on" role="tab" id="t-fanuc" aria-controls="p-fanuc" aria-selected="true" tabindex="0" data-tab="fanuc">Fanuc ER-4iA</button><button class="tabbtn" role="tab" id="t-yaskawa" aria-controls="p-yaskawa" aria-selected="false" tabindex="-1" data-tab="yaskawa">Yaskawa YRC1000micro</button><button class="tabbtn" role="tab" id="t-abb" aria-controls="p-abb" aria-selected="false" tabindex="-1" data-tab="abb">ABB IRB 14050 YuMi</button>
+  </div>
+
+  <section class="arm tabpanel" role="tabpanel" id="p-fanuc" aria-labelledby="t-fanuc">
+    <div class="head"><span class="tag">Available</span><h2>Fanuc ER-4iA</h2><a class="openbtn" href="fanuc-er4ia/">Open simulator &rarr;</a></div>
     <p class="sub">6-axis education arm · R-30iB Mate Plus controller</p>
     <div class="photos">
       <figure><img loading="lazy" alt="Fanuc ER-4iA robot arm" src="https://www.fanucamerica.com/uploads/products/er-4ia/ER-4iA_BeautyShot.png?fit=cover&trim%5Bborder%5D%5Btolerance%5D=40&trim%5Bborder%5D%5Bkeep%5D=20&format=auto&width=1536&s=aOy8XUUBg2k8IjYDuC9dvzs2QO9_NGS8pzcdoaPoCEk" onerror="this.parentNode.classList.add('missing')"><figcaption><b>Arm</b>fanucamerica.com</figcaption></figure>
@@ -47,11 +75,9 @@
       <figure><img loading="lazy" alt="Student working with an ER-4iA robot cell" src="https://www.fanucamerica.com/uploads/products/er-4ia/Student-Interacting-with-a-ER-4iA-Robot-Cell.jpg?fit=cover&trim%5Bborder%5D%5Btolerance%5D=40&trim%5Bborder%5D%5Bkeep%5D=20&format=auto&width=1536&s=WPkxw9udyyoF4QG80Sw4n_EeMyeLNIapU4sye0HfCMI" onerror="this.parentNode.classList.add('missing')"><figcaption><b>Setup</b>Education robot cell, fanucamerica.com</figcaption></figure>
     </div>
     <p class="desc">A compact 6-axis arm for hands-on training and small-part automation, with a 4 kg payload and 550 mm reach. Students jog joints J1 to J6 or the tool in X, Y and Z, and run sample or custom programs in a TP-style subset with grippers, I/O and a simulated controller.</p>
-    <span class="open">Open the Fanuc ER-4iA simulator</span>
-  </a>
-
-  <a class="robot" href="yaskawa-yrc1000micro/">
-    <div class="head"><span class="tag">Available</span><h2>Yaskawa YRC1000micro</h2><span class="openbtn">Open simulator &rarr;</span></div>
+    <a class="open-link" href="fanuc-er4ia/">Open the Fanuc ER-4iA simulator</a>
+  </section><section class="arm tabpanel" role="tabpanel" id="p-yaskawa" aria-labelledby="t-yaskawa" hidden>
+    <div class="head"><span class="tag">Available</span><h2>Yaskawa YRC1000micro</h2><a class="openbtn" href="yaskawa-yrc1000micro/">Open simulator &rarr;</a></div>
     <p class="sub">Ultra-compact controller for small MOTOMAN robots · INFORM-style teaching</p>
     <div class="photos">
       <figure><img loading="lazy" alt="MOTOMAN MotoMini small robot" src="https://www.motoman.com/getmedia/68d4252d-dab1-45b8-aa72-b6b8a01521c3/MotoMini_500.jpg.aspx?width=500&height=500&ext=.jpg" onerror="this.parentNode.classList.add('missing')"><figcaption><b>Arm</b>MotoMini, motoman.com (small 6-axis family)</figcaption></figure>
@@ -59,11 +85,9 @@
       <figure class="missing"><img alt="" src=""><figcaption><b>Setup</b>Not found in this session</figcaption></figure>
     </div>
     <p class="desc">The YRC1000micro is a small controller in an open-structure cabinet, aimed at pick-and-place and assembly. The simulator models a generic small 6-axis arm with a teach-pendant style controller (TEACH, PLAY and REMOTE modes), a payload interlock, digital I/O, a cycle timer and an INFORM-style subset.</p>
-    <span class="open">Open the Yaskawa YRC1000micro simulator</span>
-  </a>
-
-  <a class="robot" href="abb-irb14050/">
-    <div class="head"><span class="tag">Available</span><h2>ABB IRB 14050 YuMi (OmniCore C30)</h2><span class="openbtn">Open simulator &rarr;</span></div>
+    <a class="open-link" href="yaskawa-yrc1000micro/">Open the Yaskawa YRC1000micro simulator</a>
+  </section><section class="arm tabpanel" role="tabpanel" id="p-abb" aria-labelledby="t-abb" hidden>
+    <div class="head"><span class="tag">Available</span><h2>ABB IRB 14050 YuMi (OmniCore C30)</h2><a class="openbtn" href="abb-irb14050/">Open simulator &rarr;</a></div>
     <p class="sub">7-axis single-arm collaborative robot · OmniCore C30 controller</p>
     <div class="photos">
       <figure><img loading="lazy" alt="ABB IRB 14050 single-arm YuMi" src="https://api.one.robotics.abb.com/medias/515Wx515H-IRB-14050-3-side.jpg?context=bWFzdGVyfHJvYm90c3wxNTczMHxpbWFnZS9qcGVnfGFEQTJMMmc1WVM4NE9EQTBOalk1TVRJNE56TTBMelV4TlZkNE5URTFTRjlKVWtJZ01UUXdOVEJmTTE5emFXUmxMbXB3Wnd8YTZiYjYyMDYzNmU3ZjU3MDE1NmI4MGNlMjQyN2E3OTBlOGI4Y2IwYmU5OWFjNWI5MGQ2NWQwN2EwYjQ0MThmNA" onerror="this.parentNode.classList.add('missing')"><figcaption><b>Arm</b>IRB 14050, one.robotics.abb.com</figcaption></figure>
@@ -71,12 +95,64 @@
       <figure><img loading="lazy" alt="IRB 14050 working alongside a person" src="https://api.one.robotics.abb.com/medias/300Wx300H-IRB-14050-4-person.jpg?context=bWFzdGVyfHJvYm90c3wxODEwMXxpbWFnZS9qcGVnfGFEQmtMMmhtT1M4NE9EQTBOamN4TmpnME5qTTRMek13TUZkNE16QXdTRjlKVWtJZ01UUXdOVEJmTkY5d1pYSnpiMjR1YW5CbnxlOWViNmZlY2NkMGI0NDUyZjA2YmQxY2ZjODdiMjJhN2U1ZWVkOGQyZmU1OTBhN2JlNjlhMjlhOGI4NmRkNjcx" onerror="this.parentNode.classList.add('missing')"><figcaption><b>Setup</b>Working alongside a person, one.robotics.abb.com</figcaption></figure>
     </div>
     <p class="desc">A lightweight single-arm YuMi with a 0.5 kg payload and 559 mm reach, built for small-part assembly and testing. The simulator uses RAPID-style lines, MANUAL and AUTO modes, a servo-gripper or vacuum cup, datasheet joint limits and joint colour coding.</p>
-    <span class="open">Open the ABB IRB 14050 simulator</span>
-  </a>
+    <a class="open-link" href="abb-irb14050/">Open the ABB IRB 14050 simulator</a>
+  </section>
+
+  <section class="compare" aria-labelledby="cmpTitle">
+  <h2 id="cmpTitle">Comparison</h2>
+  <p class="cmp-note">Green rows are common to all three simulators, and yellow rows differ between them. Manufacturer and datasheet values are marked as such; the rest are simulator approximations.</p>
+  <div class="cmp-wrap">
+  <table class="cmp">
+    <thead><tr><th>Item</th><th>Fanuc ER-4iA</th><th>Yaskawa YRC1000micro</th><th>ABB IRB 14050 YuMi</th><th>Across the three</th></tr></thead>
+    <tbody><tr><td>Axes</td><td>6 (J1 to J6)</td><td>6 (J1 to J6)</td><td>7 (A1 to A7)</td><td><span class="tg unique">Differs</span></td></tr><tr><td>Rated payload (simulator)</td><td>4 kg (manufacturer)</td><td>7 kg (illustrative)</td><td>0.5 kg (datasheet)</td><td><span class="tg unique">Differs</span></td></tr><tr><td>Reach</td><td>550 mm (manufacturer)</td><td>Not stated for the simulated model</td><td>559 mm (datasheet)</td><td><span class="tg unique">Differs</span></td></tr><tr><td>Controller</td><td>R-30iB Mate Plus</td><td>YRC1000micro</td><td>OmniCore C30</td><td><span class="tg unique">Differs</span></td></tr><tr><td>Mode key</td><td>AUTO, T1, T2</td><td>TEACH, PLAY, REMOTE</td><td>MANUAL, AUTO</td><td><span class="tg unique">Differs</span></td></tr><tr><td>Program language (subset)</td><td>TP style: J and L moves</td><td>INFORM style: MOVJ and MOVL</td><td>RAPID style: MoveJ and MoveL</td><td><span class="tg unique">Differs</span></td></tr><tr><td>Digital I/O shown</td><td>8 inputs, 8 outputs</td><td>2 inputs, 1 output</td><td>2 inputs, 1 output</td><td><span class="tg unique">Differs</span></td></tr><tr><td>Speed limit in manual</td><td>T1 max 25%, T2 full speed</td><td>Cartesian jog up to 150 mm/s at 100%</td><td>TCP max 250 mm/s in MANUAL</td><td><span class="tg unique">Differs</span></td></tr><tr><td>Deadman ENABLE button</td><td>Yes</td><td>Yes</td><td>Yes</td><td><span class="tg common">Common</span></td></tr><tr><td>SERVO ON / OFF</td><td>Yes</td><td>Yes</td><td>Yes</td><td><span class="tg common">Common</span></td></tr><tr><td>E-STOP latches; RESET, then SERVO ON</td><td>Yes</td><td>Yes</td><td>Yes</td><td><span class="tg common">Common</span></td></tr><tr><td>Payload check blocks Run</td><td>Yes</td><td>Yes</td><td>Yes</td><td><span class="tg common">Common</span></td></tr><tr><td>Joint and Cartesian jog</td><td>Yes</td><td>Yes</td><td>Yes</td><td><span class="tg common">Common</span></td></tr><tr><td>Run, Step, Pause, Stop, Edit</td><td>Yes</td><td>Yes</td><td>Yes</td><td><span class="tg common">Common</span></td></tr><tr><td>Cycle timer and count</td><td>Yes</td><td>Yes</td><td>Yes</td><td><span class="tg common">Common</span></td></tr></tbody>
+  </table>
+  </div>
+  <div class="cmpcols">
+    <div class="box"><h3>Common to all three</h3><ul>
+      <li>A deadman ENABLE button for any hand movement.</li>
+      <li>SERVO ON / OFF before any motion, and an E-STOP that latches until RESET.</li>
+      <li>A payload check that blocks a program run when the payload is too high.</li>
+      <li>Joint and Cartesian jog, and the same program controls: Run, Step, Pause, Stop, Edit.</li>
+      <li>A cycle timer and cycle count on the STATUS tab.</li>
+    </ul></div>
+    <div class="box"><h3>Unique to each</h3><ul>
+      <li><b>Fanuc ER-4iA:</b> three modes (AUTO, T1, T2), the largest I/O (8 inputs and 8 outputs), and a 4 kg payload with 550 mm reach.</li>
+      <li><b>Yaskawa YRC1000micro:</b> TEACH, PLAY and REMOTE modes, with START used in REMOTE only, and INFORM-style commands.</li>
+      <li><b>ABB IRB 14050 YuMi:</b> seven axes, a 0.5 kg payload and 559 mm reach, a 250 mm/s TCP limit in MANUAL, and RAPID-style commands.</li>
+    </ul></div>
+  </div>
+  <p class="cmp-note">Sources: Fanuc values from fanucamerica.com and fanuc.eu. ABB values are from the IRB 14050 datasheet as cited in its README. The Yaskawa payload is an illustrative rating for this model, and its reach is not given.</p>
+</section>
 
   <footer>
     Hobby project by Hemoji Rao G. Photos are linked from the manufacturers' sites and belong to them. Simulations are approximate and are not manufacturer data. See each simulator's README for details and version.
   </footer>
 </main>
+<script>
+(function(){
+  var tabs=[].slice.call(document.querySelectorAll('.tabbtn'));
+  function show(key, focus){
+    tabs.forEach(function(t){
+      var on=t.dataset.tab===key;
+      t.classList.toggle('on',on);
+      t.setAttribute('aria-selected',on?'true':'false');
+      t.tabIndex=on?0:-1;
+      var p=document.getElementById('p-'+t.dataset.tab);
+      if(p) p.hidden=!on;
+      if(on && focus) t.focus();
+    });
+  }
+  tabs.forEach(function(t,i){
+    t.addEventListener('click',function(){ show(t.dataset.tab,false); history.replaceState(null,'','#'+t.dataset.tab); });
+    t.addEventListener('keydown',function(e){
+      if(e.key!=='ArrowRight' && e.key!=='ArrowLeft') return;
+      var n=tabs[(i+(e.key==='ArrowRight'?1:tabs.length-1))%tabs.length];
+      show(n.dataset.tab,true); history.replaceState(null,'','#'+n.dataset.tab);
+    });
+  });
+  var h=(location.hash||'').slice(1);
+  if(h && document.getElementById('p-'+h)) show(h,false);
+})();
+</script>
 </body>
 </html>
