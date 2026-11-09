@@ -59,7 +59,7 @@
   /* cross section */
   .xsec{margin-top:16px;background:linear-gradient(180deg,#f0f9ff,#ffffff);border:1px solid #bae6fd;border-radius:12px;padding:14px 16px}
   .xintro{font-size:13.5px;color:#334155;margin:0 0 8px}
-  .xsvg{width:100%;max-width:520px;height:auto;display:block;margin:0 auto}
+  .xsvg{width:100%;max-width:560px;height:auto;display:block;margin:0 auto}
   .xsvg .hsg{fill:#e0f2fe;stroke:#0369a1;stroke-width:1.6}
   .xsvg .motor{fill:#0ea5e9;stroke:#075985;stroke-width:1.2}
   .xsvg .gear{fill:#5eead4;stroke:#0f766e;stroke-width:1.2}
@@ -136,29 +136,30 @@
 </div>
 <div class="xsec">
   <h3 class="dh">Inside the arm: cross section</h3>
-  <p class="xintro">The drawing cuts the arm down its length, with the base at the bottom. Each joint has its own motor and gear reducer inside the housing, and the cables run through a hollow channel in the arm.</p>
-  <svg class="xsvg" viewBox="0 0 520 560" role="img" aria-label="Vertical cross section of the arm showing motors, gear reducers and cable channel">
-  <!-- wrist and flange -->
-  <rect class="motor" x="198" y="22" width="24" height="22" rx="4"/>
-  <line class="leader" x1="222" y1="33" x2="296" y2="33"/>
-  <text class="lbl" x="300" y="37">J6 flange motor</text>
-  <rect class="flange" x="186" y="46" width="48" height="10" rx="3"/>
-  <rect class="hsg" x="168" y="56" width="84" height="46" rx="12"/>
-  <rect class="motor" x="196" y="64" width="28" height="30" rx="4"/>
-  <line class="leader" x1="224" y1="80" x2="296" y2="80"/>
-  <text class="lbl" x="300" y="84">J5 wrist motor</text>
-  <!-- forearm -->
-  <rect class="hsg" x="180" y="102" width="60" height="112" rx="12"/>
-  <line class="cable" x1="210" y1="110" x2="210" y2="206"/>
-  <rect class="motor" x="192" y="138" width="36" height="24" rx="4"/>
-  <line class="leader" x1="228" y1="150" x2="296" y2="150"/>
-  <text class="lbl" x="300" y="154">J4 forearm roll motor</text>
+  <p class="xintro">The drawing cuts the arm along its length, with the base at the bottom and the elbow bent 90 degrees. Each joint has its own motor and gear reducer inside the housing, and the cables run through a hollow channel in the arm.</p>
+  <svg class="xsvg" viewBox="0 0 560 560" role="img" aria-label="Cross section of the arm bent at the elbow into an r shape, showing motors, gear reducers and cable channel">
+  <!-- forearm, wrist and flange: rotated 90 degrees about the elbow -->
+  <g transform="rotate(90 210 232)">
+    <rect class="motor" x="198" y="22" width="24" height="22" rx="4"/>
+    <rect class="flange" x="186" y="46" width="48" height="10" rx="3"/>
+    <rect class="hsg" x="168" y="56" width="84" height="46" rx="12"/>
+    <rect class="motor" x="196" y="64" width="28" height="30" rx="4"/>
+    <rect class="hsg" x="180" y="102" width="60" height="112" rx="12"/>
+    <line class="cable" x1="210" y1="110" x2="210" y2="206"/>
+    <rect class="motor" x="192" y="138" width="36" height="24" rx="4"/>
+  </g>
+  <!-- labels for the bent part -->
+  <line class="leader" x1="292" y1="200" x2="292" y2="156"/>
+  <text class="lbl" x="292" y="152" text-anchor="middle">J4 forearm roll motor</text>
+  <text class="lbl" x="363" y="178" text-anchor="middle">J5 wrist motor</text>
+  <line class="leader" x1="410" y1="236" x2="428" y2="236"/>
+  <text class="lbl" x="432" y="240">J6 flange motor</text>
   <!-- elbow -->
   <circle class="hsg" cx="210" cy="232" r="34"/>
   <rect class="motor" x="198" y="220" width="24" height="22" rx="4"/>
-  <circle class="gear" cx="238" cy="232" r="7"/>
-  <line class="leader" x1="244" y1="232" x2="296" y2="232"/>
-  <text class="lbl" x="300" y="236">J3 elbow motor</text>
+  <circle class="gear" cx="184" cy="232" r="7"/>
+  <line class="leader" x1="176" y1="232" x2="152" y2="232"/>
+  <text class="lbl" x="148" y="236" text-anchor="end">J3 elbow motor</text>
   <!-- upper arm -->
   <rect class="hsg" x="180" y="262" width="60" height="150" rx="12"/>
   <line class="cable" x1="210" y1="270" x2="210" y2="404"/>
@@ -185,7 +186,7 @@
     <span><i class="sw hsg"></i>Housing</span>
     <span><i class="sw cable"></i>Cable channel</span>
   </div>
-  <p class="xnote">Schematic cutaway, not to scale. The motors and reducers are shown as typical for this class of arm, and the simulator does not model them.</p>
+  <p class="xnote">Schematic cutaway, not to scale. The 90-degree bend is one example pose. The motors and reducers are shown as typical for this class of arm, and the simulator does not model them.</p>
 </div>
 <a class="open-link" href="fanuc-er4ia/">Open the Fanuc ER-4iA simulator</a>
   </section><section class="arm tabpanel" role="tabpanel" id="p-yaskawa" style="--acc:#0f766e" aria-labelledby="t-yaskawa" hidden>
@@ -211,29 +212,30 @@
 </div>
 <div class="xsec">
   <h3 class="dh">Inside the arm: cross section</h3>
-  <p class="xintro">The drawing cuts the arm down its length, with the base at the bottom. Each joint has its own motor and gear reducer inside the housing, and the cables run through a hollow channel in the arm.</p>
-  <svg class="xsvg" viewBox="0 0 520 560" role="img" aria-label="Vertical cross section of the arm showing motors, gear reducers and cable channel">
-  <!-- wrist and flange -->
-  <rect class="motor" x="198" y="22" width="24" height="22" rx="4"/>
-  <line class="leader" x1="222" y1="33" x2="296" y2="33"/>
-  <text class="lbl" x="300" y="37">J6 flange motor</text>
-  <rect class="flange" x="186" y="46" width="48" height="10" rx="3"/>
-  <rect class="hsg" x="168" y="56" width="84" height="46" rx="12"/>
-  <rect class="motor" x="196" y="64" width="28" height="30" rx="4"/>
-  <line class="leader" x1="224" y1="80" x2="296" y2="80"/>
-  <text class="lbl" x="300" y="84">J5 wrist motor</text>
-  <!-- forearm -->
-  <rect class="hsg" x="180" y="102" width="60" height="112" rx="12"/>
-  <line class="cable" x1="210" y1="110" x2="210" y2="206"/>
-  <rect class="motor" x="192" y="138" width="36" height="24" rx="4"/>
-  <line class="leader" x1="228" y1="150" x2="296" y2="150"/>
-  <text class="lbl" x="300" y="154">J4 forearm roll motor</text>
+  <p class="xintro">The drawing cuts the arm along its length, with the base at the bottom and the elbow bent 90 degrees. Each joint has its own motor and gear reducer inside the housing, and the cables run through a hollow channel in the arm.</p>
+  <svg class="xsvg" viewBox="0 0 560 560" role="img" aria-label="Cross section of the arm bent at the elbow into an r shape, showing motors, gear reducers and cable channel">
+  <!-- forearm, wrist and flange: rotated 90 degrees about the elbow -->
+  <g transform="rotate(90 210 232)">
+    <rect class="motor" x="198" y="22" width="24" height="22" rx="4"/>
+    <rect class="flange" x="186" y="46" width="48" height="10" rx="3"/>
+    <rect class="hsg" x="168" y="56" width="84" height="46" rx="12"/>
+    <rect class="motor" x="196" y="64" width="28" height="30" rx="4"/>
+    <rect class="hsg" x="180" y="102" width="60" height="112" rx="12"/>
+    <line class="cable" x1="210" y1="110" x2="210" y2="206"/>
+    <rect class="motor" x="192" y="138" width="36" height="24" rx="4"/>
+  </g>
+  <!-- labels for the bent part -->
+  <line class="leader" x1="292" y1="200" x2="292" y2="156"/>
+  <text class="lbl" x="292" y="152" text-anchor="middle">J4 forearm roll motor</text>
+  <text class="lbl" x="363" y="178" text-anchor="middle">J5 wrist motor</text>
+  <line class="leader" x1="410" y1="236" x2="428" y2="236"/>
+  <text class="lbl" x="432" y="240">J6 flange motor</text>
   <!-- elbow -->
   <circle class="hsg" cx="210" cy="232" r="34"/>
   <rect class="motor" x="198" y="220" width="24" height="22" rx="4"/>
-  <circle class="gear" cx="238" cy="232" r="7"/>
-  <line class="leader" x1="244" y1="232" x2="296" y2="232"/>
-  <text class="lbl" x="300" y="236">J3 elbow motor</text>
+  <circle class="gear" cx="184" cy="232" r="7"/>
+  <line class="leader" x1="176" y1="232" x2="152" y2="232"/>
+  <text class="lbl" x="148" y="236" text-anchor="end">J3 elbow motor</text>
   <!-- upper arm -->
   <rect class="hsg" x="180" y="262" width="60" height="150" rx="12"/>
   <line class="cable" x1="210" y1="270" x2="210" y2="404"/>
@@ -260,7 +262,7 @@
     <span><i class="sw hsg"></i>Housing</span>
     <span><i class="sw cable"></i>Cable channel</span>
   </div>
-  <p class="xnote">Schematic cutaway, not to scale. The motors and reducers are shown as typical for this class of arm, and the simulator does not model them.</p>
+  <p class="xnote">Schematic cutaway, not to scale. The 90-degree bend is one example pose. The motors and reducers are shown as typical for this class of arm, and the simulator does not model them.</p>
 </div>
 <a class="open-link" href="yaskawa-yrc1000micro/">Open the Yaskawa YRC1000micro simulator</a>
   </section><section class="arm tabpanel" role="tabpanel" id="p-abb" style="--acc:#4338ca" aria-labelledby="t-abb" hidden>
@@ -286,29 +288,30 @@
 </div>
 <div class="xsec">
   <h3 class="dh">Inside the arm: cross section</h3>
-  <p class="xintro">The drawing cuts the arm down its length, with the base at the bottom. Each joint has its own motor and gear reducer inside the housing, and the cables run through a hollow channel in the arm.</p>
-  <svg class="xsvg" viewBox="0 0 520 560" role="img" aria-label="Vertical cross section of the arm showing motors, gear reducers and cable channel">
-  <!-- wrist and flange -->
-  <rect class="motor" x="198" y="22" width="24" height="22" rx="4"/>
-  <line class="leader" x1="222" y1="33" x2="296" y2="33"/>
-  <text class="lbl" x="300" y="37">A6 flange motor</text>
-  <rect class="flange" x="186" y="46" width="48" height="10" rx="3"/>
-  <rect class="hsg" x="168" y="56" width="84" height="46" rx="12"/>
-  <rect class="motor" x="196" y="64" width="28" height="30" rx="4"/>
-  <line class="leader" x1="224" y1="80" x2="296" y2="80"/>
-  <text class="lbl" x="300" y="84">A5 wrist motor</text>
-  <!-- forearm -->
-  <rect class="hsg" x="180" y="102" width="60" height="112" rx="12"/>
-  <line class="cable" x1="210" y1="110" x2="210" y2="206"/>
-  <rect class="motor" x="192" y="138" width="36" height="24" rx="4"/>
-  <line class="leader" x1="228" y1="150" x2="296" y2="150"/>
-  <text class="lbl" x="300" y="154">A4 forearm roll motor</text>
+  <p class="xintro">The drawing cuts the arm along its length, with the base at the bottom and the elbow bent 90 degrees. Each joint has its own motor and gear reducer inside the housing, and the cables run through a hollow channel in the arm.</p>
+  <svg class="xsvg" viewBox="0 0 560 560" role="img" aria-label="Cross section of the arm bent at the elbow into an r shape, showing motors, gear reducers and cable channel">
+  <!-- forearm, wrist and flange: rotated 90 degrees about the elbow -->
+  <g transform="rotate(90 210 232)">
+    <rect class="motor" x="198" y="22" width="24" height="22" rx="4"/>
+    <rect class="flange" x="186" y="46" width="48" height="10" rx="3"/>
+    <rect class="hsg" x="168" y="56" width="84" height="46" rx="12"/>
+    <rect class="motor" x="196" y="64" width="28" height="30" rx="4"/>
+    <rect class="hsg" x="180" y="102" width="60" height="112" rx="12"/>
+    <line class="cable" x1="210" y1="110" x2="210" y2="206"/>
+    <rect class="motor" x="192" y="138" width="36" height="24" rx="4"/>
+  </g>
+  <!-- labels for the bent part -->
+  <line class="leader" x1="292" y1="200" x2="292" y2="156"/>
+  <text class="lbl" x="292" y="152" text-anchor="middle">A4 forearm roll motor</text>
+  <text class="lbl" x="363" y="178" text-anchor="middle">A5 wrist motor</text>
+  <line class="leader" x1="410" y1="236" x2="428" y2="236"/>
+  <text class="lbl" x="432" y="240">A6 flange motor</text>
   <!-- elbow -->
   <circle class="hsg" cx="210" cy="232" r="34"/>
   <rect class="motor" x="198" y="220" width="24" height="22" rx="4"/>
-  <circle class="gear" cx="238" cy="232" r="7"/>
-  <line class="leader" x1="244" y1="232" x2="296" y2="232"/>
-  <text class="lbl" x="300" y="236">A3 elbow motor</text>
+  <circle class="gear" cx="184" cy="232" r="7"/>
+  <line class="leader" x1="176" y1="232" x2="152" y2="232"/>
+  <text class="lbl" x="148" y="236" text-anchor="end">A3 elbow motor</text>
   <!-- upper arm -->
   <rect class="hsg" x="180" y="262" width="60" height="150" rx="12"/>
   <line class="cable" x1="210" y1="270" x2="210" y2="404"/>
@@ -335,7 +338,7 @@
     <span><i class="sw hsg"></i>Housing</span>
     <span><i class="sw cable"></i>Cable channel</span>
   </div>
-  <p class="xnote">Schematic cutaway, not to scale. The motors and reducers are shown as typical for this class of arm, and the simulator does not model them. ABB adds an upper-arm roll motor (A7) in the upper arm.</p>
+  <p class="xnote">Schematic cutaway, not to scale. The 90-degree bend is one example pose. The motors and reducers are shown as typical for this class of arm, and the simulator does not model them. ABB adds an upper-arm roll motor (A7) in the upper arm.</p>
 </div>
 <a class="open-link" href="abb-irb14050/">Open the ABB IRB 14050 simulator</a>
   </section>
