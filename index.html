@@ -15,7 +15,7 @@
   .head h2{font-size:20px;margin:0}
   .sub{color:#55554e;font-size:13px;margin:0 0 14px}
   .openbtn{margin-left:auto;display:inline-block;font-size:13px;font-weight:600;color:#fff;background:#1d1d1b;border-radius:8px;padding:7px 14px;line-height:1}
-  .tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-radius:4px;padding:2px 7px;background:#ffd200;color:#1d1d1b}
+  .tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-radius:4px;padding:2px 7px;background:#bae6fd;color:#1d1d1b}
   .photos{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
   figure{margin:0;background:#f7f7f3;border:1px solid #e6e6df;border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
   figure img{width:100%;height:170px;object-fit:contain;background:#fff;display:block}
@@ -29,7 +29,7 @@
   footer{margin-top:36px;font-size:12px;color:#66665f}
 
   /* colour accents */
-  body::before{content:"";display:block;height:6px;background:linear-gradient(90deg,#f5c400,#ff6a00,#e11d2e,#8b5cf6,#3b82f6,#10b981)}
+  body::before{content:"";display:block;height:6px;background:linear-gradient(90deg,#0ea5e9,#14b8a6,#6366f1,#a855f7,#06b6d4,#64748b)}
   h1{background:linear-gradient(90deg,#1d1d1b,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
   .tabbtn{background:color-mix(in srgb,var(--acc) 14%,#fff);border-color:color-mix(in srgb,var(--acc) 40%,#fff)}
   .tabbtn.on{background:#fff;border-top:5px solid var(--acc);border-color:#dcdcd4}
@@ -52,9 +52,29 @@
   .lk{display:inline-block;min-width:110px;color:#55554e}
   .open-link{display:inline-block;margin-top:14px;color:#fff;background:var(--acc);padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:700}
   .open-link::after{content:' →'}
-  .cmp thead th{background:#fff1c2}
+  .cmp thead th{background:#ecfeff}
   section.compare h2{color:#8b5cf6}
   @media (max-width:700px){.dgrid{grid-template-columns:1fr}}
+
+  /* cross section */
+  .xsec{margin-top:16px;background:linear-gradient(180deg,#f0f9ff,#ffffff);border:1px solid #bae6fd;border-radius:12px;padding:14px 16px}
+  .xintro{font-size:13.5px;color:#334155;margin:0 0 8px}
+  .xsvg{width:100%;height:auto;display:block}
+  .xsvg .hsg{fill:#e0f2fe;stroke:#0369a1;stroke-width:1.6}
+  .xsvg .motor{fill:#0ea5e9;stroke:#075985;stroke-width:1.2}
+  .xsvg .gear{fill:#5eead4;stroke:#0f766e;stroke-width:1.2}
+  .xsvg .flange{fill:#94a3b8;stroke:#334155;stroke-width:1.2}
+  .xsvg .cable{stroke:#6366f1;stroke-width:2.6;stroke-dasharray:7 5;fill:none}
+  .xsvg .leader{stroke:#64748b;stroke-width:1}
+  .xsvg .lbl{font:12px system-ui,-apple-system,Segoe UI,sans-serif;fill:#1e293b}
+  .xlegend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:#334155;margin:6px 0 4px}
+  .xlegend span{display:inline-flex;align-items:center;gap:6px}
+  .sw{display:inline-block;width:18px;height:12px;border-radius:3px;border:1px solid #64748b}
+  .sw.motor{background:#0ea5e9;border-color:#075985}
+  .sw.gear{background:#5eead4;border-color:#0f766e;border-radius:50%}
+  .sw.hsg{background:#e0f2fe;border-color:#0369a1}
+  .sw.cable{background:repeating-linear-gradient(90deg,#6366f1 0 6px,transparent 6px 10px);border:none;height:4px}
+  .xnote{font-size:12px;color:#64748b;margin:6px 0 0}
   @media (max-width:640px){.photos{grid-template-columns:1fr}figure img{height:200px}}
   .tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid #dcdcd4;margin:0 0 18px}
   .tabbtn{font:inherit;font-weight:600;color:#55554e;background:#ebebe5;border:1px solid #dcdcd4;border-bottom:none;border-radius:8px 8px 0 0;padding:9px 16px;cursor:pointer;margin-bottom:-1px}
@@ -76,7 +96,7 @@
   .cmp td:first-child{font-weight:600;white-space:nowrap}
   .tg{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-radius:4px;padding:2px 7px;white-space:nowrap}
   .tg.common{background:#dff3e4;color:#1e5e2e}
-  .tg.unique{background:#ffd200;color:#1d1d1b}
+  .tg.unique{background:#bae6fd;color:#1d1d1b}
   .cmpcols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
   .cmpcols .box{background:#fff;border:1px solid #dcdcd4;border-radius:12px;padding:16px 18px}
   .cmpcols h3{font-size:15px;margin:0 0 8px}
@@ -91,10 +111,10 @@
   <p class="lead">Browser-based 3D simulators for industrial robot arms, with controller-style program operation. Choose an arm tab to see its photos and details, then open its simulator. The comparison below shows what the three have in common and where they differ.</p>
 
   <div class="tabs" role="tablist" aria-label="Robot arms">
-    <button class="tabbtn on" role="tab" id="t-fanuc" style="--acc:#f5c400" aria-controls="p-fanuc" aria-selected="true" tabindex="0" data-tab="fanuc">Fanuc ER-4iA</button><button class="tabbtn" role="tab" id="t-yaskawa" style="--acc:#ff6a00" aria-controls="p-yaskawa" aria-selected="false" tabindex="-1" data-tab="yaskawa">Yaskawa YRC1000micro</button><button class="tabbtn" role="tab" id="t-abb" style="--acc:#e11d2e" aria-controls="p-abb" aria-selected="false" tabindex="-1" data-tab="abb">ABB IRB 14050 YuMi</button>
+    <button class="tabbtn on" role="tab" id="t-fanuc" style="--acc:#0ea5e9" aria-controls="p-fanuc" aria-selected="true" tabindex="0" data-tab="fanuc">Fanuc ER-4iA</button><button class="tabbtn" role="tab" id="t-yaskawa" style="--acc:#0d9488" aria-controls="p-yaskawa" aria-selected="false" tabindex="-1" data-tab="yaskawa">Yaskawa YRC1000micro</button><button class="tabbtn" role="tab" id="t-abb" style="--acc:#6366f1" aria-controls="p-abb" aria-selected="false" tabindex="-1" data-tab="abb">ABB IRB 14050 YuMi</button>
   </div>
 
-  <section class="arm tabpanel" role="tabpanel" id="p-fanuc" style="--acc:#f5c400" aria-labelledby="t-fanuc">
+  <section class="arm tabpanel" role="tabpanel" id="p-fanuc" style="--acc:#0ea5e9" aria-labelledby="t-fanuc">
     <div class="head"><span class="tag">Available</span><h2>Fanuc ER-4iA</h2><a class="openbtn" href="fanuc-er4ia/">Open simulator &rarr;</a></div>
     <p class="sub">6-axis education arm · R-30iB Mate Plus controller</p>
     <div class="photos">
@@ -107,7 +127,7 @@
   <h3 class="dh">Joints</h3>
   <div class="jwrap"><table class="jtbl">
     <thead><tr><th>Axis</th><th>Name</th><th>What it moves</th><th>Range</th></tr></thead>
-    <tbody><tr><td><span class="chip" style="--jc:#3b82f6">J1</span></td><td><b>Base</b></td><td>Turns the whole arm left and right on its base.</td><td>±180° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#f59e0b">J2</span></td><td><b>Shoulder</b></td><td>Raises and lowers the upper arm.</td><td>0° to 120° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#10b981">J3</span></td><td><b>Elbow</b></td><td>Bends and straightens the elbow.</td><td>−120° to 100° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#8b5cf6">J4</span></td><td><b>Forearm roll</b></td><td>Rolls the forearm along its length.</td><td>±190° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#ef4444">J5</span></td><td><b>Wrist bend</b></td><td>Tilts the wrist up and down.</td><td>±120° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#06b6d4">J6</span></td><td><b>Flange</b></td><td>Turns the tool mounting flange.</td><td>±360° (simulator)</td></tr></tbody>
+    <tbody><tr><td><span class="chip" style="--jc:#0ea5e9">J1</span></td><td><b>Base</b></td><td>Turns the whole arm left and right on its base.</td><td>±180° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#0891b2">J2</span></td><td><b>Shoulder</b></td><td>Raises and lowers the upper arm.</td><td>0° to 120° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#10b981">J3</span></td><td><b>Elbow</b></td><td>Bends and straightens the elbow.</td><td>−120° to 100° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#8b5cf6">J4</span></td><td><b>Forearm roll</b></td><td>Rolls the forearm along its length.</td><td>±190° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#475569">J5</span></td><td><b>Wrist bend</b></td><td>Tilts the wrist up and down.</td><td>±120° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#06b6d4">J6</span></td><td><b>Flange</b></td><td>Turns the tool mounting flange.</td><td>±360° (simulator)</td></tr></tbody>
   </table></div>
   <div class="dgrid">
     <div class="dbox"><h3 class="dh">Motors and drives</h3><p>Each joint is moved by its own servo motor through a gear reducer. Each motor has an encoder that reports its position to the controller, and a brake that holds the joint when servo power is off. This is typical for this class of arm; the simulator does not model the motors themselves.</p></div>
@@ -115,8 +135,50 @@
   </div>
   <div class="dbox notes"><h3 class="dh">Notes</h3><ul><li>Datasheet: mechanical weight 20 kg, repeatability ±0.01 mm, 550 mm reach, 4 kg wrist payload.</li><li>The datasheet gives total travel of 340° (J1), 230° (J2), 402° (J3), 380° (J4), 240° (J5) and 720° (J6). The simulator ranges above are approximations and differ for some joints.</li><li>Protection IP50 on the body and wrist (datasheet).</li></ul></div>
 </div>
+<div class="xsec">
+  <h3 class="dh">Inside the arm: cross section</h3>
+  <p class="xintro">The drawing cuts the arm along its length. Each joint has its own motor and gear reducer inside the housing, and the cables run through a hollow channel in the arm.</p>
+  <svg class="xsvg" viewBox="0 182 760 162" role="img" aria-label="Cross section of the arm showing motors, gear reducers and cable channel">
+  <rect class="hsg" x="30" y="250" width="130" height="62" rx="10"/>
+  <rect class="motor" x="48" y="262" width="46" height="40" rx="5"/>
+  <circle class="gear" cx="128" cy="282" r="16"/>
+  <circle class="gear" cx="128" cy="282" r="6"/>
+  <text class="lbl" x="95" y="333" text-anchor="middle">J1 base motor + reducer</text>
+  <circle class="hsg" cx="198" cy="240" r="38"/>
+  <rect class="motor" x="180" y="226" width="30" height="28" rx="4"/>
+  <circle class="gear" cx="224" cy="240" r="10"/>
+  <text class="lbl" x="198" y="196" text-anchor="middle">J2 shoulder motor</text>
+  <rect class="hsg" x="200" y="214" width="236" height="52" rx="12"/>
+  <line class="cable" x1="214" y1="240" x2="424" y2="240"/>
+  <text class="lbl" x="318" y="286" text-anchor="middle">upper arm (hollow, cables inside)</text>
+  
+  <circle class="hsg" cx="446" cy="240" r="34"/>
+  <rect class="motor" x="436" y="226" width="22" height="28" rx="4"/>
+  <circle class="gear" cx="466" cy="240" r="9"/>
+  <text class="lbl" x="446" y="196" text-anchor="middle">J3 elbow motor</text>
+  <rect class="hsg" x="446" y="216" width="186" height="48" rx="12"/>
+  <line class="cable" x1="458" y1="240" x2="620" y2="240"/>
+  <rect class="motor" x="496" y="228" width="34" height="24" rx="4"/>
+  <text class="lbl" x="530" y="286" text-anchor="middle">J4 forearm roll motor</text>
+  <rect class="hsg" x="632" y="210" width="58" height="60" rx="12"/>
+  <rect class="motor" x="642" y="222" width="18" height="36" rx="4"/>
+  <text class="lbl" x="641" y="196" text-anchor="middle">J5 wrist motor</text>
+  <rect class="flange" x="700" y="218" width="12" height="44" rx="3"/>
+  <rect class="motor" x="716" y="230" width="24" height="20" rx="4"/>
+  <text class="lbl" x="752" y="318" text-anchor="end">J6 flange motor</text>
+  <line class="leader" x1="740" y1="240" x2="752" y2="240"/>
+  <text class="lbl" x="752" y="268" text-anchor="end">tool</text>
+</svg>
+  <div class="xlegend">
+    <span><i class="sw motor"></i>Servo motor</span>
+    <span><i class="sw gear"></i>Gear reducer</span>
+    <span><i class="sw hsg"></i>Housing</span>
+    <span><i class="sw cable"></i>Cable channel</span>
+  </div>
+  <p class="xnote">Schematic cutaway, not to scale. The motors and reducers are shown as typical for this class of arm, and the simulator does not model them.</p>
+</div>
 <a class="open-link" href="fanuc-er4ia/">Open the Fanuc ER-4iA simulator</a>
-  </section><section class="arm tabpanel" role="tabpanel" id="p-yaskawa" style="--acc:#ff6a00" aria-labelledby="t-yaskawa" hidden>
+  </section><section class="arm tabpanel" role="tabpanel" id="p-yaskawa" style="--acc:#0d9488" aria-labelledby="t-yaskawa" hidden>
     <div class="head"><span class="tag">Available</span><h2>Yaskawa YRC1000micro</h2><a class="openbtn" href="yaskawa-yrc1000micro/">Open simulator &rarr;</a></div>
     <p class="sub">Ultra-compact controller for small MOTOMAN robots · INFORM-style teaching</p>
     <div class="photos">
@@ -129,7 +191,7 @@
   <h3 class="dh">Joints</h3>
   <div class="jwrap"><table class="jtbl">
     <thead><tr><th>Axis</th><th>Name</th><th>What it moves</th><th>Range</th></tr></thead>
-    <tbody><tr><td><span class="chip" style="--jc:#3b82f6">J1</span></td><td><b>Base</b></td><td>Turns the whole arm left and right on its base.</td><td>±180° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#f59e0b">J2</span></td><td><b>Shoulder</b></td><td>Raises and lowers the upper arm.</td><td>−45° to 120° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#10b981">J3</span></td><td><b>Elbow</b></td><td>Bends and straightens the elbow.</td><td>−120° to 100° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#8b5cf6">J4</span></td><td><b>Forearm roll</b></td><td>Rolls the forearm along its length.</td><td>±190° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#ef4444">J5</span></td><td><b>Wrist bend</b></td><td>Tilts the wrist up and down.</td><td>±120° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#06b6d4">J6</span></td><td><b>Flange</b></td><td>Turns the tool mounting flange.</td><td>±360° (simulator)</td></tr></tbody>
+    <tbody><tr><td><span class="chip" style="--jc:#0ea5e9">J1</span></td><td><b>Base</b></td><td>Turns the whole arm left and right on its base.</td><td>±180° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#0891b2">J2</span></td><td><b>Shoulder</b></td><td>Raises and lowers the upper arm.</td><td>−45° to 120° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#10b981">J3</span></td><td><b>Elbow</b></td><td>Bends and straightens the elbow.</td><td>−120° to 100° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#8b5cf6">J4</span></td><td><b>Forearm roll</b></td><td>Rolls the forearm along its length.</td><td>±190° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#475569">J5</span></td><td><b>Wrist bend</b></td><td>Tilts the wrist up and down.</td><td>±120° (simulator)</td></tr><tr><td><span class="chip" style="--jc:#06b6d4">J6</span></td><td><b>Flange</b></td><td>Turns the tool mounting flange.</td><td>±360° (simulator)</td></tr></tbody>
   </table></div>
   <div class="dgrid">
     <div class="dbox"><h3 class="dh">Motors and drives</h3><p>Each joint is moved by its own servo motor through a gear reducer, with an encoder for position and a brake that holds the joint when servo power is off. This is typical for small industrial arms; the simulator does not model the motors themselves.</p></div>
@@ -137,8 +199,50 @@
   </div>
   <div class="dbox notes"><h3 class="dh">Notes</h3><ul><li>The arm is a generic small six-axis model, not a specific MOTOMAN robot. Joint limits and link lengths are illustrative.</li><li>The YRC1000micro controller is in an open-structure cabinet, and the robot payload depends on the robot model.</li></ul></div>
 </div>
+<div class="xsec">
+  <h3 class="dh">Inside the arm: cross section</h3>
+  <p class="xintro">The drawing cuts the arm along its length. Each joint has its own motor and gear reducer inside the housing, and the cables run through a hollow channel in the arm.</p>
+  <svg class="xsvg" viewBox="0 182 760 162" role="img" aria-label="Cross section of the arm showing motors, gear reducers and cable channel">
+  <rect class="hsg" x="30" y="250" width="130" height="62" rx="10"/>
+  <rect class="motor" x="48" y="262" width="46" height="40" rx="5"/>
+  <circle class="gear" cx="128" cy="282" r="16"/>
+  <circle class="gear" cx="128" cy="282" r="6"/>
+  <text class="lbl" x="95" y="333" text-anchor="middle">J1 base motor + reducer</text>
+  <circle class="hsg" cx="198" cy="240" r="38"/>
+  <rect class="motor" x="180" y="226" width="30" height="28" rx="4"/>
+  <circle class="gear" cx="224" cy="240" r="10"/>
+  <text class="lbl" x="198" y="196" text-anchor="middle">J2 shoulder motor</text>
+  <rect class="hsg" x="200" y="214" width="236" height="52" rx="12"/>
+  <line class="cable" x1="214" y1="240" x2="424" y2="240"/>
+  <text class="lbl" x="318" y="286" text-anchor="middle">upper arm (hollow, cables inside)</text>
+  
+  <circle class="hsg" cx="446" cy="240" r="34"/>
+  <rect class="motor" x="436" y="226" width="22" height="28" rx="4"/>
+  <circle class="gear" cx="466" cy="240" r="9"/>
+  <text class="lbl" x="446" y="196" text-anchor="middle">J3 elbow motor</text>
+  <rect class="hsg" x="446" y="216" width="186" height="48" rx="12"/>
+  <line class="cable" x1="458" y1="240" x2="620" y2="240"/>
+  <rect class="motor" x="496" y="228" width="34" height="24" rx="4"/>
+  <text class="lbl" x="530" y="286" text-anchor="middle">J4 forearm roll motor</text>
+  <rect class="hsg" x="632" y="210" width="58" height="60" rx="12"/>
+  <rect class="motor" x="642" y="222" width="18" height="36" rx="4"/>
+  <text class="lbl" x="641" y="196" text-anchor="middle">J5 wrist motor</text>
+  <rect class="flange" x="700" y="218" width="12" height="44" rx="3"/>
+  <rect class="motor" x="716" y="230" width="24" height="20" rx="4"/>
+  <text class="lbl" x="752" y="318" text-anchor="end">J6 flange motor</text>
+  <line class="leader" x1="740" y1="240" x2="752" y2="240"/>
+  <text class="lbl" x="752" y="268" text-anchor="end">tool</text>
+</svg>
+  <div class="xlegend">
+    <span><i class="sw motor"></i>Servo motor</span>
+    <span><i class="sw gear"></i>Gear reducer</span>
+    <span><i class="sw hsg"></i>Housing</span>
+    <span><i class="sw cable"></i>Cable channel</span>
+  </div>
+  <p class="xnote">Schematic cutaway, not to scale. The motors and reducers are shown as typical for this class of arm, and the simulator does not model them.</p>
+</div>
 <a class="open-link" href="yaskawa-yrc1000micro/">Open the Yaskawa YRC1000micro simulator</a>
-  </section><section class="arm tabpanel" role="tabpanel" id="p-abb" style="--acc:#e11d2e" aria-labelledby="t-abb" hidden>
+  </section><section class="arm tabpanel" role="tabpanel" id="p-abb" style="--acc:#6366f1" aria-labelledby="t-abb" hidden>
     <div class="head"><span class="tag">Available</span><h2>ABB IRB 14050 YuMi (OmniCore C30)</h2><a class="openbtn" href="abb-irb14050/">Open simulator &rarr;</a></div>
     <p class="sub">7-axis single-arm collaborative robot · OmniCore C30 controller</p>
     <div class="photos">
@@ -151,7 +255,7 @@
   <h3 class="dh">Joints</h3>
   <div class="jwrap"><table class="jtbl">
     <thead><tr><th>Axis</th><th>Name</th><th>What it moves</th><th>Range</th></tr></thead>
-    <tbody><tr><td><span class="chip" style="--jc:#3b82f6">A1</span></td><td><b>Base</b></td><td>Turns the whole arm left and right on its base.</td><td>±168.5°</td></tr><tr><td><span class="chip" style="--jc:#f59e0b">A2</span></td><td><b>Shoulder</b></td><td>Raises and lowers the upper arm.</td><td>−143.5° to 43.5°</td></tr><tr><td><span class="chip" style="--jc:#14b8a6">A7</span></td><td><b>Upper-arm roll</b></td><td>Rolls the upper arm. This extra axis gives the arm its seventh degree of freedom.</td><td>±168.5°</td></tr><tr><td><span class="chip" style="--jc:#10b981">A3</span></td><td><b>Elbow</b></td><td>Bends and straightens the elbow.</td><td>−123.5° to 80°</td></tr><tr><td><span class="chip" style="--jc:#8b5cf6">A4</span></td><td><b>Forearm roll</b></td><td>Rolls the forearm along its length.</td><td>±290°</td></tr><tr><td><span class="chip" style="--jc:#ef4444">A5</span></td><td><b>Wrist bend</b></td><td>Tilts the wrist up and down.</td><td>−88° to 138°</td></tr><tr><td><span class="chip" style="--jc:#06b6d4">A6</span></td><td><b>Flange turn</b></td><td>Turns the tool mounting flange.</td><td>±229°</td></tr></tbody>
+    <tbody><tr><td><span class="chip" style="--jc:#0ea5e9">A1</span></td><td><b>Base</b></td><td>Turns the whole arm left and right on its base.</td><td>±168.5°</td></tr><tr><td><span class="chip" style="--jc:#0891b2">A2</span></td><td><b>Shoulder</b></td><td>Raises and lowers the upper arm.</td><td>−143.5° to 43.5°</td></tr><tr><td><span class="chip" style="--jc:#5eead4">A7</span></td><td><b>Upper-arm roll</b></td><td>Rolls the upper arm. This extra axis gives the arm its seventh degree of freedom.</td><td>±168.5°</td></tr><tr><td><span class="chip" style="--jc:#10b981">A3</span></td><td><b>Elbow</b></td><td>Bends and straightens the elbow.</td><td>−123.5° to 80°</td></tr><tr><td><span class="chip" style="--jc:#8b5cf6">A4</span></td><td><b>Forearm roll</b></td><td>Rolls the forearm along its length.</td><td>±290°</td></tr><tr><td><span class="chip" style="--jc:#475569">A5</span></td><td><b>Wrist bend</b></td><td>Tilts the wrist up and down.</td><td>−88° to 138°</td></tr><tr><td><span class="chip" style="--jc:#06b6d4">A6</span></td><td><b>Flange turn</b></td><td>Turns the tool mounting flange.</td><td>±229°</td></tr></tbody>
   </table></div>
   <div class="dgrid">
     <div class="dbox"><h3 class="dh">Motors and drives</h3><p>Each joint is moved by its own servo motor through a gear reducer, with an encoder for position and a brake that holds the joint when servo power is off. This is typical for collaborative arms; the simulator does not model the motors themselves.</p></div>
@@ -159,12 +263,54 @@
   </div>
   <div class="dbox notes"><h3 class="dh">Notes</h3><ul><li>Joint ranges are from the ABB IRB 14050 datasheet (as cited in the simulator README). Link lengths are simulator approximations, chosen so the straight arm reaches the datasheet 559 mm.</li><li>Rated payload 0.5 kg. The seventh axis (A7) lets the arm reach the same point with different elbow positions.</li></ul></div>
 </div>
+<div class="xsec">
+  <h3 class="dh">Inside the arm: cross section</h3>
+  <p class="xintro">The drawing cuts the arm along its length. Each joint has its own motor and gear reducer inside the housing, and the cables run through a hollow channel in the arm.</p>
+  <svg class="xsvg" viewBox="0 182 760 162" role="img" aria-label="Cross section of the arm showing motors, gear reducers and cable channel">
+  <rect class="hsg" x="30" y="250" width="130" height="62" rx="10"/>
+  <rect class="motor" x="48" y="262" width="46" height="40" rx="5"/>
+  <circle class="gear" cx="128" cy="282" r="16"/>
+  <circle class="gear" cx="128" cy="282" r="6"/>
+  <text class="lbl" x="95" y="333" text-anchor="middle">A1 base motor + reducer</text>
+  <circle class="hsg" cx="198" cy="240" r="38"/>
+  <rect class="motor" x="180" y="226" width="30" height="28" rx="4"/>
+  <circle class="gear" cx="224" cy="240" r="10"/>
+  <text class="lbl" x="198" y="196" text-anchor="middle">A2 shoulder motor</text>
+  <rect class="hsg" x="200" y="214" width="236" height="52" rx="12"/>
+  <line class="cable" x1="214" y1="240" x2="424" y2="240"/>
+  <text class="lbl" x="318" y="286" text-anchor="middle">upper arm (hollow, cables inside)</text>
+  <rect class="motor" x="296" y="222" width="34" height="36" rx="4"/><line class="leader" x1="313" y1="222" x2="313" y2="200"/><text class="lbl" x="313" y="194" text-anchor="middle">A7 roll motor</text>
+  <circle class="hsg" cx="446" cy="240" r="34"/>
+  <rect class="motor" x="436" y="226" width="22" height="28" rx="4"/>
+  <circle class="gear" cx="466" cy="240" r="9"/>
+  <text class="lbl" x="446" y="196" text-anchor="middle">A3 elbow motor</text>
+  <rect class="hsg" x="446" y="216" width="186" height="48" rx="12"/>
+  <line class="cable" x1="458" y1="240" x2="620" y2="240"/>
+  <rect class="motor" x="496" y="228" width="34" height="24" rx="4"/>
+  <text class="lbl" x="530" y="286" text-anchor="middle">A4 forearm roll motor</text>
+  <rect class="hsg" x="632" y="210" width="58" height="60" rx="12"/>
+  <rect class="motor" x="642" y="222" width="18" height="36" rx="4"/>
+  <text class="lbl" x="641" y="196" text-anchor="middle">A5 wrist motor</text>
+  <rect class="flange" x="700" y="218" width="12" height="44" rx="3"/>
+  <rect class="motor" x="716" y="230" width="24" height="20" rx="4"/>
+  <text class="lbl" x="752" y="318" text-anchor="end">A6 flange motor</text>
+  <line class="leader" x1="740" y1="240" x2="752" y2="240"/>
+  <text class="lbl" x="752" y="268" text-anchor="end">tool</text>
+</svg>
+  <div class="xlegend">
+    <span><i class="sw motor"></i>Servo motor</span>
+    <span><i class="sw gear"></i>Gear reducer</span>
+    <span><i class="sw hsg"></i>Housing</span>
+    <span><i class="sw cable"></i>Cable channel</span>
+  </div>
+  <p class="xnote">Schematic cutaway, not to scale. The motors and reducers are shown as typical for this class of arm, and the simulator does not model them. ABB adds an upper-arm roll motor (A7) in the upper arm.</p>
+</div>
 <a class="open-link" href="abb-irb14050/">Open the ABB IRB 14050 simulator</a>
   </section>
 
   <section class="compare" aria-labelledby="cmpTitle">
   <h2 id="cmpTitle">Comparison</h2>
-  <p class="cmp-note">Green rows are common to all three simulators, and yellow rows differ between them. Manufacturer and datasheet values are marked as such; the rest are simulator approximations.</p>
+  <p class="cmp-note">Green rows are common to all three simulators, and blue rows differ between them. Manufacturer and datasheet values are marked as such; the rest are simulator approximations.</p>
   <div class="cmp-wrap">
   <table class="cmp">
     <thead><tr><th>Item</th><th>Fanuc ER-4iA</th><th>Yaskawa YRC1000micro</th><th>ABB IRB 14050 YuMi</th><th>Across the three</th></tr></thead>
