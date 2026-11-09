@@ -114,6 +114,12 @@ input[type=number]{width:70px;font:inherit;padding:4px;border:1px solid #bdbdb4;
 .mbtn{padding:3px 12px;background:#3d4046;color:#e8e8e2;border:1px solid #1a1b1e;border-radius:4px;font:600 11px/1 system-ui,sans-serif}
 .mbtn.on{background:var(--yel);color:#1d1d1b;border-color:#c9a800}
 .mbtn:disabled{opacity:.45}
+.modebar{flex-wrap:wrap;row-gap:4px}
+.sbtn{padding:3px 8px;background:#3d4046;color:#e8e8e2;border:1px solid #1a1b1e;border-radius:4px;font:600 10.5px/1 system-ui,sans-serif}
+.sbtn.on{background:#2e7d32;color:#fff;border-color:#1b5e20}
+.sbtn:disabled{opacity:.45}
+.estop{padding:3px 9px;background:#c62828;color:#fff;border:2px solid #7f0000;border-radius:5px;font:700 10.5px/1 system-ui,sans-serif}
+.estop.latched{background:#7f0000;box-shadow:inset 0 0 0 2px #ff5252}
 .iorow{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:6px 0}
 .iob{padding:4px 0;font-size:11px}
 .iob.on{background:var(--yel);border-color:#c9a800;color:#1d1d1b}
@@ -218,8 +224,13 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
       <div class="lcd" id="lcd">AUTO IDLE</div>
       <div class="modebar">
         <span>MODE</span>
-        <button class="mbtn on" data-mode="AUTO">AUTO</button>
-        <button class="mbtn" data-mode="T1">T1</button>
+        <button class="mbtn on" data-mode="AUTO" title="Program runs at full speed. Jog is off.">AUTO</button>
+        <button class="mbtn" data-mode="T1" title="Manual, reduced speed (25% max). Jog needs the enable switch.">T1</button>
+        <button class="mbtn" data-mode="T2" title="Manual, full speed. Jog needs the enable switch.">T2</button>
+        <button id="servoBtn" class="sbtn" title="Motor power on or off">SERVO OFF</button>
+        <button id="enableBtn" class="sbtn" title="Deadman enable switch. Hold it on for jog in T1 and T2.">ENABLE OFF</button>
+        <button id="estopBtn" class="estop" title="Emergency stop: stops motion and servo">E-STOP</button>
+        <button id="estopRel" class="sbtn" title="Reset the emergency stop">RESET</button>
       </div>
       <div class="softkeys">
         <button class="ctabbtn on" data-ctab="jog">JOG</button>
@@ -571,13 +582,15 @@ function startGen(gen,msg){
 function runProgram(){
   if(state==='run') return;
   if(state==='paused'){ state='run'; stepping=false; return; }
-  if(mode==='T1'){ errsEl.textContent='Run is not allowed in T1. Use Step, or switch to AUTO.'; return; }
+  if(!motionOK()){ errsEl.textContent='Run blocked: '+(estop?'emergency stop is active':'servo is off')+'. Turn the servo ON first.'; return; }
+  if(mode!=='AUTO'){ errsEl.textContent='Run is only allowed in AUTO. Switch the mode key to AUTO, or use Step with the enable switch held.'; return; }
   const {steps,errs}=parse(srcEl.value);
   if(errs.length){ errsEl.textContent=errs.join('\n'); if(!editing) setEdit(true); return; }
   startGen(withIntro(steps),'starting program');
 }
 function stepProgram(){
   if(state==='run') return;
+  if(!stepOK()){ errsEl.textContent='Step blocked: '+(motionOK()?'hold the enable switch (T1 and T2 only)':'servo is off or emergency stop is active'); return; }
   if(state==='idle'){
     const {steps,errs}=parse(srcEl.value);
     if(errs.length){ errsEl.textContent=errs.join('\n'); if(!editing) setEdit(true); return; }
@@ -609,7 +622,7 @@ function update(dt){
       if(r.done){ prog=null; state='idle'; curText='program ended'; }
       else if(r.value==='instr' && stepping){ state='paused'; stepping=false; curText+=' (step done)'; }
     }catch(e){ prog=null; state='idle'; curText='error: '+e.message; alarm('Program error: '+e.message); }
-  } else if(state!=='run'){
+  } else if(state!=='run' && jogOK()){
     if(jogMode==='joint'){
       let any=false;
       for(let i=0;i<6;i++) if(jogJ[i]){ q[i]+=jogJ[i]*JOINT_RATE*override/100*dt; any=true; }
@@ -1252,7 +1265,12 @@ const SAMPLES=[
 ];
 
 // ---------- Operating mode, digital I/O, frames, alarm log ----------
-let mode='AUTO';   // AUTO, or T1 (reduced speed; Run is blocked, Step is allowed)
+let mode='AUTO';   // AUTO: program run, jog off. T1: manual, 25% max. T2: manual, full speed. Jog needs the enable switch in T1 and T2.
+let servoOn=false, estop=false, enableOn=false;   // servo starts off, as on a real controller
+function motionOK(){ return servoOn && !estop; }
+function jogOK(){ return motionOK() && mode!=='AUTO' && enableOn; }
+function stepOK(){ return motionOK() && (mode==='AUTO' || enableOn); }
+function jogWhy(){ return !motionOK() ? (estop?'emergency stop is active':'servo is off') : mode==='AUTO' ? 'select T1 or T2 to jog' : 'enable switch is not held'; }
 const DI=new Array(9).fill(false), DO=new Array(9).fill(false);   // simulated I/O, indexes 1 to 8
 const limHit=[false,false,false,false,false,false];
 const alarms=[];
@@ -1279,8 +1297,41 @@ function setOpMode(m){
   modeBtns.forEach(b=>b.classList.toggle('on',b.dataset.mode===m));
   ovEl.max = m==='T1' ? 25 : 100;
   if(override>+ovEl.max){ override=+ovEl.max; ovEl.value=override; ovOut.textContent=override+'%'; }
-  alarm('Mode changed to '+m+(m==='T1'?' (reduced speed, Run blocked, Step allowed)':''));
+  alarm('Mode switch to '+m+(m==='AUTO'?' (program run, jog off)':m==='T1'?' (manual, reduced speed 25%)':' (manual, full speed)'));
+  updateControls();
 }
+function stopMotion(){ if(state!=='idle') stopProgram(); jogJ.fill(0); jogC.fill(0); }
+function setServo(on){
+  if(on && estop){ errsEl.textContent='Reset the emergency stop before turning the servo on.'; alarm('Servo ON blocked: emergency stop is active'); return; }
+  servoOn=on;
+  if(!on) stopMotion();
+  alarm('Servo '+(on?'ON (motor power on)':'OFF (motor power off)'));
+  updateControls();
+}
+function setEstop(on){
+  estop=on;
+  if(on){ servoOn=false; stopMotion(); alarm('EMERGENCY STOP: motion stopped, servo off'); }
+  else alarm('Emergency stop reset. Turn the servo ON to continue.');
+  updateControls();
+}
+function setEnable(on){
+  enableOn=on;
+  if(!on){ jogJ.fill(0); jogC.fill(0); }
+  alarm('Enable switch '+(on?'held (jog allowed in T1 and T2)':'released'));
+  updateControls();
+}
+function updateControls(){
+  const sb=document.getElementById('servoBtn'), eb=document.getElementById('enableBtn'), es=document.getElementById('estopBtn');
+  sb.textContent = servoOn?'SERVO ON':'SERVO OFF'; sb.classList.toggle('on',servoOn); sb.disabled = estop;
+  eb.textContent = enableOn?'ENABLE ON':'ENABLE OFF'; eb.classList.toggle('on',enableOn);
+  es.classList.toggle('latched',estop);
+  document.getElementById('estopRel').disabled = !estop;
+}
+document.getElementById('servoBtn').onclick=()=>setServo(!servoOn);
+document.getElementById('enableBtn').onclick=()=>setEnable(!enableOn);
+document.getElementById('estopBtn').onclick=()=>setEstop(true);
+document.getElementById('estopRel').onclick=()=>setEstop(false);
+updateControls();
 modeBtns.forEach(b=>b.addEventListener('click',()=>{ if(state==='idle' && b.dataset.mode!==mode) setOpMode(b.dataset.mode); }));
 // Cartesian jog frames: world = base axes, user = base axes turned about Z, tool = TCP axes
 function frameAxis(i){
@@ -1316,7 +1367,7 @@ document.getElementById('gripType').addEventListener('change',e=>{
 
 // ---------- Jog panel ----------
 function holdBtn(el,onDown){
-  el.addEventListener('pointerdown',e=>{e.preventDefault(); if(state!=='run') onDown();});
+  el.addEventListener('pointerdown',e=>{e.preventDefault(); if(state==='run') return; if(jogOK()) onDown(); else alarm('Jog blocked: '+jogWhy());});
 }
 function releaseJog(){ jogJ.fill(0); jogC.fill(0); }
 window.addEventListener('pointerup',releaseJog);
@@ -1371,8 +1422,8 @@ setMode('joint');
 
 ovEl.addEventListener('input',()=>{override=+ovEl.value; ovOut.textContent=override+'%';});
 gripBtn.onclick=()=>{ if(state!=='run') gripCmd=1-gripCmd; };
-document.getElementById('home').onclick=()=>{ if(state==='idle') startGen((function*(){yield* jointMove(HOME,40*override/100);})(),'moving to Home'); };
-document.getElementById('zero').onclick=()=>{ if(state==='idle') startGen((function*(){yield* jointMove([0,0,0,0,0,0],40*override/100);})(),'moving to Zero'); };
+document.getElementById('home').onclick=()=>{ if(state==='idle' && motionOK()) startGen((function*(){yield* jointMove(HOME,40*override/100);})(),'moving to Home'); };
+document.getElementById('zero').onclick=()=>{ if(state==='idle' && motionOK()) startGen((function*(){yield* jointMove([0,0,0,0,0,0],40*override/100);})(),'moving to Zero'); };
 document.getElementById('clearTrail').onclick=()=>{trail=[];};
 
 const btnLabels=document.getElementById('btnLabels'), btnAxes=document.getElementById('btnAxes');
@@ -1406,7 +1457,7 @@ function renderPositions(){
     const code=document.createElement('code');
     code.textContent=positions[n].q.map(v=>v.toFixed(0)).join(' ');
     const go=document.createElement('button'); go.textContent='Go';
-    go.onclick=()=>{ if(state==='idle') startGen(programGen([{op:'J',n,v:30,line:0}]),`moving to P[${n}]`); };
+    go.onclick=()=>{ if(state==='idle' && motionOK()) startGen(programGen([{op:'J',n,v:30,line:0}]),`moving to P[${n}]`); };
     const del=document.createElement('button'); del.textContent='×';
     del.onclick=()=>{ delete positions[n]; renderPositions(); };
     row.append(name,code,go,del);
@@ -1466,6 +1517,7 @@ function refreshLock(){
   document.querySelectorAll('#plist button').forEach(b=>{ b.disabled=active; });
   document.querySelectorAll('#jointRows button, #cartRows button, #home, #zero, #grip, #mJ, #mC, #ov').forEach(b=>{ b.disabled=active; });
   modeBtns.forEach(b=>{ b.disabled = state!=='idle'; });
+  updateControls();
   document.getElementById('run').disabled = state==='run';
   document.getElementById('step').disabled = state==='run';
   document.getElementById('pause').disabled = state!=='run';
@@ -1756,7 +1808,7 @@ function readouts(){
   updateListing();
   diBtns.forEach((b,i)=>{ if(b) b.classList.toggle('on',DI[i]); });
   doLeds.forEach((l,i)=>{ if(l) l.classList.toggle('on',DO[i]); });
-  lcdEl.textContent=`${mode}  ${state.toUpperCase()}${stepping?' STEP':''}  LINE ${state==='idle'?'-':curLine}  OVR ${override}%  ${jogMode==='joint'?'JOINT':'CART'}`;
+  lcdEl.textContent=`${mode}  ${estop?'E-STOP':servoOn?'SERVO ON':'SERVO OFF'}  ${state.toUpperCase()}${stepping?' STEP':''}  LINE ${state==='idle'?'-':curLine}  OVR ${override}%  ${jogMode==='joint'?'JOINT':'CART'}`;
 }
 
 // ---------- Loop ----------

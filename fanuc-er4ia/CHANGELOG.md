@@ -2,6 +2,14 @@
 
 All notable changes to this simulator are recorded here. Versions follow semantic numbering.
 
+## 1.2.0
+
+- Mode key: AUTO (program run, jog off), T1 (manual, 25% max), and T2 (manual, full speed).
+- Servo ON and OFF (motor power). Servo starts off, so turn it on before jogging or running.
+- Deadman enable switch: hold it on for jog and Step in T1 and T2.
+- Emergency stop latches: it stops motion and the program and turns the servo off. Reset it, then turn the servo on.
+- Home, Zero, position Go, and Run are blocked while the servo is off or the emergency stop is active. Run also needs AUTO.
+
 ## 1.1.0
 
 - Controls pane simplified to three tabs: JOG, PROGRAM, and STATUS. Positions moved to the top of PROGRAM.
