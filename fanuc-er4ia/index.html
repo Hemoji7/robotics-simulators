@@ -37,6 +37,7 @@ body{font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);
 .dock-side{flex-direction:column;width:380px;flex:none;border-left:1px solid var(--line)}
 #dockL{border-left:0;border-right:1px solid var(--line)}
 .dock-bottom{flex-direction:row;align-items:flex-start;border-top:1px solid var(--line);flex:none;padding:0}
+.dock.compact{width:max-content;max-width:100%;background:transparent;border-color:transparent}
 /* panels */
 .panel{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;background:#fff}
 .panel[hidden]{display:none!important}
@@ -195,6 +196,13 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
 .hm-tbl td{border-top:1px solid #e6e6df;padding:6px 8px;vertical-align:top}
 .hm-tbl td:first-child{font-weight:600;white-space:nowrap;width:28%}
 #btnHelp{font-weight:600}
+@media (max-width:640px){
+.badge{top:8px;left:8px;max-width:calc(100% - 16px);font-size:13px}
+.badge small{display:none}
+.vtools{top:46px;left:8px;right:8px;max-width:none;justify-content:flex-start;gap:4px}
+.vtools button,.btnlink{padding:4px 7px;font-size:12px}
+.hint{display:none}
+}
 </style>
 <script src="vendor/three.min.js"></script>
 </head>
@@ -1013,6 +1021,7 @@ function refreshDocks(){
     const dock=DOCKS[side];
     const kids=[...dock.children].filter(c=>!c.hidden);
     dock.style.display=kids.length?'flex':'none';
+    dock.classList.toggle('compact', kids.length>0 && kids.every(c=>c.classList.contains('collapsed')));
   });
   Object.values(PANELS).forEach(p=>{
     p.el.classList.toggle('vert', p.mode==='left'||p.mode==='right');
