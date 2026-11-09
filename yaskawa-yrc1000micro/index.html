@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yaskawa YRC1000micro Simulation</title>
+<meta name="author" content="Hemoji Rao G">
+<meta name="description" content="A hobby project to help students learn industrial robot operation with a Yaskawa YRC1000micro style controller: jogging, positions, digital I/O, and INFORM-style programs in the browser.">
+<style>
+*{box-sizing:border-box}
+:root{--ink:#1d1d1b;--mut:#66665f;--line:#dcdcd4;--yel:#ffd200;--red:#c8102e;color-scheme:light}
+html,body{height:100%;margin:0}
+body{font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);background:#f3f3ef}
+.app{position:relative;display:flex;flex-direction:column;height:100vh;min-height:640px;overflow:hidden}
+.mid{flex:1;display:flex;min-height:0;min-width:0}
+.view{flex:1;position:relative;overflow:hidden;background:#eef0f2;min-width:0}
+#cv{position:absolute;inset:0;width:100%;height:100%;cursor:grab;touch-action:none;display:block}
+#cv.drag{cursor:grabbing}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.plabel{position:absolute;left:0;top:0;display:none;align-items:center;gap:5px;padding:2px 7px 2px 6px;border-radius:5px;background:rgba(255,255,255,.93);border:1px solid #bbb;font:12px/1.3 system-ui,sans-serif;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.15);will-change:transform}
+.plabel i{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.plabel .v{color:#555;font-variant-numeric:tabular-nums}
+.plabel.on{background:#fff4e6;border-color:#ff6a00;box-shadow:0 0 0 3px rgba(255,106,0,.35);font-weight:700}
+.hint{position:absolute;right:12px;bottom:10px;color:var(--mut);font-size:12px;background:rgba(255,255,255,.8);padding:4px 8px;border-radius:6px}
+.badge{position:absolute;left:12px;top:10px;font-weight:700;letter-spacing:.04em;background:#0b5cad;color:#fff;padding:4px 10px;border-radius:6px}
+.badge small{font-weight:500;color:#dbe9f7;margin-left:6px}
+.vtools{position:absolute;right:10px;top:10px;z-index:2;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:70%}
+.vtools button{background:#fff}
+.vtools button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tray{display:flex;gap:6px}
+.tray button{background:#fff8d6;border-color:#c9a800}
+
+.credit{position:absolute;left:10px;bottom:6px;font-size:10px;color:var(--mut);background:rgba(255,255,255,.8);padding:2px 6px;border-radius:4px;pointer-events:none}
+
+/* docks */
+.dock{display:flex;background:#fff;min-height:0;min-width:0}
+.dock-side{flex-direction:column;width:380px;flex:none;border-left:1px solid var(--line)}
+#dockL{border-left:0;border-right:1px solid var(--line)}
+.dock-bottom{flex-direction:row;align-items:flex-start;border-top:1px solid var(--line);flex:none;padding:0}
+
+/* panels */
+.panel{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;background:#fff}
+.panel[hidden]{display:none!important}
+.phdr{display:flex;align-items:center;gap:6px;padding:6px 8px 6px 10px;background:#f1f1ec;border-bottom:1px solid var(--line);cursor:grab;user-select:none;flex:none}
+.phdr:active{cursor:grabbing}
+.ptitle{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#333}
+.grip{color:#999;font-size:12px;letter-spacing:-1px}
+.sp{flex:1}
+.ibtn{background:none;border:1px solid transparent;padding:3px 5px;border-radius:5px;cursor:pointer;color:#444;line-height:0}
+.ibtn:hover{background:#e6e6df;border-color:#cfcfc6}
+.ibtn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.panel.collapsed .chev{transform:rotate(180deg)}
+.pbody{flex:1 1 auto;min-height:0;overflow:auto}
+.panel.collapsed .pbody{display:none}
+.dock-side>.panel{flex:1 1 0}
+.dock-side>.panel.collapsed{flex:0 0 auto}
+.dock-bottom>.panel{flex:1 1 0;min-width:0;height:300px}
+.dock-bottom>.panel.collapsed{flex:0 0 260px;height:auto}
+.panel.floating{position:absolute;z-index:30;border:1px solid #bbb;border-radius:8px;box-shadow:0 10px 28px rgba(0,0,0,.22);overflow:hidden}
+.panel.floating.collapsed{height:auto!important}
+.panel.dragging{opacity:.92}
+#dropHint{position:absolute;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(255,210,0,.25);border:2px dashed #c9a800;border-radius:8px;font-weight:700;pointer-events:none;color:#6b5600}
+
+/* controls panel content */
+.csec{border-bottom:1px solid var(--line);padding:10px 14px 14px}
+.csec:last-child{border-bottom:0}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:0 0 8px}
+h3{font-size:12px;margin:10px 0 6px}
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:6px 0}
+button{font:inherit;border:1px solid #bdbdb4;background:#f7f7f3;color:var(--ink);border-radius:6px;padding:5px 10px;cursor:pointer;user-select:none;touch-action:none}
+button:hover{background:#ededE6}
+button:active{background:var(--yel)}
+button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.pri{background:var(--yel);border-color:#c9a800;font-weight:600}
+button:disabled{opacity:.45;cursor:default}
+select,input,textarea{color:#1d1d1b;background-color:#fff;color-scheme:light}
+option{color:#1d1d1b;background:#fff}
+input::placeholder{color:#8a8a80;opacity:1}
+.seg{display:inline-flex}
+.seg button{border-radius:0}
+.seg button:first-child{border-radius:6px 0 0 6px}
+.seg button:last-child{border-radius:0 6px 6px 0}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;font-size:12px}
+.legend span{display:flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block;flex:none}
+.jrow{display:grid;grid-template-columns:minmax(0,1fr) auto 62px 32px 32px;gap:5px;align-items:center;margin:3px 0;white-space:nowrap}
+.jrow .jn{font-weight:400;color:#333;margin-left:2px;overflow:hidden;text-overflow:ellipsis}
+.jrow .lbl{font-weight:600;display:flex;align-items:center;gap:6px}
+.jrow .val{font-variant-numeric:tabular-nums;text-align:right;color:#333}
+.jrow .rng{font-size:11px;color:var(--mut);white-space:nowrap}
+.jrow button{padding:4px 0;text-align:center}
+.ovr{display:flex;align-items:center;gap:8px;margin-top:8px}
+.ovr input{flex:1}
+.err{color:var(--red);font-size:12px;white-space:pre-wrap;min-height:0}
+.note{font-size:11px;color:var(--mut);margin:6px 0 0}
+.pos{display:grid;grid-template-columns:auto 1fr auto auto;gap:6px;align-items:center;font-size:12px;margin:3px 0}
+.pos code{font-variant-numeric:tabular-nums;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status{font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;background:#fafaf6;border:1px solid var(--line);border-radius:6px;padding:8px;white-space:pre}
+input[type=number]{width:70px;font:inherit;padding:4px;border:1px solid #bdbdb4;border-radius:6px}
+
+/* controls pane: pendant-style screen and soft keys */
+.ctabbar{background:#2b2d31;color:#f1f1ec;padding:8px 10px 0;flex:none}
+.estop{background:#c62828;color:#fff;font-weight:700;border:2px solid #7f0000;border-radius:8px;padding:8px 12px}
+.estop.latched{background:#7f0000;box-shadow:inset 0 0 0 2px #ff5252}
+.lamp{font:600 11px/1 system-ui,sans-serif;padding:5px 8px;border-radius:4px;background:#555;color:#fff;letter-spacing:.04em}
+.lamp.on{background:#2e7d32}
+.lamp.bad{background:#c62828}
+.jogmsg{font:600 12px/1.3 system-ui,sans-serif;padding:6px 8px;border-radius:6px;margin-bottom:8px}
+.jogmsg.ok{background:#e8f5e9;color:#1b5e20}
+.jogmsg.warn{background:#fff3e0;color:#8a4b00;border:1px solid #f0b36b}
+.jrow .lbl{font-weight:600}
+.jrow button{border-width:2px}
+.ctrlbar{position:sticky;top:0;z-index:3;background:#f7f7f3;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.curpos{font:11px/1.45 ui-monospace,Menlo,Consolas,monospace;background:#fafaf6;border:1px solid var(--line);border-radius:6px;padding:5px 7px;margin-bottom:6px;white-space:pre}
+.lcd{font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;background:#0f1a12;color:#8cff9b;border:1px solid #000;border-radius:6px;padding:6px 8px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:inset 0 0 8px rgba(0,0,0,.6)}
+.softkeys{display:flex;gap:4px}
+.ctabbtn{flex:1;background:#3d4046;color:#e8e8e2;border:1px solid #1a1b1e;border-radius:6px 6px 0 0;padding:7px 4px;font:600 11px/1 system-ui,sans-serif;letter-spacing:.06em}
+.ctabbtn:hover{background:#4b4f57}
+.ctabbtn.on{background:var(--yel);color:#1d1d1b;border-color:#c9a800}
+.ctab[hidden]{display:none}
+.ctab[data-ctab="program"]:not([hidden]){display:flex;flex-direction:column;height:100%}
+.ctab[data-ctab="program"] .progwrap{flex:1;min-height:0;height:auto}
+
+/* program panel */
+.progwrap{display:grid;grid-template-columns:var(--sideW,440px) 10px minmax(0,1fr);gap:0;padding:10px 12px;height:100%;min-height:0}
+.split{cursor:col-resize;position:relative;margin:0 2px}
+.split::before{content:'';position:absolute;left:4px;top:0;bottom:0;width:2px;border-radius:2px;background:#cfcfc6}
+.split:hover::before{background:#9a9a90}
+.panel.vert .progwrap{grid-template-columns:1fr;grid-template-rows:auto minmax(300px,1fr);height:auto}
+.panel.vert .split{display:none}
+.col{min-height:0;display:flex;flex-direction:column;min-width:0}
+.col.side{overflow:auto;padding-right:4px}
+.tabbar{display:flex;margin-bottom:8px}
+.tab{flex:1;border-radius:0}
+.tab:first-child{border-radius:6px 0 0 6px}
+.tab:last-child{border-radius:0 6px 6px 0}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tabpane[hidden]{display:none}
+.fld{display:flex;flex-direction:column;gap:4px;font-size:12px;margin-bottom:8px}
+.fld select,.fld input{font:inherit;padding:4px 6px;border:1px solid #bdbdb4;border-radius:6px;background:#fff}
+.sinfo{font-size:12px;color:#333;background:#fafaf6;border:1px solid var(--line);border-radius:6px;padding:8px;margin:6px 0;min-height:48px}
+.builder{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px;font-size:12px}
+.builder input,.builder select{font:inherit;padding:3px 5px;border:1px solid #bdbdb4;border-radius:6px;background:#fff}
+.builder input[type=number]{width:70px}
+#bNote{width:100%}
+.phead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.pname{font-weight:700;font-size:14px;margin-bottom:2px}
+.pdesc{font-size:12px;color:var(--mut);margin-bottom:6px;max-width:620px}
+.transport{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.transport button{min-width:84px}
+.pstate{font-size:12px;font-weight:600;color:#333;margin-top:2px}
+.bar{height:6px;background:#e6e6df;border-radius:3px;overflow:hidden;margin:4px 0 6px;flex:none}
+.bar i{display:block;height:100%;width:0;background:var(--red)}
+.listing{flex:1;min-height:0;overflow:auto;font:12px/1.6 ui-monospace,Menlo,Consolas,monospace;background:#fbfbf8;border:1px solid var(--line);border-radius:6px;padding:4px 0}
+.ln{display:flex;gap:8px;padding:0 8px;white-space:pre}
+.ln .no{color:#999;width:24px;text-align:right;flex:none}
+.ln.done{color:#8c8c82}
+.ln.cur{background:#ffe866;font-weight:700}
+.ln .cmt{color:#5f6b7a;font-style:italic;font-weight:400}
+textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;border:1px solid #bdbdb4;border-radius:6px;padding:8px;resize:none;background:#fbfbf8}
+/* compact controls panel: smaller type and spacing, less scrolling */
+#pControls .csec{padding:6px 10px 8px}
+#pControls h2{font-size:10px;margin:0 0 4px}
+#pControls .row{margin:4px 0;gap:4px}
+#pControls button{padding:3px 7px;font-size:12px}
+#pControls label{font-size:12px}
+#pControls .jrow{margin:1px 0;gap:4px;grid-template-columns:minmax(0,1fr) auto 52px 28px 28px}
+#pControls .jrow button{padding:2px 0}
+#pControls .ovr{margin-top:4px}
+#pControls .note{font-size:10.5px;margin:3px 0 0;line-height:1.35}
+#pControls .pos{margin:1px 0;font-size:11px}
+#pControls .lcd{margin-bottom:6px;padding:4px 6px;font-size:11px}
+#pControls .ctabbtn{padding:5px 2px;font-size:10px}
+#pControls .jogmsg{padding:4px 6px;font-size:11px;margin-bottom:6px}
+#pControls .status{font-size:11px;padding:6px}
+#pControls .lamp{padding:4px 6px}
+#pControls .seg button{padding:3px 8px}
+#pControls .note-d summary{font-size:11px;color:var(--mut);cursor:pointer;margin-top:6px}
+#pControls .ctrlmsg{font-size:11px;color:#333}
+</style>
+<script src="vendor/three.min.js"></script>
+<script>if(!window.THREE){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');}</script>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="mid" id="mid">
+    <div class="dock dock-side" id="dockL"></div>
+    <div class="view" id="viewArea">
+      <canvas id="cv"></canvas>
+      <div id="labels"></div>
+      <div class="badge">Yaskawa YRC1000micro <small>simulation · INFORM-style teaching subset</small></div>
+      <div class="vtools">
+        <button id="btnLabels">Labels: auto</button>
+        <button id="btnAxes">Axes: off</button>
+        <span id="tray" class="tray"></span>
+      </div>
+      <div class="credit">Developed by Hemoji Rao for Miami University Lab use</div>
+      <div class="hint">Drag to orbit · Wheel to zoom · Double-click to reset view</div>
+    </div>
+    <div class="dock dock-side" id="dockR"></div>
+  </div>
+  <div class="dock dock-bottom" id="dockB"></div>
+  <div id="dropHint"></div>
+
+  <section class="panel" id="pControls" hidden>
+    <div class="phdr">
+      <span class="grip">⋮⋮</span>
+      <span class="ptitle">Controls</span>
+      <span class="sp"></span>
+      <button class="ibtn" data-act="collapse" title="Collapse"><svg class="chev" viewBox="0 0 16 16"><path d="M4 10l4-4 4 4"/></svg></button>
+      <button class="ibtn" data-act="min" title="Minimize"><svg viewBox="0 0 16 16"><path d="M3 12h10"/></svg></button>
+    </div>
+    <div class="ctabbar">
+      <div class="lcd" id="lcd">AUTO IDLE</div>
+      <div class="softkeys">
+        <button class="ctabbtn on" data-ctab="controls">CONTROLS</button>
+        <button class="ctabbtn" data-ctab="program">PROGRAM</button>
+      </div>
+    </div>
+    <div class="pbody">
+      <div class="ctab" data-ctab="controls">
+      <div id="legend" class="legend" style="display:none"></div>
+      <div class="csec">
+        <h2>Jog</h2>
+        <div id="jogMsg" class="jogmsg"></div>
+        <div id="curPos" class="curpos" title="The arm starts here when the page loads"></div>
+        <div class="row"><div class="seg"><button id="mJ" class="on">Joint</button><button id="mC">Cartesian</button></div></div>
+        <div id="jointRows"></div>
+        <div id="cartRows" hidden></div>
+        <div class="ovr"><span>Override</span><input id="ov" type="range" min="1" max="100" value="25"><span id="ovOut" style="width:40px;text-align:right">25%</span></div>
+        <div class="row">
+          <button id="home">Home</button>
+          <button id="zero">Zero</button>
+          <button id="grip">Gripper: open</button>
+        </div>
+        <div class="row"><label>Gripper type <select id="gripType"><option value="parallel">Parallel (2 fingers)</option><option value="wide">Wide parallel (2 fingers)</option><option value="vacuum">Vacuum cup</option></select></label></div>
+        <p class="note">Cartesian jog holds TCP position only; orientation follows the joint solution. Jog is disabled while a program runs.</p>
+      </div>
+      </div>
+      <div class="ctab" data-ctab="controls">
+      <div class="csec">
+        <h2>Positions</h2>
+        <div class="row">
+          <label>Position P<input id="pn" type="number" min="1" value="7"></label>
+          <button id="rec">Record current</button>
+        </div>
+        <div id="plist"></div>
+      </div>
+      </div>
+      <div class="ctab" data-ctab="controls">
+      <div class="csec">
+        <h2>Digital I/O</h2>
+        <div class="pos"><b>IN#(1)</b><span>Part present</span><span id="in1v">OFF</span><button id="in1">Toggle</button></div>
+        <div class="pos"><b>IN#(2)</b><span>Bin full</span><span id="in2v">OFF</span><button id="in2">Toggle</button></div>
+        <div class="pos"><b>OT#(1)</b><span>Gripper / vacuum</span><span id="ot1v">OFF</span><span></span></div>
+        <p class="note">Inputs are set by hand, as if a sensor changed. A line such as <code>WAIT IN#(1)=ON</code> holds the program until its input matches. <code>DOUT OT#(1) ON</code> closes the gripper, or switches the vacuum on.</p>
+        <p class="note">Toggling an input during a run is allowed, so you can release a waiting program.</p>
+      </div>
+      </div>
+      <div class="ctab ctrlbar" id="ctrlBar" data-ctab="controls">
+      <div class="csec">
+        <h2>Controller</h2>
+        <div class="pos"><b>Mode key</b><span id="modeTxt">TEACH</span><span></span><span></span></div>
+        <div class="row"><div class="seg" id="modeSeg"><button data-mode="TEACH" class="on" title="Jog and move by hand">TEACH</button><button data-mode="PLAY" title="Run programs from the pendant">PLAY</button><button data-mode="REMOTE" title="Programs start from External START only">REMOTE</button></div></div>
+
+      </div>
+      <div class="csec">
+        <div class="row"><button id="servoBtn" class="pri" title="Motors on or off">Servo ON</button><span id="servoLamp" class="lamp">SERVO OFF</span></div>
+        <div class="row"><label><input type="checkbox" id="enableSw"> Enable switch held (simplified deadman switch)</label></div>
+        <div class="row"><button id="estopBtn" class="estop">EMERGENCY STOP</button><button id="estopRel">Release E-stop</button></div>
+        <div class="row"><button id="extStart">External START</button><span id="ctrlMsg" class="ctrlmsg"></span></div>
+      </div>
+      <div class="csec">
+        <h2>Alarm history</h2>
+        <div id="alarmLog" class="status" style="min-height:60px"></div>
+        <div class="row"><button id="alarmReset">Clear alarm history</button></div>
+        <p class="note">Alarm codes shown here are simulated for teaching. They are not a real YRC1000micro alarm list.</p>
+      </div>
+      </div>
+      <div class="ctab" data-ctab="controls">
+      <div class="csec">
+        <h2>Status</h2>
+        <div id="status" class="status"></div>
+        <div class="row"><button id="clearTrail">Clear TCP trail</button><button id="resetCnt">Reset cycle count</button></div>
+        <div class="row"><label>Payload <input id="payload" type="number" min="0" step="0.5" value="2"> kg</label><span id="payWarn" class="err"></span></div>
+        <details class="note-d"><summary>Command reference and notes</summary>
+        <p class="note">Commands: <code>MOVJ Pnnn VJ=%</code> joint move · <code>MOVL Pnnn V=mm/s</code> straight-line TCP move · <code>DOUT OT#(1) ON|OFF</code> · <code>TIMER T=sec</code> · <code>WAIT IN#(n)=ON|OFF</code> · <code>NOP</code> · <code>END</code>. Text after <code>'</code> (or <code>;</code>) is a comment and is shown as the step explanation.</p>
+        <p class="note">When a program starts, the arm first moves to the reference pose (J1–J6 = 0, 0, 30, 0, −20, 0) if it is not already there. The cycle timer runs while a program runs and counts finished programs.</p>
+        <p class="note">Simplified model: the arm is a generic small 6-axis robot, not a specific MOTOMAN model. There is no collision checking, and INFORM is only partly interpreted (see the commands above). Geometry and joint limits are placeholders, not Yaskawa data. The YRC1000micro supports robots up to about 12 kg; the rated payload used here is shown on the Status tab.</p></details>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="pProgram" hidden>
+    <div class="phdr">
+      <span class="grip">⋮⋮</span>
+      <span class="ptitle">Program</span>
+      <span class="sp"></span>
+      <button class="ibtn" data-act="collapse" title="Collapse"><svg class="chev" viewBox="0 0 16 16"><path d="M4 10l4-4 4 4"/></svg></button>
+      <button class="ibtn" data-act="min" title="Minimize"><svg viewBox="0 0 16 16"><path d="M3 12h10"/></svg></button>
+    </div>
+    <div class="pbody progwrap">
+      <div class="col side">
+        <div class="tabbar">
+          <button class="tab on" data-tab="samples">Sample scripts</button>
+          <button class="tab" data-tab="custom">Custom scripts</button>
+        </div>
+
+        <div class="tabpane" id="tabSamples">
+          <label class="fld">Sample
+            <select id="sampleSel"></select>
+          </label>
+          <div id="sInfo" class="sinfo"></div>
+          <div class="row"><button id="copyToCustom">Copy to Custom scripts</button></div>
+        </div>
+
+        <div class="tabpane" id="tabCustom" hidden>
+          <div class="row">
+            <input id="cName" value="My script" style="flex:1;min-width:0" aria-label="Script name">
+            <button id="cSave" class="pri">Save</button>
+          </div>
+          <div class="row">
+            <select id="cList" style="flex:1;min-width:0" aria-label="Saved scripts"></select>
+            <button id="cLoad">Load</button>
+            <button id="cDel">Delete</button>
+          </div>
+          <div class="row">
+            <button id="cExport">Download .json</button>
+            <button id="cImport">Open .json file</button>
+            <input type="file" id="cFile" accept=".json,application/json" hidden>
+          </div>
+          <h3>Add a step</h3>
+          <div class="builder" id="builder">
+            <select id="bOp" aria-label="Step type">
+              <option value="J">MOVJ joint move</option>
+              <option value="L">MOVL straight move</option>
+              <option value="DOUT">DOUT OT#(1) output</option>
+              <option value="TIMER">TIMER dwell</option>
+              <option value="WAITIN">WAIT IN#(n) input</option>
+              <option value="NOP">NOP</option>
+              <option value="END">End</option>
+            </select>
+            <span class="bf" data-op="J L"><select id="bP" aria-label="Position"></select></span>
+            <span class="bf" data-op="J L"><input id="bSpd" type="number" min="1" step="1" value="40" aria-label="Speed"> <span id="bUnit">%</span></span>
+            <span class="bf" data-op="DOUT"><select id="bG" aria-label="Output state"><option value="ON">ON (close / vacuum on)</option><option value="OFF">OFF (open / vacuum off)</option></select></span>
+            <span class="bf" data-op="TIMER"><input id="bWait" type="number" min="0" step="0.1" value="0.5" aria-label="Seconds"> s</span>
+            <span class="bf" data-op="WAITIN"><select id="bIn" aria-label="Input"><option value="1">IN#(1) part present</option><option value="2">IN#(2) bin full</option></select> <select id="bInV" aria-label="Input state"><option value="ON">ON</option><option value="OFF">OFF</option></select></span>
+            <button id="bAdd" class="pri">Add</button>
+            <button id="bRun">Run step</button>
+          </div>
+          <details class="moreopts">
+            <summary>Add a note</summary>
+            <input id="bNote" placeholder="Explanation shown beside the step" style="width:100%;margin-top:6px">
+          </details>
+          <div class="row">
+            <button id="bRemoveLast">Remove last step</button>
+            <button id="bClear">Clear all</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="split" id="split" title="Drag to resize"></div>
+      <div class="col code">
+        <div class="phead">
+          <div style="min-width:0">
+            <div id="progName" class="pname">No program loaded</div>
+            <div id="progDesc" class="pdesc"></div>
+            <div id="progState" class="pstate">Ready.</div>
+          </div>
+          <div class="transport">
+            <button id="run" class="pri" title="Start the program, or resume after Pause">▶ Run</button>
+            <button id="step" title="Run one instruction, then pause">⏭ Step</button>
+            <button id="pause" title="Pause after the current move">⏸ Pause</button>
+            <button id="stop" title="Stop and reset to the first line">⏹ Stop</button>
+            <button id="editBtn" title="Edit the program text (only when stopped)">✎ Edit</button>
+          </div>
+        </div>
+        <div class="bar"><i id="barFill"></i></div>
+        <div id="listing" class="listing"></div>
+        <textarea id="src" spellcheck="false" hidden></textarea>
+        <div id="errs" class="err"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+if(typeof THREE==='undefined'){
+  document.getElementById('app').innerHTML='<div style="padding:24px;font:14px/1.5 system-ui,sans-serif;max-width:620px"><b>The 3D library (Three.js) could not load.</b><br>Download <code>three.min.js</code> (r128) from <code>https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js</code> and save it as <code>vendor/three.min.js</code> next to this page, then reload.</div>';
+  throw new Error('Three.js not loaded');
+}
+// ---------- Model parameters (approximate, mm / degrees) ----------
+const L = { base: 300, a1: 240, a2: 260, w: 50, flange: 70 };
+// Joint limits (deg, illustrative). J2 is limited to -45..120 in this model.
+const LIM = [[-180,180],[-45,120],[-120,100],[-190,190],[-120,120],[-360,360]];
+const RATED_PAYLOAD = 7;   // kg, illustrative rating for this robot model (the YRC1000micro itself supports robots up to about 12 kg)
+const HOME = [0,89,-90,0,0,0];   // home pose: upright upper arm, forearm forward, as in the reference photo
+const VIEW_POSE = [0,89,-90,0,0,0];   // reference pose the arm moves to before a program starts
+const JOINT_RATE = 120;   // deg/s at 100 %
+const CART_RATE = 150;    // mm/s at 100 %
+const LAM = 10;           // IK damping
+
+// ---------- Math helpers (row-major 4x4) ----------
+function mul(a,b){const r=new Array(16).fill(0);for(let i=0;i<4;i++)for(let j=0;j<4;j++){let s=0;for(let k=0;k<4;k++)s+=a[i*4+k]*b[k*4+j];r[i*4+j]=s;}return r;}
+function rx(t){const c=Math.cos(t),s=Math.sin(t);return [1,0,0,0, 0,c,-s,0, 0,s,c,0, 0,0,0,1];}
+function ry(t){const c=Math.cos(t),s=Math.sin(t);return [c,0,s,0, 0,1,0,0, -s,0,c,0, 0,0,0,1];}
+function rz(t){const c=Math.cos(t),s=Math.sin(t);return [c,-s,0,0, s,c,0,0, 0,0,1,0, 0,0,0,1];}
+function tr(x,y,z){return [1,0,0,x, 0,1,0,y, 0,0,1,z, 0,0,0,1];}
+function applyT(T,p){return [T[0]*p[0]+T[1]*p[1]+T[2]*p[2]+T[3], T[4]*p[0]+T[5]*p[1]+T[6]*p[2]+T[7], T[8]*p[0]+T[9]*p[1]+T[10]*p[2]+T[11]];}
+function inv3(m){
+  const [a,b,c]=m[0],[d,e,f]=m[1],[g,h,i]=m[2];
+  const A=e*i-f*h, B=-(d*i-f*g), C=d*h-e*g;
+  const det=a*A+b*B+c*C, s=1/det;
+  const D=-(b*i-c*h), E=a*i-c*g, Fm=-(a*h-b*g);
+  const G=b*f-c*e, H=-(a*f-c*d), K=a*e-b*d;
+  return [[A*s,D*s,G*s],[B*s,E*s,H*s],[C*s,Fm*s,K*s]];
+}
+const clamp=(v,lo,hi)=>Math.min(hi,Math.max(lo,v));
+const smooth=s=>s*s*(3-2*s);
+const hexStr=c=>'#'+c.toString(16).padStart(6,'0');
+const pad=n=>'P'+String(n).padStart(3,'0');   // position name, e.g. P001
+
+// ---------- Forward kinematics ----------
+// J1, J4, J6 turn about +Z / +X / +X. J2, J3, J5 pitch with ry(-q); the displayed axis is -Y so the arrow points in the positive direction.
+function fk(qdeg){
+  const r=qdeg.map(d=>d*Math.PI/180);
+  const axes=[];
+  const rec=(T,la)=>{
+    const o=applyT(T,[0,0,0]); const e=applyT(T,la);
+    axes.push({o,d:[e[0]-o[0],e[1]-o[1],e[2]-o[2]]});
+  };
+  let T=tr(0,0,L.base);
+  const pts=[[0,0,0],[0,0,L.base]];
+  rec(T,[0,0,1]);  T=mul(T,rz(r[0]));                 // J1
+  rec(T,[0,-1,0]); T=mul(T,ry(-r[1]));                // J2
+  T=mul(T,tr(L.a1,0,0)); pts.push(applyT(T,[0,0,0])); // elbow
+  rec(T,[0,-1,0]); T=mul(T,ry(-r[2]));                // J3
+  T=mul(T,tr(L.a2,0,0)); pts.push(applyT(T,[0,0,0])); // wrist centre
+  rec(T,[1,0,0]);  T=mul(T,rx(r[3]));                 // J4
+  rec(T,[0,-1,0]); T=mul(T,ry(-r[4]));                // J5
+  T=mul(T,tr(L.w,0,0)); pts.push(applyT(T,[0,0,0])); // J5 point
+  rec(T,[1,0,0]);  T=mul(T,rx(r[5]));                 // J6
+  T=mul(T,tr(L.flange,0,0));
+  pts.push(applyT(T,[0,0,0]));                        // TCP
+  return {pts,T,axes};
+}
+const posOf = qd => fk(qd).pts[5];
+
+// ---------- State ----------
+let q = HOME.slice();
+let gripCmd = 0, gOpen = 0;
+let positions = {};
+let state = 'idle';                 // idle | run | paused
+let prog = null, stepping = false, curText = '';
+let curLine = 0, stepProg = 0, doneLines = new Set();
+let selected = -1, editing = false;
+let jogMode = 'joint', jogJ = [0,0,0,0,0,0], jogC = [0,0,0];
+let trail = [];
+let override = 25;
+let labelMode = 'auto';   // 'auto' | 'off'
+let showAxes = false;
+let ioIn={1:false,2:false};   // digital inputs IN#(1), IN#(2)
+let cycleT=0, lastCycle=null, cycleCount=0;   // cycle timer (s) and production counter
+
+// ---------- Inverse kinematics (damped least squares, position only) ----------
+function jac(qd){
+  const p0=posOf(qd), J=[[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]];
+  for(let j=0;j<6;j++){
+    const qq=qd.slice(); qq[j]+=0.05;
+    const p=posOf(qq);
+    for(let r=0;r<3;r++) J[r][j]=(p[r]-p0[r])/0.05;
+  }
+  return J;
+}
+function solveTo(target, iters){
+  for(let it=0; it<iters; it++){
+    const p=posOf(q);
+    const e=[target[0]-p[0], target[1]-p[1], target[2]-p[2]];
+    if(Math.hypot(e[0],e[1],e[2])<0.05) break;
+    const J=jac(q);
+    const A=[[0,0,0],[0,0,0],[0,0,0]];
+    for(let r=0;r<3;r++)for(let c=0;c<3;c++){
+      let s=0; for(let k=0;k<6;k++) s+=J[r][k]*J[c][k];
+      A[r][c]=s+(r===c?LAM:0);
+    }
+    const Ai=inv3(A);
+    const y=[0,1,2].map(r=>Ai[r][0]*e[0]+Ai[r][1]*e[1]+Ai[r][2]*e[2]);
+    for(let k=0;k<6;k++) q[k]+= J[0][k]*y[0]+J[1][k]*y[1]+J[2][k]*y[2];
+    for(let k=0;k<6;k++) q[k]=clamp(q[k],LIM[k][0],LIM[k][1]);
+  }
+}
+
+// ---------- Motion generators ----------
+function* jointMove(target0, pct){
+  const target=target0.map((v,k)=>clamp(v,LIM[k][0],LIM[k][1]));   // joint limits apply to every move
+  const q0=q.slice(); let maxD=0;
+  for(let k=0;k<6;k++) maxD=Math.max(maxD,Math.abs(target[k]-q0[k]));
+  const rate=JOINT_RATE*pct/100;
+  const n=Math.max(1,Math.ceil(maxD/Math.max(rate,0.1)*60));
+  for(let f=1; f<=n; f++){
+    const s=smooth(f/n);
+    for(let k=0;k<6;k++) q[k]=q0[k]+(target[k]-q0[k])*s;
+    stepProg=f/n;
+    yield;
+  }
+}
+function* linearMove(targetQ, mmps){
+  const p0=posOf(q), p1=posOf(targetQ);
+  const d=Math.hypot(p1[0]-p0[0],p1[1]-p0[1],p1[2]-p0[2]);
+  const n=Math.max(1,Math.ceil(d/Math.max(mmps,1)*60));
+  for(let f=1; f<=n; f++){
+    const s=smooth(f/n);
+    solveTo([0,1,2].map(i=>p0[i]+(p1[i]-p0[i])*s), 8);
+    stepProg=f/n;
+    yield;
+  }
+  // controller alarm: the straight path must end at the taught position
+  const pe=posOf(q);
+  if(Math.hypot(pe[0]-p1[0],pe[1]-p1[1],pe[2]-p1[2])>5) throw new Error('ALARM 4420: MOVL target cannot be reached');
+}
+
+// ---------- Program parser / runner ----------
+// Text after ' (or ;) is a comment: it is ignored by the parser and shown as the step explanation.
+// Teaching subset of INFORM-style syntax. It is not the full INFORM language.
+function parse(text){
+  const steps=[], errs=[];
+  const lines=text.split('\n');
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i].replace(/('|;|\/\/).*$/,'').trim();
+    if(!line) continue;
+    const ln=i+1;
+    let m;
+    if((m=line.match(/^MOVJ\s+P0*(\d+)(?:\s+VJ=(\d+(?:\.\d+)?))?$/i))){
+      steps.push({op:'J',n:+m[1],v:m[2]?+m[2]:50,line:ln});
+    } else if((m=line.match(/^MOVL\s+P0*(\d+)(?:\s+V=(\d+(?:\.\d+)?))?$/i))){
+      steps.push({op:'L',n:+m[1],v:m[2]?+m[2]:200,line:ln});
+    } else if((m=line.match(/^DOUT\s+OT#\(1\)\s+(ON|OFF)$/i))){
+      steps.push({op:'DOUT',v:m[1].toUpperCase()==='ON'?1:0,line:ln});
+    } else if((m=line.match(/^TIMER\s+T=(\d+(?:\.\d+)?)$/i))){
+      steps.push({op:'TIMER',v:+m[1],line:ln});
+    } else if((m=line.match(/^WAIT\s+IN#\(([12])\)\s*=\s*(ON|OFF)$/i))){
+      steps.push({op:'WAITIN',port:+m[1],v:m[2].toUpperCase()==='ON'?1:0,line:ln});
+    } else if(/^NOP$/i.test(line)){
+      steps.push({op:'NOP',line:ln});
+    } else if(/^END$/i.test(line)){
+      break;
+    } else {
+      errs.push(`Line ${ln}: cannot read "${line}"`);
+      continue;
+    }
+    const last=steps[steps.length-1];
+    if(last.op==='J'||last.op==='L'){
+      if(!positions[last.n]) errs.push(`Line ${ln}: ${pad(last.n)} is not taught (use Positions → Record, or load a sample)`);
+      else if(positions[last.n].q.some((v,k)=>v<LIM[k][0]||v>LIM[k][1])) errs.push(`Line ${ln}: ALARM 4210: ${pad(last.n)} is outside a joint limit`);
+      if(last.v<=0 || (last.op==='J' && last.v>100)) errs.push(`Line ${ln}: speed out of range (VJ 1–100, or V above 0)`);
+    }
+  }
+  if(!steps.length && !errs.length) errs.push('Program is empty');
+  return {steps,errs};
+}
+const OP_NAME={J:'MOVJ',L:'MOVL',DOUT:'DOUT',TIMER:'TIMER',WAITIN:'WAIT',NOP:'NOP'};
+function* programGen(steps){
+  for(const s of steps){
+    curLine=s.line; stepProg=0;
+    curText=`line ${s.line}: ${OP_NAME[s.op]}${s.n!==undefined?' '+pad(s.n):''}`
+      +(s.op==='DOUT'?(s.v?' OT#(1) ON':' OT#(1) OFF'):'')
+      +(s.op==='WAITIN'?` IN#(${s.port})=${s.v?'ON':'OFF'}`:'');
+    if(s.op==='J') yield* jointMove(positions[s.n].q, s.v*override/100);
+    else if(s.op==='L') yield* linearMove(positions[s.n].q, s.v*override/100);
+    else if(s.op==='DOUT'){ gripCmd=s.v; yield; }
+    else if(s.op==='TIMER'){ const n=Math.ceil(s.v*60); for(let i=0;i<n;i++){ stepProg=i/n; yield; } }
+    else if(s.op==='WAITIN'){ while(ioIn[s.port]!==!!s.v){ stepProg=0; yield; } }
+    stepProg=1;
+    doneLines.add(s.line);
+    yield 'instr';
+  }
+}
+// Before the program, move to the viewing pose if the arm is not already there.
+function* withIntro(steps){
+  const far=Math.max(...q.map((v,i)=>Math.abs(v-VIEW_POSE[i])));
+  if(far>3){
+    curLine=0; stepProg=0;
+    curText='moving arm to viewing pose';
+    yield* jointMove(VIEW_POSE,40*override/100);
+  }
+  yield* programGen(steps);
+}
+function resetProgress(){ doneLines=new Set(); curLine=0; stepProg=0; }
+function startGen(gen,msg){
+  if(editing) setEdit(false);
+  resetProgress();
+  prog=gen; state='run'; stepping=false; curText=msg; errsEl.textContent='';
+}
+function runProgram(ext){
+  if(state==='run') return;
+  const b=runBlock(!!ext); if(b){ setCtrlMsg(b); errsEl.textContent=b; return; }
+  if(state==='paused'){ state='run'; stepping=false; return; }
+  if(payloadBad()){ errsEl.textContent=PAYLOAD_MSG; pushAlarm(PAYLOAD_MSG); return; }
+  const {steps,errs}=parse(srcEl.value);
+  if(errs.length){ errsEl.textContent=errs.join('\n'); if(!editing) setEdit(true); return; }
+  cycleT=0;
+  startGen(withIntro(steps),'starting program');
+}
+function stepProgram(){
+  if(state==='run') return;
+  const b=runBlock(false); if(b){ setCtrlMsg(b); errsEl.textContent=b; return; }
+  if(state==='idle'){
+    if(payloadBad()){ errsEl.textContent=PAYLOAD_MSG; pushAlarm(PAYLOAD_MSG); return; }
+    const {steps,errs}=parse(srcEl.value);
+    if(errs.length){ errsEl.textContent=errs.join('\n'); if(!editing) setEdit(true); return; }
+    if(editing) setEdit(false);
+    resetProgress();
+    cycleT=0;
+    prog=withIntro(steps);
+  }
+  state='run'; stepping=true; errsEl.textContent='';
+}
+function pauseProgram(){ if(state==='run') state='paused'; }
+function stopProgram(){ prog=null; state='idle'; stepping=false; curText='stopped'; resetProgress(); }
+
+// ---------- Jog + frame update ----------
+function clampQ(){ for(let k=0;k<6;k++) q[k]=clamp(q[k],LIM[k][0],LIM[k][1]); }
+function update(dt){
+  gOpen += (gripCmd-gOpen)*Math.min(1,dt*5);
+  if(state==="run") cycleT+=dt;
+
+  if(state==='run' && prog){
+    try{
+      const r=prog.next();
+      if(r.done){ prog=null; state='idle'; curText='program ended'; lastCycle=cycleT; cycleCount++; }
+      else if(r.value==='instr' && stepping){ state='paused'; stepping=false; curText+=' (step done)'; }
+    }catch(e){ prog=null; state='idle'; curText='error: '+e.message; errsEl.textContent='ALARM: '+e.message; pushAlarm(e.message); }
+  } else if(state!=='run' && manualBlock()===null){
+    if(jogMode==='joint'){
+      let any=false;
+      for(let i=0;i<6;i++) if(jogJ[i]){ q[i]+=jogJ[i]*JOINT_RATE*override/100*dt; any=true; }
+      if(any) clampQ();
+    } else if(jogC.some(v=>v)){
+      const p=posOf(q);
+      const t=[0,1,2].map(i=>p[i]+jogC[i]*CART_RATE*override/100*dt);
+      solveTo(t,4);
+    }
+  }
+
+  const p=posOf(q);
+  const lastP=trail[trail.length-1];
+  if(!lastP || Math.hypot(p[0]-lastP[0],p[1]-lastP[1],p[2]-lastP[2])>2){
+    trail.push(p); if(trail.length>600) trail.shift();
+  }
+}
+
+// ---------- Axis definitions (one colour each) ----------
+const PARTS_DEF=[
+  {key:'J1',name:'Base',color:0x3b82f6},
+  {key:'J2',name:'Shoulder',color:0xf59e0b},
+  {key:'J3',name:'Elbow',color:0x10b981},
+  {key:'J4',name:'Forearm roll',color:0x8b5cf6},
+  {key:'J5',name:'Wrist bend',color:0xef4444},
+  {key:'J6',name:'Flange',color:0x06b6d4},
+  {key:'G', name:'Gripper',color:0xec4899}
+];
+const colOf=k=>PARTS_DEF.find(p=>p.key===k).color;
+const JOINT_CAP_RADIUS=[130,118,104,62,58,46];   // coloured caps sit on each rotation axis
+
+// ---------- 3D renderer (Three.js, Z-up) ----------
+const cv=document.getElementById('cv');
+const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.setClearColor(0xeef0f2,1);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(35,1,10,20000);
+camera.up.set(0,0,1);
+
+scene.add(new THREE.HemisphereLight(0xffffff,0x7d838c,0.85));
+const sun=new THREE.DirectionalLight(0xffffff,0.95);
+sun.position.set(700,-500,1400);
+sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-1000,right:1000,top:1000,bottom:-1000,near:100,far:5000});
+sun.shadow.camera.updateProjectionMatrix();
+sun.shadow.bias=-0.0005;
+scene.add(sun);
+
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(6000,6000),new THREE.ShadowMaterial({opacity:0.18}));
+floor.position.z=-1; floor.receiveShadow=true; scene.add(floor);
+const grid=new THREE.GridHelper(2000,20,0x9aa0a6,0xd5d9de);
+grid.rotation.x=Math.PI/2; scene.add(grid);
+
+const cylGeo=new THREE.CylinderGeometry(1,1,1,28);
+const cylTaperGeo=new THREE.CylinderGeometry(0.75,1,1,28);   // narrower at the far end, like the arm links in the photo
+const sphGeo=new THREE.SphereGeometry(1,28,18);
+const boxGeo=new THREE.BoxGeometry(1,1,1), coneGeo=new THREE.ConeGeometry(1,1,16);
+const UP=new THREE.Vector3(0,1,0), _d=new THREE.Vector3(), _u=new THREE.Vector3();
+const BLACK=0x202224;
+const BODY=0x2058bd, BODY_DARK=0x183f88, HUB=0x2a2e35;   // Yaskawa-style blue housings, dark hubs
+function mkMat(hex,rough,metal){return new THREE.MeshStandardMaterial({color:hex,roughness:rough,metalness:metal});}
+function mkMesh(geo,hex,rough=0.45,metal=0.1,parent=scene){const o=new THREE.Mesh(geo,mkMat(hex,rough,metal));o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;}
+function setLink(o,a,b,r){
+  _d.set(b[0]-a[0],b[1]-a[1],b[2]-a[2]);
+  const len=_d.length();
+  if(len<1e-6){o.visible=false;return;}
+  o.visible=true;
+  o.position.set((a[0]+b[0])/2,(a[1]+b[1])/2,(a[2]+b[2])/2);
+  o.quaternion.setFromUnitVectors(UP,_d.multiplyScalar(1/len));
+  o.scale.set(r,len,r);
+}
+function setBall(o,p,r){o.position.set(p[0],p[1],p[2]);o.scale.setScalar(r);}
+function placeCap(o,pos,dir,r){
+  const len=Math.hypot(dir[0],dir[1],dir[2])||1;
+  o.position.set(pos[0],pos[1],pos[2]);
+  o.quaternion.setFromUnitVectors(UP,_u.set(dir[0]/len,dir[1]/len,dir[2]/len));
+  o.scale.set(r,14,r);
+}
+
+// Fixed base: black pedestal with motor box, as in the photo (not a controlled axis)
+const YEL=0xf5c800;   // Fanuc yellow from the product photo
+const pedestal=mkMesh(boxGeo,BODY_DARK,0.55,0.15);   // grey base, as in the reference image
+const squareTaperGeo=new THREE.CylinderGeometry(0.72,1,1,4,1); squareTaperGeo.rotateY(Math.PI/4);
+pedestal.geometry=squareTaperGeo;
+const foot=mkMesh(boxGeo,HUB,0.6,0.2);          // mounting foot plate
+foot.position.set(0,0,8); foot.scale.set(300,300,16);
+const motorBox=mkMesh(boxGeo,BODY,0.55,0.15);
+motorBox.position.set(0,-128,105); motorBox.scale.set(120,70,150); motorBox.visible=false;
+setLink(pedestal,[0,0,0],[0,0,240],180);   // Z-up: cylinders are built along Y, so use setLink
+
+// Moving parts, each in its axis colour
+const toolG=new THREE.Group(); toolG.matrixAutoUpdate=false; scene.add(toolG);
+const waist=mkMesh(cylGeo,BODY);                 // J1
+const shoulder=mkMesh(sphGeo,BODY);              // J2
+const upper=mkMesh(cylTaperGeo,BODY);            // J2
+const elbow=mkMesh(sphGeo,BODY);                 // J3
+const fore=mkMesh(cylTaperGeo,BODY);             // J3
+const wristBody=mkMesh(sphGeo,BODY);             // J4
+const wristBall=mkMesh(sphGeo,BODY);             // J5
+const flange=mkMesh(cylGeo,BODY);                // J5
+const palm=mkMesh(boxGeo,HUB,0.3,0.4,toolG);    // J6 (tool body)
+const fingerA=mkMesh(boxGeo,HUB,0.3,0.4,toolG);  // Gripper
+const fingerB=mkMesh(boxGeo,HUB,0.3,0.4,toolG);  // Gripper
+
+// Each joint's housing keeps its joint colour; only the tool flange is dark, as in the reference image
+flange.material.color.setHex(BLACK);
+const brass=mkMesh(cylGeo,0xc49a3a,0.25,0.6);   // brass ring on the tool flange
+(function(){
+  // white YASKAWA logo on both sides of the forearm (the horizontal arm in the photo); a child of the arm, so it moves with it
+  const c=document.createElement('canvas'); c.width=512; c.height=128;
+  const g=c.getContext('2d'); g.clearRect(0,0,512,128); g.fillStyle='#ffffff';
+  g.font='bold 92px Arial, Helvetica, sans-serif'; g.textAlign='center'; g.textBaseline='middle';
+  g.fillText('YASKAWA',256,68);
+  const mat=new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false});
+  [1,-1].forEach(sx=>{
+    const pl=new THREE.Mesh(new THREE.PlaneGeometry(0.5,0.6),mat);
+    pl.position.set(1.03*sx,0,0); pl.rotation.set(0,sx>0?Math.PI/2:-Math.PI/2,Math.PI/2);
+    fore.add(pl);
+  });
+})();
+// Reference-style housings: waist, upper arm and forearm are boxes with wide faces turned sideways; shoulder and elbow are cylinders on their horizontal joint axes
+waist.geometry=cylGeo; upper.geometry=cylTaperGeo; fore.geometry=cylTaperGeo;
+const _mb=new THREE.Matrix4(), _bx=new THREE.Vector3(), _by=new THREE.Vector3(), _bz=new THREE.Vector3();
+function sideVec(){ const t=q[0]*Math.PI/180; return [-Math.sin(t),Math.cos(t),0]; }
+function off(pt,s,k){ return [pt[0]+s[0]*k,pt[1]+s[1]*k,pt[2]+s[2]*k]; }
+function setBox(o,a,b,w,d){
+  _by.set(b[0]-a[0],b[1]-a[1],b[2]-a[2]); const len=_by.length();
+  if(len<1e-6){o.visible=false;return;}
+  o.visible=true; _by.multiplyScalar(1/len);
+  const s=sideVec(); _bx.set(s[0],s[1],s[2]);
+  _bx.addScaledVector(_by,-_bx.dot(_by)).normalize();
+  _bz.crossVectors(_bx,_by).normalize();
+  _mb.makeBasis(_bx,_by,_bz); o.quaternion.setFromRotationMatrix(_mb);
+  o.position.set((a[0]+b[0])/2,(a[1]+b[1])/2,(a[2]+b[2])/2);
+  o.scale.set(w,len,d);
+}
+
+(function(){
+  // dark cut-out windows and a yellow warning sticker on both sides of the upper arm, as on the reference arm
+  function roundRectCanvas(w,h,rad,fill){
+    const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d');
+    g.fillStyle=fill; g.beginPath();
+    g.moveTo(rad,0); g.lineTo(w-rad,0); g.quadraticCurveTo(w,0,w,rad); g.lineTo(w,h-rad);
+    g.quadraticCurveTo(w,h,w-rad,h); g.lineTo(rad,h); g.quadraticCurveTo(0,h,0,h-rad);
+    g.lineTo(0,rad); g.quadraticCurveTo(0,0,rad,0); g.closePath(); g.fill();
+    return c;
+  }
+  const winMat=new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(roundRectCanvas(512,256,110,'#070b10')),transparent:true,depthWrite:false});
+  const sc=document.createElement('canvas'); sc.width=256; sc.height=256; const sg=sc.getContext('2d');
+  sg.fillStyle='#f5c400'; sg.beginPath(); sg.moveTo(128,18); sg.lineTo(240,226); sg.lineTo(16,226); sg.closePath(); sg.fill();
+  sg.lineWidth=14; sg.strokeStyle='#111'; sg.stroke();
+  sg.fillStyle='#111'; sg.font='bold 150px Arial, Helvetica, sans-serif'; sg.textAlign='center'; sg.textBaseline='middle'; sg.fillText('!',128,150);
+  const stMat=new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(sc),transparent:true,depthWrite:false});
+  [1,-1].forEach(sx=>{
+    const win=new THREE.Mesh(new THREE.PlaneGeometry(0.42,0.5),winMat);
+    win.position.set(1.02*sx,0.1,0); win.rotation.set(0,sx>0?Math.PI/2:-Math.PI/2,Math.PI/2);
+    upper.add(win);
+    const st=new THREE.Mesh(new THREE.PlaneGeometry(0.2,0.42),stMat);
+    st.position.set(1.02*sx,-0.3,0); st.rotation.set(0,sx>0?Math.PI/2:-Math.PI/2,Math.PI/2);
+    upper.add(st);
+  });
+})();
+// Coloured caps on each rotation axis (one per joint)
+const caps=PARTS_DEF.slice(0,6).map(_=>mkMesh(cylGeo,HUB,0.35,0.2));
+// joint colour coding: each joint's cap ring and its knuckle take that joint's colour, as in the JOINTS legend
+caps.forEach((m,i)=>{ m.visible=true; m.material.color.setHex(PARTS_DEF[i].color); });
+shoulder.material.color.setHex(colOf('J2')); elbow.material.color.setHex(colOf('J3'));
+wristBody.material.color.setHex(colOf('J4')); wristBall.material.color.setHex(colOf('J5'));
+
+// Joint rotation-axis markers (one line + arrow per joint, in that joint's colour)
+const axisCyl=[], axisCone=[];
+PARTS_DEF.slice(0,6).forEach(p=>{
+  const m=new THREE.MeshBasicMaterial({color:p.color,transparent:true,opacity:0.9});
+  const c=new THREE.Mesh(cylGeo,m); c.visible=false; scene.add(c);
+  const k=new THREE.Mesh(coneGeo,m); k.visible=false; scene.add(k);
+  axisCyl.push(c); axisCone.push(k);
+});
+
+// Meshes belonging to each controllable axis (used for highlight)
+const PARTS=PARTS_DEF.map(p=>({...p,colorObj:new THREE.Color(p.color),meshes:[]}));
+const partOf=k=>PARTS.find(p=>p.key===k);
+partOf('J1').meshes=[caps[0],waist];
+partOf('J2').meshes=[caps[1],shoulder,upper];
+partOf('J3').meshes=[caps[2],elbow,fore];
+partOf('J4').meshes=[caps[3],wristBody];
+partOf('J5').meshes=[caps[4],wristBall,flange];
+partOf('J6').meshes=[caps[5],palm];
+partOf('G').meshes=[fingerA,fingerB];
+
+const TRAIL_MAX=600;
+const trailArr=new Float32Array(TRAIL_MAX*3);
+const trailGeo=new THREE.BufferGeometry();
+trailGeo.setAttribute('position',new THREE.BufferAttribute(trailArr,3));
+trailGeo.setDrawRange(0,0);
+const trailLine=new THREE.Line(trailGeo,new THREE.LineBasicMaterial({color:0x111111}));
+trailLine.frustumCulled=false; scene.add(trailLine);
+
+// ---------- Camera / view ----------
+const view={yaw:-2.7,pitch:0.12,dist:2000};
+const TARGET=new THREE.Vector3(0,0,220);
+let VW=1, VH=1;
+function placeCamera(){
+  const cp=Math.cos(view.pitch);
+  camera.position.set(
+    TARGET.x+view.dist*cp*Math.cos(view.yaw),
+    TARGET.y+view.dist*cp*Math.sin(view.yaw),
+    TARGET.z+view.dist*Math.sin(view.pitch));
+  camera.lookAt(TARGET);
+}
+function resize(){
+  VW=cv.clientWidth||1; VH=cv.clientHeight||1;
+  renderer.setSize(VW,VH,false);
+  camera.aspect=VW/VH; camera.updateProjectionMatrix();
+}
+function renderTrail(){
+  const n=trail.length;
+  for(let i=0;i<n;i++){const p=trail[i]; trailArr[i*3]=p[0]; trailArr[i*3+1]=p[1]; trailArr[i*3+2]=p[2];}
+  trailGeo.attributes.position.needsUpdate=true;
+  trailGeo.setDrawRange(0,n);
+}
+
+// ---------- Active-axis highlight ----------
+const prevQ=q.slice(); let prevG=gOpen;
+const activeUntil=[0,0,0,0,0,0,0];
+let isActive=[false,false,false,false,false,false,false];
+function updateActive(sec){
+  for(let i=0;i<6;i++){ if(Math.abs(q[i]-prevQ[i])>0.003) activeUntil[i]=sec+0.4; prevQ[i]=q[i]; }
+  if(Math.abs(gOpen-prevG)>0.002) activeUntil[6]=sec+0.4;
+  prevG=gOpen;
+  PARTS.forEach((p,i)=>{
+    isActive[i]=activeUntil[i]>sec;
+    p.meshes.forEach(m=>{
+      if(isActive[i]) m.material.emissive.copy(p.colorObj).multiplyScalar(0.55);
+      else m.material.emissive.setHex(0);
+    });
+    LBL[i].classList.toggle('on',isActive[i]);
+  });
+}
+
+// ---------- 3D part labels ----------
+const labelsEl=document.getElementById('labels');
+const LBL=PARTS.map(p=>{
+  const d=document.createElement('div'); d.className='plabel';
+  d.innerHTML=`<i style="background:${hexStr(p.color)}"></i><b>${p.key}</b>&nbsp;<span class="v"></span>`;
+  labelsEl.append(d); return d;
+});
+const _v=new THREE.Vector3();
+function placeLabel(el,pt,show){
+  _v.set(pt[0],pt[1],pt[2]).project(camera);
+  if(!show||_v.z>1||_v.z<-1){el.style.display='none';return;}
+  el.style.display='flex';
+  const x=(_v.x+1)/2*VW, y=(1-_v.y)/2*VH;
+  el.style.transform=`translate(${x+10}px,${y-12}px)`;
+}
+
+function screenOf(pt){
+  _v.set(pt[0],pt[1],pt[2]).project(camera);
+  if(_v.z>1||_v.z<-1) return null;
+  return {x:(_v.x+1)/2*VW, y:(1-_v.y)/2*VH};
+}
+
+function render3D(K){
+  const p=K.pts;
+  // pedestal and waist
+  setLink(waist,[0,0,240],[0,0,L.base],95);
+  // shoulder, upper arm, elbow, forearm
+  const sd=sideVec();
+  setBall(shoulder,p[1],82);   // rounded shoulder knuckle
+  setLink(upper,p[1],p[2],95);
+  setBall(elbow,p[2],74);   // rounded elbow knuckle
+  setLink(fore,p[2],p[3],70);
+  // wrist
+  setBall(wristBody,p[3],66);
+  setBall(wristBall,p[4],56);
+  setLink(flange,p[4],p[5],46);
+  setLink(brass,[p[5][0]-(p[5][0]-p[4][0])*0.12,p[5][1]-(p[5][1]-p[4][1])*0.12,p[5][2]-(p[5][2]-p[4][2])*0.12],p[5],48);
+  // gripper
+  if(gripType!=='vacuum'){
+    const openH=GRIP_OPEN_HALF[gripType], half=openH-(openH-8)*gOpen;
+    palm.position.set(-5,0,0); palm.scale.set(26,2*half+24,36);
+    fingerA.position.set(20,-half,0); fingerB.position.set(20,half,0);
+  }
+  fingerA.scale.set(50,12,22); fingerB.scale.set(50,12,22);
+  toolG.matrix.set(...K.T);
+
+  // coloured caps on each rotation axis
+  caps.forEach((m,i)=>placeCap(m,K.axes[i].o,K.axes[i].d,JOINT_CAP_RADIUS[i]));
+
+  // joint axes
+  if(showAxes){
+    K.axes.forEach((ax,i)=>{
+      const len=Math.hypot(ax.d[0],ax.d[1],ax.d[2])||1;
+      const u=[ax.d[0]/len,ax.d[1]/len,ax.d[2]/len];
+      const a=[ax.o[0]-u[0]*240,ax.o[1]-u[1]*240,ax.o[2]-u[2]*240];
+      const b=[ax.o[0]+u[0]*240,ax.o[1]+u[1]*240,ax.o[2]+u[2]*240];
+      axisCyl[i].visible=true; setLink(axisCyl[i],a,b,3);
+      axisCone[i].visible=true;
+      axisCone[i].position.set(b[0]+u[0]*14,b[1]+u[1]*14,b[2]+u[2]*14);
+      axisCone[i].quaternion.setFromUnitVectors(UP,_u.set(u[0],u[1],u[2]));
+      axisCone[i].scale.set(9,28,9);
+    });
+  } else {
+    axisCyl.forEach(m=>m.visible=false);
+    axisCone.forEach(m=>m.visible=false);
+  }
+
+  renderTrail();
+  placeCamera();
+  camera.updateMatrixWorld();
+
+  // labels: 'off' hides all; otherwise, while anything moves, only the moving axis is shown
+  const mid=[(p[4][0]+p[5][0])/2,(p[4][1]+p[5][1])/2,(p[4][2]+p[5][2])/2];
+  const anchors=[[0,0,170],p[1],p[2],p[3],p[4],mid,p[5]];
+  const anyMoving=isActive.some(Boolean);
+  // place visible labels, then push any that would overlap down so each stays readable
+  const shown=[];
+  anchors.forEach((pt,i)=>{
+    const on=labelMode!=='off' && (!anyMoving||isActive[i]);
+    const s=on?screenOf(pt):null;
+    if(!s){ LBL[i].style.display='none'; return; }
+    shown.push({el:LBL[i], x:s.x+10, y:s.y-9, h:18, w:LBL[i].offsetWidth||70});
+  });
+  shown.sort((a,b)=>a.y-b.y);
+  for(let i=1;i<shown.length;i++){
+    const a=shown[i-1], b=shown[i];
+    if(Math.abs(b.x-a.x)<Math.max(a.w,b.w) && b.y-a.y<a.h) b.y=a.y+a.h+3;
+  }
+  shown.forEach(s=>{ s.el.style.display='flex'; s.el.style.transform=`translate(${s.x}px,${s.y}px)`; });
+  renderer.render(scene,camera);
+}
+
+// ---------- Pointer / wheel controls on the 3D view ----------
+let dragging=false, lx=0, ly=0;
+cv.addEventListener('pointerdown',e=>{dragging=true;lx=e.clientX;ly=e.clientY;cv.classList.add('drag');cv.setPointerCapture(e.pointerId);});
+cv.addEventListener('pointermove',e=>{
+  if(!dragging) return;
+  view.yaw+=(e.clientX-lx)*0.008;
+  view.pitch=clamp(view.pitch+(e.clientY-ly)*0.008,0.05,1.5);
+  lx=e.clientX; ly=e.clientY;
+});
+const endDrag=()=>{dragging=false;cv.classList.remove('drag');};
+cv.addEventListener('pointerup',endDrag);
+cv.addEventListener('pointercancel',endDrag);
+cv.addEventListener('wheel',e=>{e.preventDefault(); view.dist=clamp(view.dist*Math.exp(e.deltaY*0.0015),900,5000);},{passive:false});
+cv.addEventListener('dblclick',()=>{view.yaw=-2.7;view.pitch=0.12;view.dist=2000;});
+new ResizeObserver(()=>resize()).observe(cv);
+
+// The Program section now lives inside the Controls pane, as its PROGRAM tab
+(function(){
+  const ctrl=document.getElementById('pControls'), prog=document.getElementById('pProgram');
+  const pane=document.createElement('div');
+  pane.className='ctab'; pane.dataset.ctab='program'; pane.hidden=true;
+  pane.append(prog.querySelector('.progwrap'));
+  ctrl.querySelector('.pbody').append(pane);
+  prog.remove();
+})();
+
+// ---------- Program panel splitter (resizes the sample/custom column) ----------
+const splitEl=document.getElementById('split');
+const progWrapEl=document.querySelector('#pControls .progwrap');
+let sideW=440;
+function setSideW(w){
+  if(!progWrapEl.clientWidth) return;   // not laid out yet (panel hidden)
+  const max=Math.max(260,progWrapEl.clientWidth-320);
+  sideW=clamp(w,240,max);
+  progWrapEl.style.setProperty('--sideW',sideW+'px');
+}
+// split the program area into two equal halves (grid padding 12px each side, splitter 10px)
+function splitHalf(){ setSideW((progWrapEl.clientWidth-24-10)/2); }
+splitEl.addEventListener('pointerdown',e=>{
+  e.preventDefault();
+  splitEl.setPointerCapture(e.pointerId);
+  const sx=e.clientX, sw=sideW;
+  const mv=ev=>setSideW(sw+(ev.clientX-sx));
+  const up=()=>{splitEl.removeEventListener('pointermove',mv);splitEl.removeEventListener('pointerup',up);};
+  splitEl.addEventListener('pointermove',mv);
+  splitEl.addEventListener('pointerup',up);
+});
+
+// ---------- Dockable panels ----------
+const appEl=document.getElementById('app');
+const DOCKS={left:document.getElementById('dockL'), right:document.getElementById('dockR'), bottom:document.getElementById('dockB')};
+const dropHint=document.getElementById('dropHint');
+const trayEl=document.getElementById('tray');
+const PANELS={
+  controls:{el:document.getElementById('pControls'), title:'Controls', mode:'min', prev:'right', fw:380, fh:520}
+};
+
+function refreshTray(){
+  trayEl.innerHTML='';
+  Object.entries(PANELS).forEach(([key,p])=>{
+    if(p.mode!=='min') return;
+    const b=document.createElement('button');
+    b.textContent='Restore '+p.title;
+    b.onclick=()=>placePanel(key,p.prev);
+    trayEl.append(b);
+  });
+}
+function refreshDocks(){
+  ['left','right','bottom'].forEach(side=>{
+    const dock=DOCKS[side];
+    const kids=[...dock.children].filter(c=>!c.hidden);
+    dock.style.display=kids.length?'flex':'none';
+  });
+  Object.values(PANELS).forEach(p=>{
+    p.el.classList.toggle('vert', p.mode==='left'||p.mode==='right');
+  });
+}
+function placePanel(key,target){
+  const p=PANELS[key], el=p.el;
+  if(target==='min'){
+    if(p.mode!=='min') p.prev=p.mode;
+    p.mode='min'; el.hidden=true;
+  } else if(target==='float'){
+    p.mode='float'; el.hidden=false;
+    el.classList.add('floating');
+    el.style.width=(p.fw||380)+'px';
+    el.style.height=(p.fh||420)+'px';
+    if(p.fx===undefined){ p.fx=120; p.fy=90; }
+    el.style.left=p.fx+'px'; el.style.top=p.fy+'px';
+    appEl.append(el);
+  } else {
+    p.mode=target; el.hidden=false;
+    el.classList.remove('floating');
+    el.style.left=''; el.style.top=''; el.style.width=''; el.style.height='';
+    DOCKS[target].append(el);
+  }
+  refreshTray(); refreshDocks();
+}
+
+Object.entries(PANELS).forEach(([key,p])=>{
+  const el=p.el;
+  el.querySelector('[data-act=collapse]').onclick=()=>{ el.classList.toggle('collapsed'); refreshDocks(); };
+  el.querySelector('[data-act=min]').onclick=()=>placePanel(key,'min');
+  el.querySelector('.phdr').addEventListener('pointerdown',e=>{
+    if(e.target.closest('.ibtn')) return;
+    const r=el.getBoundingClientRect(), ar=appEl.getBoundingClientRect();
+    drag={key,sx:e.clientX,sy:e.clientY,offX:e.clientX-r.left,offY:e.clientY-r.top,moved:false,rect:r,ar};
+  });
+});
+
+let drag=null, zone=null;
+function detectZone(x,y,ar){
+  if(y>ar.height-90) return 'bottom';
+  if(x<90) return 'left';
+  if(x>ar.width-90) return 'right';
+  return null;
+}
+function showZone(z){
+  zone=z;
+  if(!z){ dropHint.style.display='none'; return; }
+  const geo={
+    left:'left:0;top:0;bottom:0;width:90px',
+    right:'right:0;top:0;bottom:0;width:90px',
+    bottom:'left:0;right:0;bottom:0;height:90px'
+  }[z];
+  dropHint.style.cssText='display:flex;position:absolute;z-index:50;align-items:center;justify-content:center;background:rgba(255,210,0,.25);border:2px dashed #c9a800;border-radius:8px;font-weight:700;pointer-events:none;color:#6b5600;'+geo;
+  dropHint.textContent='Dock '+z;
+}
+window.addEventListener('pointermove',e=>{
+  if(!drag) return;
+  const p=PANELS[drag.key];
+  if(!drag.moved){
+    if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<6) return;
+    drag.moved=true;
+    const ar=appEl.getBoundingClientRect();
+    p.fx=drag.rect.left-ar.left; p.fy=drag.rect.top-ar.top;
+    p.fw=drag.rect.width; p.fh=drag.rect.height;
+    placePanel(drag.key,'float');
+    p.el.classList.add('dragging');
+  }
+  const ar=appEl.getBoundingClientRect();
+  const x=e.clientX-ar.left, y=e.clientY-ar.top;
+  p.fx=x-drag.offX; p.fy=y-drag.offY;
+  p.el.style.left=p.fx+'px'; p.el.style.top=p.fy+'px';
+  showZone(detectZone(x,y,ar));
+});
+window.addEventListener('pointerup',e=>{
+  if(!drag) return;
+  const d=drag; drag=null;
+  showZone(null);
+  const p=PANELS[d.key];
+  p.el.classList.remove('dragging');
+  if(!d.moved) return;
+  const ar=appEl.getBoundingClientRect();
+  const z=detectZone(e.clientX-ar.left,e.clientY-ar.top,ar);
+  if(z) placePanel(d.key,z);
+});
+
+// ---------- Sample programs (simple → complex) ----------
+// Each sample carries its own positions, so every referenced P[n] exists when it is loaded.
+// Text after ' on each line is the step explanation shown beside the command.
+const SAMPLES=[
+{name:"Base turn",level:"Beginner",moves:"J1 (base) only",
+ desc:"The base joint swings the whole arm left and right. Nothing else moves.",
+ pos:{1:[0, -20, 30, 0, -20, 0],2:[70, -20, 30, 0, -20, 0],3:[-70, -20, 30, 0, -20, 0]},din:[],
+ code:[
+  "' Only J1 (base) changes between P001, P002 and P003",
+  "MOVJ P001 VJ=30 ' start at the centre position",
+  "MOVJ P002 VJ=30 ' swing the base to one side",
+  "MOVJ P003 VJ=30 ' swing the base to the other side",
+  "MOVJ P001 VJ=30 ' return to the centre",
+  "END"]},
+{name:"Shoulder lift",level:"Beginner",moves:"J2 (shoulder) only",
+ desc:"The shoulder raises and lowers the upper arm. The forearm and wrist keep their angles.",
+ pos:{1:[0, -20, 30, 0, -20, 0],2:[0, -45, 30, 0, -20, 0],3:[0, 5, 30, 0, -20, 0]},din:[],
+ code:[
+  "' Only J2 (shoulder) changes",
+  "MOVJ P001 VJ=30 ' start with the upper arm at its normal height",
+  "MOVJ P002 VJ=30 ' lower the upper arm (J2 negative)",
+  "MOVJ P003 VJ=30 ' raise the upper arm (J2 positive)",
+  "MOVJ P001 VJ=30 ' return to the start height",
+  "END"]},
+{name:"Elbow bend",level:"Beginner",moves:"J3 (elbow) only",
+ desc:"The elbow folds and unfolds the forearm. The upper arm stays where it is.",
+ pos:{1:[0, -20, 30, 0, -20, 0],2:[0, -20, 70, 0, -20, 0],3:[0, -20, 0, 0, -20, 0]},din:[],
+ code:[
+  "' Only J3 (elbow) changes",
+  "MOVJ P001 VJ=30 ' start with the forearm at its normal angle",
+  "MOVJ P002 VJ=30 ' fold the elbow (J3 positive)",
+  "MOVJ P003 VJ=30 ' extend the elbow (J3 lower)",
+  "MOVJ P001 VJ=30 ' return to the start angle",
+  "END"]},
+{name:"Gripper output (DOUT)",level:"Beginner",moves:"Digital output OT#(1) only",
+ desc:"No joints move. DOUT OT#(1) closes and opens the fingers, or switches the vacuum on and off. TIMER holds each state.",
+ pos:{},din:[],
+ code:[
+  "DOUT OT#(1) ON ' close the fingers (or vacuum on)",
+  "TIMER T=0.50 ' hold for half a second",
+  "DOUT OT#(1) OFF ' open the fingers (or vacuum off)",
+  "TIMER T=0.50 ' hold",
+  "DOUT OT#(1) ON ' close again",
+  "TIMER T=0.50 ' hold",
+  "DOUT OT#(1) OFF ' finish open",
+  "END"]},
+{name:"Tool twist",level:"Beginner",moves:"J6 (flange) only",
+ desc:"The last joint turns the flange, so the gripper rotates around its own axis.",
+ pos:{1:[0, -20, 30, 0, -20, 0],2:[0, -20, 30, 0, -20, 90],3:[0, -20, 30, 0, -20, -90]},din:[],
+ code:[
+  "' Only J6 (flange) changes",
+  "MOVJ P001 VJ=30 ' start with the gripper facing forward",
+  "MOVJ P002 VJ=30 ' turn the flange positive (+90 deg)",
+  "MOVJ P003 VJ=30 ' turn the flange negative (-90 deg)",
+  "MOVJ P001 VJ=30 ' return to the start angle",
+  "END"]},
+{name:"Straight-line slide (MOVL)",level:"Intermediate",moves:"MOVJ to start, then a straight TCP path",
+ desc:"MOVL keeps the TCP on a straight line in space. Compare with MOVJ, which only interpolates joint angles.",
+ pos:{1:[0, -20, 30, 0, -20, 0],2:[30, -35, 55, 0, -30, 0]},din:[],
+ code:[
+  "MOVJ P001 VJ=40 ' joint move to the start point (path is not straight)",
+  "MOVL P002 V=100 ' slide in a straight line to P002 at 100 mm/s",
+  "MOVL P001 V=100 ' slide straight back to P001",
+  "END"]},
+{name:"Sensor-gated pick (WAIT IN#)",level:"Intermediate",moves:"Gripper output, MOVJ, MOVL and a wait on IN#(1)",
+ desc:"The program waits at a safe point until the part-present sensor IN#(1) turns ON, then picks the part and places it in the bin. IN#(1) is already ON for this sample.",
+ pos:{1:[0, -20, 30, 0, -20, 0],2:[30, -35, 55, 0, -30, 0],3:[-30, -20, 30, 0, -20, 0]},din:[1],
+ code:[
+  "DOUT OT#(1) OFF ' gripper open before the approach",
+  "MOVJ P001 VJ=40 ' move to the safe position",
+  "WAIT IN#(1)=ON ' hold until a part is detected (I/O tab, IN#(1))",
+  "MOVJ P002 VJ=40 ' lower onto the part",
+  "DOUT OT#(1) ON ' close the gripper",
+  "TIMER T=0.50 ' give the grip time to settle",
+  "MOVL P001 V=150 ' lift straight up",
+  "MOVJ P003 VJ=40 ' carry above the bin",
+  "DOUT OT#(1) OFF ' release the part",
+  "TIMER T=0.50 ' let it settle",
+  "MOVJ P001 VJ=40 ' back to the safe position",
+  "END"]},
+{name:"Pick two parts, sort into two bins",level:"Intermediate",moves:"Two pick-and-place cycles to different bins",
+ desc:"Pick from the same spot twice, then drop each part into bin A or bin B.",
+ pos:{1:[0, -20, 30, 0, -20, 0],2:[30, -35, 55, 0, -30, 0],3:[-30, -35, 55, 0, -30, 0],4:[-30, -20, 30, 0, -20, 0],5:[-70, -20, 30, 0, -20, 0],6:[-70, -35, 55, 0, -30, 0]},din:[],
+ code:[
+  "' First part: bin A",
+  "DOUT OT#(1) OFF ' open the fingers",
+  "MOVJ P001 VJ=40 ' move above the pick spot",
+  "MOVJ P002 VJ=40 ' lower onto the part",
+  "DOUT OT#(1) ON ' grip the part",
+  "TIMER T=0.50 ' wait for the grip",
+  "MOVL P001 V=150 ' lift straight up",
+  "MOVJ P004 VJ=40 ' move above bin A",
+  "MOVJ P003 VJ=40 ' lower into bin A",
+  "DOUT OT#(1) OFF ' drop the part into bin A",
+  "TIMER T=0.50 ' wait for it to settle",
+  "MOVL P004 V=150 ' lift out of bin A",
+  "' Second part: bin B",
+  "MOVJ P001 VJ=40 ' back above the pick spot",
+  "MOVJ P002 VJ=40 ' lower onto the second part",
+  "DOUT OT#(1) ON ' grip it",
+  "TIMER T=0.50 ' wait for the grip",
+  "MOVL P001 V=150 ' lift straight up",
+  "MOVJ P005 VJ=40 ' move above bin B",
+  "MOVJ P006 VJ=40 ' lower into bin B",
+  "DOUT OT#(1) OFF ' drop the part into bin B",
+  "TIMER T=0.50 ' wait for it to settle",
+  "MOVL P005 V=150 ' lift out of bin B",
+  "MOVJ P001 VJ=40 ' return to the safe position",
+  "END"]},
+{name:"Palletize three parts",level:"Advanced",moves:"Full pick, lift, carry and stack cycle, three times",
+ desc:"The same cycle repeats for three pallet slots. Each slot is reached from a safe point above the pallet.",
+ pos:{1:[0, -20, 30, 0, -20, 0],2:[30, -35, 55, 0, -30, 0],3:[-30, -35, 55, 0, -30, 0],4:[-40, -35, 55, 0, -30, 0],5:[-50, -35, 55, 0, -30, 0],6:[-40, -20, 30, 0, -20, 0]},din:[],
+ code:[
+  "' Palletize three parts into slots 1 to 3",
+  "DOUT OT#(1) OFF ' start with open fingers",
+  "MOVJ P001 VJ=40 ' move to the safe start position",
+  "' ---- slot 1 ----",
+  "MOVJ P002 VJ=40 ' move to the pick spot",
+  "DOUT OT#(1) ON ' grip a part",
+  "TIMER T=0.50 ' wait for the grip",
+  "MOVL P001 V=150 ' lift straight up",
+  "MOVJ P006 VJ=40 ' move above the pallet",
+  "MOVJ P003 VJ=40 ' lower into slot 1",
+  "DOUT OT#(1) OFF ' release the part",
+  "TIMER T=0.50 ' let it settle",
+  "MOVL P006 V=150 ' lift out of the pallet",
+  "MOVJ P001 VJ=40 ' back to the safe position",
+  "' ---- slot 2 ----",
+  "MOVJ P002 VJ=40 ' move to the pick spot",
+  "DOUT OT#(1) ON ' grip a part",
+  "TIMER T=0.50 ' wait for the grip",
+  "MOVL P001 V=150 ' lift straight up",
+  "MOVJ P006 VJ=40 ' move above the pallet",
+  "MOVJ P004 VJ=40 ' lower into slot 2",
+  "DOUT OT#(1) OFF ' release the part",
+  "TIMER T=0.50 ' let it settle",
+  "MOVL P006 V=150 ' lift out of the pallet",
+  "MOVJ P001 VJ=40 ' back to the safe position",
+  "' ---- slot 3 ----",
+  "MOVJ P002 VJ=40 ' move to the pick spot",
+  "DOUT OT#(1) ON ' grip a part",
+  "TIMER T=0.50 ' wait for the grip",
+  "MOVL P001 V=150 ' lift straight up",
+  "MOVJ P006 VJ=40 ' move above the pallet",
+  "MOVJ P005 VJ=40 ' lower into slot 3",
+  "DOUT OT#(1) OFF ' release the part",
+  "TIMER T=0.50 ' let it settle",
+  "MOVL P006 V=150 ' lift out of the pallet",
+  "MOVJ P001 VJ=40 ' back to the safe position",
+  "END"]}
+];
+
+// ---------- Gripper types ----------
+// parallel / wide: two fingers. DOUT OT#(1) OFF opens them, DOUT OT#(1) ON closes them.
+// vacuum: one suction cup. DOUT OT#(1) ON switches vacuum on to grip, OFF switches it off to release.
+const GRIP_OPEN_HALF={parallel:28, wide:44};   // finger half-spacing when open (mm)
+let gripType='parallel';
+const _zAxis=new THREE.Vector3(0,0,1);
+function setGripType(t){
+  gripType=t;
+  const vac = t==='vacuum';
+  fingerA.visible = !vac; fingerB.visible = !vac;
+  palm.geometry = vac ? cylGeo : boxGeo;
+  palm.quaternion.setFromAxisAngle(_zAxis, vac ? Math.PI/2 : 0);
+  // vacuum cup is the gripper, so it takes the gripper colour and glow; J6 keeps its own colour on the cap
+  palm.material.color.setHex(vac ? HUB : HUB);
+  partOf('G').meshes = vac ? [palm] : [fingerA, fingerB];
+  partOf('J6').meshes = vac ? [caps[5]] : [caps[5], palm];
+  if(vac){ palm.position.set(6,0,0); palm.scale.set(30,16,30); }
+  document.getElementById('gripType').value=t;
+}
+document.getElementById('gripType').addEventListener('change',e=>{
+  if(state==='idle') setGripType(e.target.value); else e.target.value=gripType;
+});
+
+// ---------- Jog panel ----------
+function holdBtn(el,onDown){
+  el.addEventListener('pointerdown',e=>{e.preventDefault(); if(state==='run') return; if(manualGate()) onDown();});
+}
+function releaseJog(){ jogJ.fill(0); jogC.fill(0); }
+window.addEventListener('pointerup',releaseJog);
+window.addEventListener('pointercancel',releaseJog);
+window.addEventListener('blur',releaseJog);
+
+const jointRows=document.getElementById('jointRows'), cartRows=document.getElementById('cartRows');
+const ovEl=document.getElementById('ov'), ovOut=document.getElementById('ovOut');
+const gripBtn=document.getElementById('grip');
+const jointVal=[];
+
+const legendEl=document.getElementById('legend');
+PARTS.forEach(p=>{
+  const s=document.createElement('span');
+  s.innerHTML=`<i class="sw" style="background:${hexStr(p.color)}"></i><b>${p.key}</b> ${p.name}`;
+  legendEl.append(s);
+});
+
+PARTS.slice(0,6).forEach((p,i)=>{
+  const row=document.createElement('div'); row.className='jrow';
+  const lb=document.createElement('div'); lb.className='lbl';
+  lb.innerHTML=`<i class="sw" style="background:${hexStr(p.color)}"></i>${p.key} <span class="jn">${p.name}</span>`;
+  row.style.borderLeft=`6px solid ${hexStr(p.color)}`; row.style.paddingLeft='6px'; lb.style.color=hexStr(p.color);
+  const v=document.createElement('div'); v.className='val';
+  const minus=document.createElement('button'); minus.textContent='−';
+  const plus=document.createElement('button'); plus.textContent='+';
+  holdBtn(minus,()=>jogJ[i]=-1); holdBtn(plus,()=>jogJ[i]=1);
+  minus.style.borderColor=plus.style.borderColor=hexStr(p.color);
+  const rng=document.createElement('div'); rng.className='rng'; rng.textContent=`(${LIM[i][0]}° … ${LIM[i][1]}°)`;
+  row.append(lb,rng,v,minus,plus);
+  jointRows.append(row); jointVal.push(v);
+});
+['X','Y','Z'].forEach((name,i)=>{
+  const axCol=['#e53935','#43a047','#1e88e5'][i];
+  const row=document.createElement('div'); row.className='jrow';
+  row.style.borderLeft=`6px solid ${axCol}`; row.style.paddingLeft='6px';
+  const lb=document.createElement('div'); lb.className='lbl'; lb.textContent=name; lb.style.color=axCol;
+  const v=document.createElement('div'); v.className='val';
+  const minus=document.createElement('button'); minus.textContent='−';
+  const plus=document.createElement('button'); plus.textContent='+';
+  holdBtn(minus,()=>jogC[i]=-1); holdBtn(plus,()=>jogC[i]=1);
+  minus.style.borderColor=plus.style.borderColor=axCol;
+  row.append(lb,document.createElement('div'),v,minus,plus);
+  cartRows.append(row);
+});
+const cartVals=[...cartRows.querySelectorAll('.val')];
+
+function setMode(m){
+  jogMode=m; releaseJog();
+  document.getElementById('mJ').classList.toggle('on',m==='joint');
+  document.getElementById('mC').classList.toggle('on',m==='cart');
+  jointRows.hidden=m!=='joint'; cartRows.hidden=m!=='cart';
+}
+document.getElementById('mJ').onclick=()=>setMode('joint');
+document.getElementById('mC').onclick=()=>setMode('cart');
+setMode('joint');
+
+ovEl.addEventListener('input',()=>{override=+ovEl.value; ovOut.textContent=override+'%';});
+gripBtn.onclick=()=>{ if(state!=='run') gripCmd=1-gripCmd; };
+document.getElementById('home').onclick=()=>{ if(state==='idle' && manualGate()) startGen((function*(){yield* jointMove(HOME,40*override/100);})(),'moving to Home'); };
+document.getElementById('zero').onclick=()=>{ if(state==='idle' && manualGate()) startGen((function*(){yield* jointMove([0,0,0,0,0,0],40*override/100);})(),'moving to Zero'); };
+document.getElementById('clearTrail').onclick=()=>{trail=[];};
+document.getElementById('resetCnt').onclick=()=>{cycleCount=0; lastCycle=null;};
+document.getElementById('in1').onclick=()=>{ ioIn[1]=!ioIn[1]; };
+document.getElementById('in2').onclick=()=>{ ioIn[2]=!ioIn[2]; };
+const payEl=document.getElementById('payload'), payWarn=document.getElementById('payWarn');
+function payloadBad(){ return +payEl.value>RATED_PAYLOAD; }
+const PAYLOAD_MSG='ALARM 4104: payload is above the rated payload of this robot; run blocked';
+
+const btnLabels=document.getElementById('btnLabels'), btnAxes=document.getElementById('btnAxes');
+btnLabels.onclick=()=>{
+  labelMode = labelMode==='auto' ? 'off' : 'auto';
+  btnLabels.textContent='Labels: '+labelMode;
+  btnLabels.classList.toggle('on',labelMode==='off');
+};
+btnAxes.onclick=()=>{
+  showAxes=!showAxes;
+  btnAxes.textContent='Axes: '+(showAxes?'on':'off');
+  btnAxes.classList.toggle('on',showAxes);
+};
+
+// ---------- Controls pane tabs + LCD ----------
+const lcdEl=document.getElementById('lcd');
+function showCtab(name){
+  document.querySelectorAll('.ctab').forEach(t=>{ t.hidden = t.dataset.ctab!==name; });
+  document.querySelectorAll('.ctabbtn').forEach(b=>b.classList.toggle('on', b.dataset.ctab===name));
+}
+document.querySelectorAll('.ctabbtn').forEach(b=>b.addEventListener('click',()=>showCtab(b.dataset.ctab)));
+showCtab('controls');
+// controller bar goes to the top; the alarm history moves under Status so the bar stays short
+(function(){
+  const pb=document.querySelector('#pControls .pbody'), bar=document.getElementById('ctrlBar');
+  pb.prepend(bar);
+  const alarmSec=[...bar.querySelectorAll('.csec')].find(s=>s.querySelector('h2') && s.querySelector('h2').textContent==='Alarm history');
+  if(alarmSec) document.getElementById('status').closest('.ctab').append(alarmSec);
+})();
+
+// ---------- Positions panel ----------
+const plistEl=document.getElementById('plist');
+function renderPositions(){
+  plistEl.innerHTML='';
+  Object.keys(positions).map(Number).sort((a,b)=>a-b).forEach(n=>{
+    const row=document.createElement('div'); row.className='pos';
+    const name=document.createElement('b'); name.textContent=pad(n);
+    const code=document.createElement('code');
+    code.textContent=positions[n].q.map(v=>v.toFixed(0)).join(' ');
+    const go=document.createElement('button'); go.textContent='Go';
+    go.onclick=()=>{ if(state==='idle' && manualGate()) startGen(programGen([{op:'J',n,v:30,line:0}]),`moving to ${pad(n)}`); };
+    const del=document.createElement('button'); del.textContent='×';
+    del.onclick=()=>{ delete positions[n]; renderPositions(); };
+    row.append(name,code,go,del);
+    plistEl.append(row);
+  });
+  refreshPosOptions();
+}
+document.getElementById('rec').onclick=()=>{
+  const n=Math.max(1,Math.floor(+document.getElementById('pn').value||1));
+  positions[n]={q:q.slice()};
+  renderPositions();
+};
+
+// ---------- Program panel: shared controls ----------
+const srcEl=document.getElementById('src'), errsEl=document.getElementById('errs');
+const statusEl=document.getElementById('status');
+const listEl=document.getElementById('listing');
+const progNameEl=document.getElementById('progName'), progDescEl=document.getElementById('progDesc');
+const barFill=document.getElementById('barFill');
+const editBtn=document.getElementById('editBtn');
+
+document.getElementById('run').onclick=()=>runProgram(false);
+document.getElementById('step').onclick=stepProgram;
+document.getElementById('pause').onclick=pauseProgram;
+document.getElementById('stop').onclick=stopProgram;
+editBtn.onclick=()=>{ if(state==='idle') setEdit(!editing); };
+
+function setEdit(on){
+  editing=on;
+  srcEl.hidden=!on; listEl.hidden=on;
+  editBtn.classList.toggle('on',on);
+  if(!on) renderListing();
+}
+function renderListing(){
+  listEl.innerHTML='';
+  srcEl.value.split('\n').forEach((t,i)=>{
+    const d=document.createElement('div'); d.className='ln';
+    const n=document.createElement('span'); n.className='no'; n.textContent=i+1;
+    const k=t.search(/[';]/);
+    const code=document.createElement('span');
+    code.textContent=(k>=0?t.slice(0,k):t)||' ';
+    d.append(n,code);
+    if(k>=0){
+      const cm=document.createElement('span'); cm.className='cmt'; cm.textContent=t.slice(k);
+      d.append(cm);
+    }
+    listEl.append(d);
+  });
+}
+// While a program is active, editing and selection are locked. Only Pause and Stop work while running;
+// when paused, Run resumes and Step runs one instruction.
+const EDIT_LOCK_IDS=['gripType','sampleSel','copyToCustom','cName','cSave','cList','cLoad','cDel','bOp','bP','bSpd','bG','bIn','bInV','bWait','bNote','bAdd','bRun','bRemoveLast','bClear','rec','pn'];
+function refreshLock(){
+  renderCtrl();
+  const active = state!=='idle';
+  EDIT_LOCK_IDS.forEach(id=>{ const el=document.getElementById(id); if(el) el.disabled=active; });
+  srcEl.readOnly=active;
+  document.querySelectorAll('#plist button').forEach(b=>{ b.disabled=active; });
+  document.querySelectorAll('#jointRows button, #cartRows button, #home, #zero, #grip, #mJ, #mC, #ov').forEach(b=>{ b.disabled=active; });
+  document.getElementById('run').disabled = state==='run';
+  document.getElementById('step').disabled = state==='run';
+  document.getElementById('pause').disabled = state!=='run';
+  document.getElementById('stop').disabled = state==='idle';
+  document.getElementById('progState').textContent =
+    state==='idle' ? 'Ready. Choose a sample or build a program, then press Run.' :
+    state==='run' ? `Running: line ${curLine}. ${curText}` :
+    `Paused at line ${curLine}. Run continues, Step runs one instruction, Stop resets.`;
+}
+
+function updateListing(){
+  const els=listEl.children;
+  for(let i=0;i<els.length;i++){
+    const ln=i+1, el=els[i];
+    const isCur = state!=='idle' && ln===curLine;
+    el.classList.toggle('cur',isCur);
+    el.classList.toggle('done',doneLines.has(ln) && !isCur);
+  }
+  if(state!=='idle' && curLine>0 && els[curLine-1]){
+    const el=els[curLine-1];
+    if(el.dataset.seen!==String(curLine)){ el.dataset.seen=String(curLine); el.scrollIntoView({block:'nearest'}); }
+  }
+  barFill.style.width=(state==='idle'?0:stepProg*100)+'%';
+  editBtn.disabled=state!=='idle';
+  refreshLock();
+}
+
+// ---------- Program panel: tabs ----------
+const tabSamples=document.getElementById('tabSamples'), tabCustom=document.getElementById('tabCustom');
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===name));
+  tabSamples.hidden = name!=='samples';
+  tabCustom.hidden = name!=='custom';
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>showTab(t.dataset.tab)));
+
+// Sample tab
+const sampleSel=document.getElementById('sampleSel'), sInfo=document.getElementById('sInfo');
+function renderSampleSelect(){
+  sampleSel.innerHTML='';
+  const ph=document.createElement('option'); ph.value=''; ph.textContent='— choose a sample —';
+  sampleSel.append(ph);
+  SAMPLES.forEach((s,i)=>{
+    const o=document.createElement('option'); o.value=String(i);
+    o.textContent=`${i+1}. ${s.name} · ${s.level}`;
+    sampleSel.append(o);
+  });
+  sampleSel.value = selected>=0 ? String(selected) : '';
+}
+function renderSampleInfo(){
+  sInfo.textContent='';
+  if(selected<0){
+    sInfo.textContent='This program was built or edited by hand. Add commands in the Custom scripts tab.';
+    return;
+  }
+  const s=SAMPLES[selected];
+  const steps=s.code.filter(l=>/^(MOVJ|MOVL|DOUT|TIMER|WAIT)\b/i.test(l.replace(/('|;|\/\/).*$/,'').trim())).length;
+  const b=document.createElement('b'); b.textContent=s.name;
+  const d=document.createElement('div'); d.textContent=s.desc;
+  const m=document.createElement('div'); m.className='note'; m.textContent=`${s.level} · Moves: ${s.moves} · ${steps} commands`;
+  sInfo.append(b,d,m);
+}
+sampleSel.addEventListener('change',()=>{ if(sampleSel.value!=='') loadSample(+sampleSel.value); });
+document.getElementById('copyToCustom').onclick=()=>{
+  if(selected<0) return;
+  cName.value=SAMPLES[selected].name+' (copy)';
+  afterEdit();
+  showTab('custom');
+};
+
+function loadSample(i){
+  if(state!=='idle'){ errsEl.textContent='Stop the running program before loading another sample.'; return; }
+  const s=SAMPLES[i];
+  selected=i;
+  positions={};
+  for(const k in s.pos) positions[k]={q:s.pos[k].slice()};
+  ioIn={1:(s.din||[]).includes(1),2:(s.din||[]).includes(2)};
+  srcEl.value=s.code.join('\n');
+  resetProgress();
+  errsEl.textContent='';
+  progNameEl.textContent=`${i+1}. ${s.name}`;
+  progDescEl.textContent=s.desc;
+  setEdit(false);
+  renderPositions(); renderListing(); renderSampleSelect(); renderSampleInfo();
+}
+
+// Custom tab: saved scripts (kept in this browser when storage is available)
+const cName=document.getElementById('cName'), cList=document.getElementById('cList');
+let customs=[];
+try{ customs=JSON.parse(localStorage.getItem('yrc1000-custom-scripts')||'[]'); }catch(e){ customs=[]; }
+if(!Array.isArray(customs)) customs=[];
+function persistCustoms(){ try{ localStorage.setItem('yrc1000-custom-scripts',JSON.stringify(customs)); }catch(e){} }
+function renderCustomList(){
+  cList.innerHTML='';
+  if(!customs.length){
+    const o=document.createElement('option'); o.value=''; o.textContent='(no saved scripts)'; cList.append(o);
+    return;
+  }
+  customs.forEach((c,i)=>{ const o=document.createElement('option'); o.value=String(i); o.textContent=c.name; cList.append(o); });
+}
+document.getElementById('cSave').onclick=()=>{
+  const name=cName.value.trim()||'My script';
+  const entry={name, code:srcEl.value, pos:JSON.parse(JSON.stringify(positions))};
+  const idx=customs.findIndex(c=>c.name===name);
+  if(idx>=0) customs[idx]=entry; else customs.push(entry);
+  persistCustoms(); renderCustomList();
+  cList.value=String(idx>=0?idx:customs.length-1);
+  progDescEl.textContent=`Saved "${name}".`;
+};
+document.getElementById('cLoad').onclick=()=>{
+  if(state!=='idle'){ errsEl.textContent='Stop the running program before loading a script.'; return; }
+  const i=+cList.value;
+  if(cList.value==='' || !customs[i]) return;
+  const c=customs[i];
+  positions=JSON.parse(JSON.stringify(c.pos));
+  srcEl.value=c.code;
+  cName.value=c.name;
+  selected=-1;
+  resetProgress();
+  errsEl.textContent='';
+  progNameEl.textContent=c.name;
+  progDescEl.textContent='Saved custom script.';
+  setEdit(false);
+  renderPositions(); renderListing(); renderSampleSelect(); renderSampleInfo();
+};
+document.getElementById('cDel').onclick=()=>{
+  const i=+cList.value;
+  if(cList.value==='' || !customs[i]) return;
+  customs.splice(i,1);
+  persistCustoms(); renderCustomList();
+};
+
+// Custom tab: download a script as a .json file, and open one from disk
+const cFile=document.getElementById('cFile');
+const cExportBtn=document.getElementById('cExport');
+let downloadsNs=null;
+(async()=>{
+  // only inside the Claude artifact viewer; elsewhere window.claude may exist without use()
+  if(typeof window.claude?.use!=='function') return null;
+  return await window.claude.use('downloads');
+})()
+  .then(ns=>{ downloadsNs=ns; })
+  .catch(()=>{});
+cExportBtn.onclick=async()=>{
+  const name=cName.value.trim()||'My script';
+  const filename=name.replace(/[^\w\- ]+/g,'').trim()+'.json';
+  const text=JSON.stringify({name, code:srcEl.value, pos:positions}, null, 2);
+  if(downloadsNs){   // inside the Claude artifact viewer: ask the viewer to save the file
+    try{ await downloadsNs.save({filename, data:text}); errsEl.textContent=''; }
+    catch(e){ if(!(e && e.code==='declined')) errsEl.textContent='Could not save the file: '+((e && e.message)||'unavailable'); }
+    return;
+  }
+  // on a plain web page (GitHub Pages): ordinary browser download
+  const url=URL.createObjectURL(new Blob([text],{type:'application/json'}));
+  const a=document.createElement('a'); a.href=url; a.download=filename;
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+document.getElementById('cImport').onclick=()=>{
+  if(state!=='idle'){ errsEl.textContent='Stop the running program before opening a script.'; return; }
+  cFile.click();
+};
+cFile.addEventListener('change',async()=>{
+  const f=cFile.files[0]; cFile.value='';
+  if(!f) return;
+  try{
+    const d=JSON.parse(await f.text());
+    if(typeof d.code!=='string' || !d.pos || typeof d.pos!=='object') throw new Error('this is not a script file');
+    positions=JSON.parse(JSON.stringify(d.pos));
+    srcEl.value=d.code;
+    cName.value=d.name||f.name.replace(/\.json$/i,'');
+    selected=-1;
+    resetProgress();
+    errsEl.textContent='';
+    progNameEl.textContent=cName.value;
+    progDescEl.textContent='Opened from file: '+f.name;
+    setEdit(false);
+    renderPositions(); renderListing(); renderSampleSelect(); renderSampleInfo();
+  }catch(e){
+    errsEl.textContent='Could not open "'+f.name+'": '+e.message;
+  }
+});
+
+// Custom tab: command builder
+const bOp=document.getElementById('bOp'), bP=document.getElementById('bP'), bSpd=document.getElementById('bSpd');
+const bUnit=document.getElementById('bUnit'), bG=document.getElementById('bG'), bWait=document.getElementById('bWait');
+const bNote=document.getElementById('bNote');
+const bIn=document.getElementById('bIn'), bInV=document.getElementById('bInV');
+function syncBuilder(){
+  const op=bOp.value;
+  document.querySelectorAll('.bf').forEach(el=>{
+    el.style.display=el.dataset.op.split(' ').includes(op)?'':'none';
+  });
+  bUnit.textContent = op==='L' ? 'mm/s' : '%';
+  bSpd.value = op==='L' ? 150 : 40;
+}
+bOp.addEventListener('change',syncBuilder);
+function refreshPosOptions(){
+  const cur=bP.value;
+  bP.innerHTML='';
+  const co=document.createElement('option'); co.value='cur'; co.textContent='Current position'; bP.append(co);
+  Object.keys(positions).map(Number).sort((a,b)=>a-b).forEach(n=>{
+    const o=document.createElement('option'); o.value=String(n); o.textContent=pad(n); bP.append(o);
+  });
+  bP.value=[...bP.options].some(o=>o.value===cur)?cur:'cur';
+}
+function buildLine(){
+  const op=bOp.value; let code;
+  if(op==='J'||op==='L'){
+    let pn=bP.value;
+    if(pn==='cur'){
+      // default: save the arm's current pose as a new position and use it
+      pn=String(Math.max(0,...Object.keys(positions).map(Number))+1);
+      positions[pn]={q:q.slice()};
+      renderPositions();
+    }
+    if(!pn){ errsEl.textContent='Record a position first (Positions panel), or load a sample.'; return null; }
+    const v=+bSpd.value||(op==='J'?40:150);
+    code = op==='J' ? `MOVJ ${pad(pn)} VJ=${v}` : `MOVL ${pad(pn)} V=${v}`;
+  } else if(op==='DOUT') code=`DOUT OT#(1) ${bG.value}`;
+  else if(op==='TIMER') code=`TIMER T=${(+bWait.value||0).toFixed(2)}`;
+  else if(op==='WAITIN') code=`WAIT IN#(${bIn.value})=${bInV.value}`;
+  else if(op==='NOP') code='NOP';
+  else code='END';
+  const note=bNote.value.trim();
+  return note ? `${code} ' ${note}` : code;
+}
+function afterEdit(){
+  selected=-1;
+  renderSampleSelect(); renderSampleInfo();
+  progNameEl.textContent='Custom program';
+  progDescEl.textContent='Built by hand: add commands, then Run.';
+  errsEl.textContent='';
+  if(!editing) renderListing();
+}
+function addLine(){
+  const line=buildLine(); if(!line) return;
+  // a new line goes after any END, so drop an existing END and re-add it last
+  let lines=srcEl.value.split('\n').filter(t=>!/^END$/i.test(t.replace(/('|;|\/\/).*$/,'').trim()));
+  while(lines.length && !lines[lines.length-1].trim()) lines.pop();
+  lines.push(line);
+  srcEl.value=lines.join('\n');
+  afterEdit();
+}
+function runLine(){
+  if(state!=='idle'){ errsEl.textContent='A program is running. Stop it first.'; return; }
+  if(payloadBad()){ errsEl.textContent=PAYLOAD_MSG; return; }
+  const line=buildLine(); if(!line) return;
+  const {steps,errs}=parse(line);
+  if(errs.length){ errsEl.textContent=errs.join('\n'); return; }
+  if(!steps.length){ errsEl.textContent='END has nothing to run.'; return; }
+  steps.forEach(s=>s.line=0);
+  startGen(programGen(steps),'single command: '+line.replace(/\s*('|;).*$/,''));
+}
+function removeLast(){
+  let lines=srcEl.value.split('\n');
+  while(lines.length && !lines[lines.length-1].trim()) lines.pop();
+  lines.pop();
+  srcEl.value=lines.join('\n');
+  afterEdit();
+}
+function clearProgram(){
+  srcEl.value='';
+  afterEdit();
+}
+document.getElementById('bAdd').onclick=addLine;
+document.getElementById('bRun').onclick=runLine;
+document.getElementById('bRemoveLast').onclick=removeLast;
+document.getElementById('bClear').onclick=clearProgram;
+syncBuilder();
+renderCustomList();
+
+// ---------- Run / step / pause / stop wiring ----------
+function runProgramGuard(){ runProgram(); }
+
+// ---------- Readouts ----------
+let frameN=0;
+function readouts(){
+  jointVal.forEach((el,i)=>el.textContent=q[i].toFixed(1)+'°');
+  const p=posOf(q);
+  cartVals.forEach((el,i)=>el.textContent=p[i].toFixed(1)+' mm');
+  const ang=q.map((v,i)=>('J'+(i+1)+' '+v.toFixed(1)).padEnd(11));
+  document.getElementById('curPos').textContent='Current position (start)\n'+ang.slice(0,3).join('')+'\n'+ang.slice(3).join('')+'\nTCP  X '+p[0].toFixed(1)+'  Y '+p[1].toFixed(1)+'  Z '+p[2].toFixed(1)+' mm';
+  gripBtn.textContent = gripType==='vacuum' ? 'Vacuum: '+(gripCmd?'on':'off') : 'Gripper: '+(gripCmd?'closed':'open');
+  gripBtn.disabled=state==='run';
+  document.getElementById('in1v').textContent=ioIn[1]?'ON':'OFF';
+  document.getElementById('in2v').textContent=ioIn[2]?'ON':'OFF';
+  document.getElementById('ot1v').textContent=gripCmd?'ON':'OFF';
+  payWarn.textContent=payloadBad()?'⚠ over rated payload: run blocked':'';
+  LBL.forEach((el,i)=>{
+    const v=el.querySelector('.v');
+    v.textContent = i<6 ? q[i].toFixed(1)+'°' : (gripCmd?'closed':'open');
+  });
+  const names=PARTS.filter((p,i)=>isActive[i]).map(p=>p.key).join(', ')||'-';
+  const warn=p[2]<0?'\n⚠ TCP below base plane':'';
+  statusEl.textContent=
+    `state    ${state.toUpperCase()}${stepping?' (stepping)':''}\n`+
+    `line     ${state==='idle'?'-':curLine}\n`+
+    `active   ${names}\n`+
+    `override ${override}%\n`+
+    `gripper  ${gripCmd?'CLOSED':'OPEN'}\n`+
+    `I/O      IN#1 ${ioIn[1]?'ON':'OFF'}  IN#2 ${ioIn[2]?'ON':'OFF'}  OT#1 ${gripCmd?'ON':'OFF'}\n`+
+    `cycle    ${cycleT.toFixed(1)} s   last ${lastCycle===null?'-':lastCycle.toFixed(1)+' s'}   count ${cycleCount}\n`+
+    `TCP      X ${p[0].toFixed(1)}  Y ${p[1].toFixed(1)}  Z ${p[2].toFixed(1)}\n`+
+    `action   ${curText||'-'}`+warn;
+  updateListing();
+  lcdEl.textContent=`${eStopLatched?'E-STOP  ':''}${ctrlMode}  SERVO ${servoOn?'ON':'OFF'}  ${state.toUpperCase()}${stepping?' STEP':''}  LINE ${state==='idle'?'-':curLine}  OVR ${override}%  ${jogMode==='joint'?'JOINT':'CART'}`;
+}
+
+// ---------- Controller: mode key, servo, E-stop, enable switch, alarms ----------
+var ctrlMode='TEACH', servoOn=false, eStopLatched=false;
+var alarmList=[];
+function setCtrlMsg(m){
+  const el=document.getElementById('ctrlMsg'); el.textContent=m;
+  clearTimeout(setCtrlMsg.timer); setCtrlMsg.timer=setTimeout(()=>{ el.textContent=''; },4000);
+}
+function pushAlarm(text){
+  alarmList.unshift(new Date().toLocaleTimeString()+'  '+text); if(alarmList.length>12) alarmList.pop();
+  renderAlarms();
+}
+function renderAlarms(){ document.getElementById('alarmLog').textContent = alarmList.length ? alarmList.join('\n') : 'No alarms.'; }
+function dropMotion(){ stopProgram(); releaseJog(); }
+// why manual motion (jog, Home, Zero, position Go) is not allowed; null when it is allowed
+function manualBlock(){
+  if(eStopLatched) return 'E-stop is latched: release it, then press Servo ON';
+  if(!servoOn) return 'Servo is OFF: press Servo ON in the CTRL tab';
+  if(ctrlMode!=='TEACH') return 'Mode key is not TEACH: switch to TEACH to move by hand';
+  if(!document.getElementById('enableSw').checked) return 'Enable switch not held: tick it in the CTRL tab to move by hand';
+  return null;
+}
+function manualGate(){ const b=manualBlock(); if(b){ setCtrlMsg(b); return false; } return true; }
+// why a program cannot start; ext = started from the external START input
+function runBlock(ext){
+  if(eStopLatched) return 'E-stop is latched: release it, then press Servo ON';
+  if(!servoOn) return 'Servo is OFF: press Servo ON in the CTRL tab';
+  if(ext) return ctrlMode==='REMOTE' ? null : 'External START is only accepted in REMOTE mode';
+  if(ctrlMode==='TEACH') return 'Mode key is TEACH: switch to PLAY to run a program';
+  if(ctrlMode==='REMOTE') return 'REMOTE mode: start the program from External START';
+  return null;
+}
+function renderCtrl(){
+  document.getElementById('modeTxt').textContent=ctrlMode;
+  document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('on', b.dataset.mode===ctrlMode));
+  document.getElementById('servoBtn').textContent = servoOn ? 'Turn servo off' : 'Turn servo on';
+  const lamp=document.getElementById('servoLamp');
+  lamp.textContent = eStopLatched ? 'E-STOP' : (servoOn ? 'SERVO ON' : 'SERVO OFF');
+  lamp.className = 'lamp ' + (eStopLatched ? 'bad' : (servoOn ? 'on' : ''));
+  document.getElementById('estopBtn').classList.toggle('latched', eStopLatched);
+  document.getElementById('extStart').disabled = ctrlMode!=='REMOTE' || state==='run';
+  const jm=document.getElementById('jogMsg'); const jb=manualBlock();
+  if(jm){
+    jm.textContent = state!=='idle' ? 'Program running: jog is disabled until it stops' : (jb ? 'Jog blocked: '+jb : 'Jog ready: hold + or − to move');
+    jm.className='jogmsg '+((state==='idle' && !jb)?'ok':'warn');
+  }
+}
+function setKeyMode(m){
+  if(state!=='idle'){ setCtrlMsg('Stop the program before changing the mode key'); return; }
+  ctrlMode=m;
+  if(m!=='TEACH') document.getElementById('enableSw').checked=false;
+  setCtrlMsg('Mode key: '+m);
+  renderCtrl();
+}
+document.querySelectorAll('#modeSeg button').forEach(b=>b.addEventListener('click',()=>setKeyMode(b.dataset.mode)));
+document.getElementById('servoBtn').onclick=()=>{
+  if(servoOn){ servoOn=false; dropMotion(); document.getElementById('enableSw').checked=false; setCtrlMsg('Servo OFF'); }
+  else if(eStopLatched){ setCtrlMsg('Release the E-stop first'); }
+  else { servoOn=true; setCtrlMsg('Servo ON'); }
+  renderCtrl();
+};
+document.getElementById('estopBtn').onclick=()=>{
+  eStopLatched=true; servoOn=false; dropMotion(); document.getElementById('enableSw').checked=false;
+  pushAlarm('Emergency stop: servo off, program stopped');
+  setCtrlMsg('E-stop latched');
+  renderCtrl();
+};
+document.getElementById('estopRel').onclick=()=>{
+  if(!eStopLatched){ setCtrlMsg('E-stop is not pressed'); return; }
+  eStopLatched=false; pushAlarm('Emergency stop released'); setCtrlMsg('E-stop released: press Servo ON'); renderCtrl();
+};
+document.getElementById('extStart').onclick=()=>{
+  if(ctrlMode!=='REMOTE'){ setCtrlMsg('Set the mode key to REMOTE first'); return; }
+  runProgram(true);
+};
+document.getElementById('alarmReset').onclick=()=>{ alarmList.length=0; renderAlarms(); };
+renderAlarms();
+renderCtrl();
+
+// ---------- Loop ----------
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  update(dt);
+  updateActive(now/1000);
+  render3D(fk(q));
+  if(frameN++%4===0) readouts();
+  requestAnimationFrame(frame);
+}
+
+// initial layout: controls docked right, program docked bottom
+placePanel('controls','right');
+splitHalf();
+resize();
+loadSample(0);
+readouts();
+requestAnimationFrame(t=>{last=t;requestAnimationFrame(frame);});
+</script>
+</body>
+</html>

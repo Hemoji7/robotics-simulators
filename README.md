@@ -17,7 +17,7 @@ Hemoji Rao G
 | Folder | Robot | Status |
 |---|---|---|
 | [`fanuc-er4ia/`](fanuc-er4ia/) | Fanuc ER-4iA (R-30iB style operation) | Available |
-| `yaskawa-yrc1000micro/` | Yaskawa Motoman YRC1000micro | Planned |
+| [`yaskawa-yrc1000micro/`](yaskawa-yrc1000micro/) | Yaskawa Motoman YRC1000micro (INFORM-style teaching subset) | Available |
 | `abb-irb14050/` | ABB IRB 14050 with OmniCore C30 | Planned |
 
 Each simulator is a single self-contained `index.html` file. Open it in a modern browser; it loads Three.js from a CDN, so an internet connection is needed.
