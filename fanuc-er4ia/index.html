@@ -206,6 +206,14 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
 .lcd{white-space:pre}
 @media (max-width:1100px){.badge small{display:none}}
 .crow.srow{display:flex;gap:6px;align-items:center}
+.ctl{flex-wrap:nowrap;gap:4px;align-items:center}
+.sep{color:#7d8189;font-weight:700;font-size:12px;padding:0 1px}
+.ctl .mbtn,.ctl .sbtn,.ctl .estop{font-size:10.5px;padding:5px 7px;white-space:nowrap}
+.ctrlmsg{display:block;min-height:14px;margin:2px 0 0}
+@media (max-width:640px){.ctl{flex-wrap:wrap}}
+.ctl{gap:2px}
+.ctl .sep{padding:0;font-size:11px;color:#6f737b}
+.ctl .mbtn,.ctl .sbtn,.ctl .estop{font-size:10px;padding:5px 4px;letter-spacing:-.01em}
 </style>
 <script src="vendor/three.min.js"></script>
 </head>
@@ -248,16 +256,17 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
         <button class="mbtn" data-mode="T1" title="Manual, reduced speed (25% max). Jog needs the enable switch.">T1</button>
         <button class="mbtn" data-mode="T2" title="Manual, full speed. Jog needs the enable switch.">T2</button></div>
       </div>
-      <div class="crow srow">
+      <div class="crow ctl">
         <button id="servoBtn" class="sbtn" title="Motor power on or off">SERVO OFF</button>
+        <span class="sep">|</span>
         <button id="enableBtn" class="sbtn" title="Enable (deadman) switch. Hold it on for manual motion.">ENABLE OFF</button>
-      </div>
-      <div class="crow">
+        <span class="sep">|</span>
         <button id="estopBtn" class="estop" title="Emergency stop: stops motion and servo">E-STOP</button>
         <button id="estopRel" class="sbtn" title="Reset the emergency stop">RESET</button>
+        <span class="sep">|</span>
         <button id="startBtn" class="sbtn" title="AUTO mode: start the program (same as Run)">START</button>
-        <span id="ctrlMsg" class="ctrlmsg"></span>
       </div>
+      <div id="ctrlMsg" class="ctrlmsg"></div>
     </div>
     <div class="softkeys">
       <button class="ctabbtn on" data-ctab="jog">JOG</button>
@@ -1364,6 +1373,7 @@ function updateControls(){
   es.classList.toggle('latched',estop);
   document.getElementById('estopRel').disabled = !estop;
   document.getElementById('startBtn').disabled = mode!=='AUTO' || state==='run';
+  document.getElementById('startBtn').classList.toggle('on', state==='run');
 }
 document.getElementById('servoBtn').onclick=()=>setServo(!servoOn);
 document.getElementById('enableBtn').onclick=()=>setEnable(!enableOn);
