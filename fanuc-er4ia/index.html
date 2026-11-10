@@ -205,6 +205,7 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
 }
 .lcd{white-space:pre}
 @media (max-width:1100px){.badge small{display:none}}
+.crow.srow{display:flex;gap:6px;align-items:center}
 </style>
 <script src="vendor/three.min.js"></script>
 </head>
@@ -246,6 +247,8 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
         <div class="seg" id="modeSeg"><button class="mbtn on" data-mode="AUTO" title="Program runs at full speed. Jog is off.">AUTO</button>
         <button class="mbtn" data-mode="T1" title="Manual, reduced speed (25% max). Jog needs the enable switch.">T1</button>
         <button class="mbtn" data-mode="T2" title="Manual, full speed. Jog needs the enable switch.">T2</button></div>
+      </div>
+      <div class="crow srow">
         <button id="servoBtn" class="sbtn" title="Motor power on or off">SERVO OFF</button>
         <button id="enableBtn" class="sbtn" title="Enable (deadman) switch. Hold it on for manual motion.">ENABLE OFF</button>
       </div>
