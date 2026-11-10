@@ -221,6 +221,11 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
   #rotateHint .rh-icon{display:block;font-size:44px;margin-bottom:8px}
   @keyframes rotateFade{0%{opacity:0}12%{opacity:1}70%{opacity:1}100%{opacity:0;visibility:hidden}}
   @media (orientation: portrait) and (max-width: 900px){#rotateHint{display:flex}}
+
+  /* Soft +/- zoom buttons, shown on phone-width screens only */
+  .zpad{display:none;position:fixed;left:10px;bottom:12px;z-index:20;flex-direction:column;gap:8px}
+  .zpad button{width:46px;height:46px;border-radius:23px;padding:0;font:600 24px/1 system-ui,sans-serif;background:rgba(255,255,255,.9);border:1px solid #bdbdb4;color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.18);touch-action:manipulation}
+  @media (max-width:900px){.zpad{display:flex}}
 </style>
 <script src="vendor/three.min.js"></script>
 <script>if(!window.THREE){document.write('<script src="vendor/three.min.js"><\/script>');}</script>
@@ -232,6 +237,10 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
     <div class="dock dock-side" id="dockL"></div>
     <div class="view" id="viewArea">
       <canvas id="cv"></canvas>
+      <div class="zpad" aria-label="Zoom">
+        <button id="zoomIn" type="button" aria-label="Zoom in" title="Zoom in">+</button>
+        <button id="zoomOut" type="button" aria-label="Zoom out" title="Zoom out">&minus;</button>
+      </div>
       <div id="labels"></div>
       <div class="badge">ABB IRB 14050 YuMi <small>simulation · RAPID-style teaching subset</small></div>
       <div class="vtools">
@@ -1030,20 +1039,31 @@ function render3D(K){
 }
 
 // ---------- Pointer / wheel controls on the 3D view ----------
-let dragging=false, lx=0, ly=0;
-cv.addEventListener('pointerdown',e=>{dragging=true;lx=e.clientX;ly=e.clientY;cv.classList.add('drag');cv.setPointerCapture(e.pointerId);});
+// Pointers on the 3D view: one finger or mouse orbits, two fingers pinch to zoom.
+const ptrs=new Map(); let pinchD=0;
+const pinchDist=()=>{const v=[...ptrs.values()]; return v.length<2?0:Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y);};
+cv.addEventListener('pointerdown',e=>{ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); cv.classList.add('drag'); cv.setPointerCapture(e.pointerId); if(ptrs.size===2) pinchD=pinchDist();});
 cv.addEventListener('pointermove',e=>{
-  if(!dragging) return;
-  view.yaw+=(e.clientX-lx)*0.008;
-  view.pitch=clamp(view.pitch+(e.clientY-ly)*0.008,0.05,1.5);
-  lx=e.clientX; ly=e.clientY;
+  const p=ptrs.get(e.pointerId); if(!p) return;
+  const dx=e.clientX-p.x, dy=e.clientY-p.y; p.x=e.clientX; p.y=e.clientY;
+  if(ptrs.size===1){
+    view.yaw+=dx*0.008;
+    view.pitch=clamp(view.pitch+dy*0.008,0.05,1.5);
+  } else if(ptrs.size>=2){
+    const d=pinchDist();
+    if(pinchD>0&&d>0) view.dist=clamp(view.dist*pinchD/d,900,5000);
+    pinchD=d;
+  }
 });
-const endDrag=()=>{dragging=false;cv.classList.remove('drag');};
-cv.addEventListener('pointerup',endDrag);
-cv.addEventListener('pointercancel',endDrag);
+const endPtr=e=>{ptrs.delete(e.pointerId); if(ptrs.size===0) cv.classList.remove('drag'); pinchD=ptrs.size>=2?pinchDist():0;};
+cv.addEventListener('pointerup',endPtr);
+cv.addEventListener('pointercancel',endPtr);
 cv.addEventListener('wheel',e=>{e.preventDefault(); view.dist=clamp(view.dist*Math.exp(e.deltaY*0.0015),900,5000);},{passive:false});
 cv.addEventListener('dblclick',()=>{view.yaw=DEFAULT_VIEW.yaw;view.pitch=DEFAULT_VIEW.pitch;view.dist=DEFAULT_VIEW.dist;});
 new ResizeObserver(()=>resize()).observe(cv);
+// Soft +/- buttons (phone layout)
+document.getElementById('zoomIn').addEventListener('click',()=>{view.dist=clamp(view.dist*0.8,900,5000);});
+document.getElementById('zoomOut').addEventListener('click',()=>{view.dist=clamp(view.dist*1.25,900,5000);});
 
 
 // ---------- Program panel splitter (resizes the sample/custom column) ----------
