@@ -203,6 +203,8 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
 .vtools button,.btnlink{padding:4px 7px;font-size:12px}
 .hint{display:none}
 }
+.lcd{white-space:pre}
+@media (max-width:1100px){.badge small{display:none}}
 </style>
 <script src="vendor/three.min.js"></script>
 </head>
@@ -594,7 +596,7 @@ function* programGen(steps){
     curText=`line ${s.line}: ${s.op}${s.n!==undefined?' P['+s.n+']':''}${s.op==='GRIP'?(s.v?' CLOSE':' OPEN'):''}`;
     if(s.op==='J') yield* jointMove(positions[s.n].q, s.v*override/100);
     else if(s.op==='L') yield* linearMove(positions[s.n].q, s.v*override/100);
-    else if(s.op==='GRIP'){ gripCmd=s.v; yield; }
+    else if(s.op==='GRIP'){ if(gripType==='vacuum'){ setGripType('parallel'); setCtrlMsg('GRIP needs a gripper: switched from vacuum to Parallel (2 fingers)'); } gripCmd=s.v; yield; }
     else if(s.op==='WAIT'){ const n=Math.ceil(s.v*60); for(let i=0;i<n;i++){ stepProg=i/n; yield; } }
     else if(s.op==='DO'){ DO[s.n]=s.v; yield; }
     else if(s.op==='WAITDI'){ curText=`waiting for DI[${s.n}] ${s.v?'ON':'OFF'}`; while(DI[s.n]!==s.v) yield; }
@@ -1850,7 +1852,8 @@ function readouts(){
   const jb=jogOK()?null:jogWhy(); const jm=document.getElementById('jogMsg');
   jm.textContent = state!=='idle' ? 'Program running: jog is disabled until it stops' : (jb?'Jog blocked: '+jb:'Jog ready: hold + or − to move');
   jm.className='jogmsg '+((state==='idle'&&!jb)?'ok':'warn');
-  lcdEl.textContent=`${estop?'E-STOP  ':''}${mode}  SERVO ${servoOn?'ON':'OFF'}  ENABLE ${enableOn?'ON':'OFF'}  ${state.toUpperCase()}${stepping?' STEP':''}  LINE ${state==='idle'?'-':curLine}  OVR ${override}%`;
+  lcdEl.textContent=`${estop?'E-STOP  ':''}${mode}  ${state.toUpperCase()}${stepping?' STEP':''}  LINE ${state==='idle'?'-':curLine}  OVR ${override}%
+SERVO ${servoOn?'ON':'OFF'}  ENABLE ${enableOn?'ON':'OFF'}`;
 }
 
 // ---------- Loop ----------

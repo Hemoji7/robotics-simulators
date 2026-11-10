@@ -203,6 +203,8 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
 .vtools button,.btnlink{padding:4px 7px;font-size:12px}
 .hint{display:none}
 }
+.lcd{white-space:pre}
+@media (max-width:1100px){.badge small{display:none}}
 </style>
 <script src="vendor/three.min.js"></script>
 <script>if(!window.THREE){document.write('<script src="vendor/three.min.js"><\/script>');}</script>
@@ -1819,7 +1821,8 @@ function readouts(){
     `tool dir ${s.d.map(v=>v.toFixed(2)).join(' ')}\n`+
     `action   ${curText||'-'}`+warn;
   updateListing();
-  lcdEl.textContent=`${eStopLatched?'E-STOP  ':''}${ctrlMode}  SERVO ${servoOn?'ON':'OFF'}  ENABLE ${enableOn?'ON':'OFF'}  ${state.toUpperCase()}${stepping?' STEP':''}  LINE ${state==='idle'?'-':curLine}  OVR ${override}%`;
+  lcdEl.textContent=`${eStopLatched?'E-STOP  ':''}${ctrlMode}  ${state.toUpperCase()}${stepping?' STEP':''}  LINE ${state==='idle'?'-':curLine}  OVR ${override}%
+SERVO ${servoOn?'ON':'OFF'}  ENABLE ${enableOn?'ON':'OFF'}`;
 }
 
 // ---------- Controller: mode, motors, E-stop, enabling device, alarms ----------
