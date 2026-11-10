@@ -214,10 +214,18 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
 .ctl{gap:2px}
 .ctl .sep{padding:0;font-size:11px;color:#6f737b}
 .ctl .mbtn,.ctl .sbtn,.ctl .estop{font-size:10px;padding:5px 4px;letter-spacing:-.01em}
+
+  /* Portrait phone hint: fades out so it never blocks the controls */
+  #rotateHint{display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(15,23,42,.72);color:#fff;font:600 16px/1.4 system-ui,sans-serif;text-align:center;padding:24px;pointer-events:none;animation:rotateFade 4.5s ease forwards}
+  #rotateHint .rh-box{max-width:280px}
+  #rotateHint .rh-icon{display:block;font-size:44px;margin-bottom:8px}
+  @keyframes rotateFade{0%{opacity:0}12%{opacity:1}70%{opacity:1}100%{opacity:0;visibility:hidden}}
+  @media (orientation: portrait) and (max-width: 900px){#rotateHint{display:flex}}
 </style>
 <script src="vendor/three.min.js"></script>
 </head>
 <body>
+<div id="rotateHint" role="status" aria-live="polite"><div class="rh-box"><span class="rh-icon" aria-hidden="true">&#x27F3;</span>Turn your phone sideways (landscape) for the full simulator view.</div></div>
 <div class="app" id="app">
   <div class="mid" id="mid">
     <div class="dock dock-side" id="dockL"></div>
