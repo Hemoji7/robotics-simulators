@@ -220,7 +220,7 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
   #rotateHint .rh-box{max-width:280px}
   #rotateHint .rh-icon{display:block;font-size:44px;margin-bottom:8px}
   @keyframes rotateFade{0%{opacity:0}12%{opacity:1}70%{opacity:1}100%{opacity:0;visibility:hidden}}
-  @media (orientation: portrait) and (max-width: 900px){#rotateHint{display:flex}}
+  @media (orientation: portrait) and (max-width: 900px){#rotateHint{display:flex} #pControls{display:none !important} #dockL,#dockR{display:none !important}}
 
   /* Soft +/- zoom buttons, shown on phone-width screens only */
   .zpad{display:none;position:fixed;left:10px;bottom:12px;z-index:20;flex-direction:column;gap:8px}
@@ -231,7 +231,7 @@ textarea#src{color:#1d1d1b;flex:1;min-height:0;width:100%;font:12px/1.5 ui-monos
 <script>if(!window.THREE){document.write('<script src="vendor/three.min.js"><\/script>');}</script>
 </head>
 <body>
-<div id="rotateHint" role="status" aria-live="polite"><div class="rh-box"><span class="rh-icon" aria-hidden="true">&#x27F3;</span>Turn your phone sideways (landscape) for the full simulator view.</div></div>
+<div id="rotateHint" role="status" aria-live="polite"><div class="rh-box"><span class="rh-icon" aria-hidden="true">&#x27F3;</span>Rotate for full experience</div></div>
 <div class="app" id="app">
   <div class="mid" id="mid">
     <div class="dock dock-side" id="dockL"></div>
