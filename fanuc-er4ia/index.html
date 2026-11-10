@@ -1440,21 +1440,26 @@ PARTS.slice(0,6).forEach((p,i)=>{
   const row=document.createElement('div'); row.className='jrow';
   const lb=document.createElement('div'); lb.className='lbl';
   lb.innerHTML=`<i class="sw" style="background:${hexStr(p.color)}"></i>${p.key} <span class="jn">${p.name}</span>`;
+  row.style.borderLeft=`6px solid ${hexStr(p.color)}`; row.style.paddingLeft='6px'; lb.style.color=hexStr(p.color);
   const v=document.createElement('div'); v.className='val';
   const minus=document.createElement('button'); minus.textContent='−';
   const plus=document.createElement('button'); plus.textContent='+';
   holdBtn(minus,()=>jogJ[i]=-1); holdBtn(plus,()=>jogJ[i]=1);
+  minus.style.borderColor=plus.style.borderColor=hexStr(p.color);
   const rng=document.createElement('div'); rng.className='rng'; rng.textContent=`(${LIM[i][0]}° … ${LIM[i][1]}°)`;
   row.append(lb,rng,v,minus,plus);
   jointRows.append(row); jointVal.push(v);
 });
 ['X','Y','Z'].forEach((name,i)=>{
   const row=document.createElement('div'); row.className='jrow';
-  const lb=document.createElement('div'); lb.className='lbl'; lb.textContent=name;
+  const axCol=['#e53935','#43a047','#1e88e5'][i];
+  row.style.borderLeft=`6px solid ${axCol}`; row.style.paddingLeft='6px';
+  const lb=document.createElement('div'); lb.className='lbl'; lb.textContent=name; lb.style.color=axCol;
   const v=document.createElement('div'); v.className='val';
   const minus=document.createElement('button'); minus.textContent='−';
   const plus=document.createElement('button'); plus.textContent='+';
   holdBtn(minus,()=>jogC[i]=-1); holdBtn(plus,()=>jogC[i]=1);
+  minus.style.borderColor=plus.style.borderColor=axCol;
   row.append(lb,document.createElement('div'),v,minus,plus);
   cartRows.append(row);
 });
